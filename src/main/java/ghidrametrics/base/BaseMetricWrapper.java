@@ -37,7 +37,7 @@ public abstract class BaseMetricWrapper {
 		this.program = program;
 		this.metricsByKey = new HashMap<String, BaseMetric<?>>();
 	}
-
+	
 	public String getName() {
 		return name;
 	}

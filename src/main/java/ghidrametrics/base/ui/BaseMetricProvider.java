@@ -1,31 +1,31 @@
-package ghidrametrics.base;
+package ghidrametrics.base.ui;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-import docking.ComponentProvider;
 import ghidra.program.model.listing.Program;
 import ghidrametrics.GhidraMetricsPlugin;
+import ghidrametrics.GhidraMetricsProvider;
+import ghidrametrics.base.BaseMetricWrapper;
 
-public abstract class BaseMetricProvider<T extends BaseMetricWrapper> extends ComponentProvider {
+public abstract class BaseMetricProvider<T extends BaseMetricWrapper> {
 
-	private final String metricName;
+	private final Class<T> wrapperClz;
 	protected final GhidraMetricsPlugin plugin;
 	protected T wrapper;
 	protected JPanel panel;
 
-	public BaseMetricProvider(GhidraMetricsPlugin plugin, String metricName) {
-		super(plugin.getTool(), metricName, plugin.getName());
+	public BaseMetricProvider(GhidraMetricsPlugin plugin, Class<T> wrapperClz) {
 		this.plugin = plugin;
-		this.metricName = metricName;
+		this.wrapperClz = wrapperClz;
 	}
 
 	public final T getWrapper() {
 		return wrapper;
 	}
 
-	public final String getMetricName() {
-		return metricName;
+	public final String getName() {
+		return wrapperClz.getSimpleName().replace("Wrapper", "");
 	}
 
 	protected abstract T initWrapper();
@@ -36,19 +36,15 @@ public abstract class BaseMetricProvider<T extends BaseMetricWrapper> extends Co
 		buildComponent();
 	}
 
-	public final void setVisible(boolean visible) {
-		super.setVisible(visible);
-		plugin.getProvider().setVisible(!visible);
-	}
-
 	public final Program getCurrentProgram() {
 		return plugin.getCurrentProgram();
 	}
 
-	@Override
 	public final JComponent getComponent() {
 		return panel;
 	}
 	
-	
+	public BaseMetricButton getMetricButton(GhidraMetricsProvider originalProvider) {
+		return new BaseMetricButton(this, originalProvider);
+	}
 }

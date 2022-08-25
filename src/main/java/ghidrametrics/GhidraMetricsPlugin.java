@@ -25,8 +25,8 @@ import ghidra.framework.plugintool.PluginInfo;
 import ghidra.framework.plugintool.PluginTool;
 import ghidra.framework.plugintool.util.PluginStatus;
 import ghidra.util.HelpLocation;
-import ghidrametrics.base.BaseMetricProvider;
-import ghidrametrics.impl.halstead.HalsteadProvider;
+import ghidrametrics.base.ui.BaseMetricProvider;
+import ghidrametrics.impl.halstead.ui.HalsteadProvider;
 
 /**
  * TODO: Provide class-level documentation that describes what this plugin does.
@@ -73,7 +73,7 @@ public class GhidraMetricsPlugin extends ProgramPlugin {
 
 	private void initMetricProviders() {
 		mProviders = new HashSet<>();
-		// TODO load from service?
+		// TODO use a service
 		mProviders.add(new HalsteadProvider(this));
 	}
 	

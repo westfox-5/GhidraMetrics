@@ -1,6 +1,4 @@
-package ghidrametrics.impl.halstead;
-
-import java.awt.BorderLayout;
+package ghidrametrics.impl.halstead.ui;
 
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -9,13 +7,15 @@ import javax.swing.JTextArea;
 import ghidra.program.model.listing.Program;
 import ghidrametrics.GhidraMetricsPlugin;
 import ghidrametrics.base.BaseMetric;
-import ghidrametrics.base.BaseMetricProvider;
+import ghidrametrics.base.ui.BaseMetricProvider;
+import ghidrametrics.impl.halstead.HalsteadMetricKey;
+import ghidrametrics.impl.halstead.HalsteadWrapper;
 import ghidrametrics.util.StringUtils;
 
 public class HalsteadProvider extends BaseMetricProvider<HalsteadWrapper> {
 	
 	public HalsteadProvider(GhidraMetricsPlugin plugin) {
-		super(plugin, HalsteadWrapper.NAME);
+		super(plugin, HalsteadWrapper.class);
 	}
 
 	@Override
@@ -47,6 +47,6 @@ public class HalsteadProvider extends BaseMetricProvider<HalsteadWrapper> {
 		}
 		
 		textArea.setText(sb.toString());
-		panel.add(new JScrollPane(textArea), BorderLayout.PAGE_START);
+		panel.add(new JScrollPane(textArea));
 	}
 }

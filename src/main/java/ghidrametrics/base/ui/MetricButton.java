@@ -8,6 +8,7 @@ import javax.swing.JButton;
 import ghidrametrics.base.BaseMetricProvider;
 
 public class MetricButton extends JButton implements ActionListener {
+	private static final long serialVersionUID = 1L;
 	
 	private BaseMetricProvider<?> mProvider;
 	

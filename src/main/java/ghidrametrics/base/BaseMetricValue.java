@@ -33,11 +33,11 @@ public class BaseMetricValue<V> {
 	}
 	
 	public String getDescription() {
-		return key.getDescription();
+		return key.getOtherInfo().get(BaseMetricKey.KEY_DESCRIPTION);
 	}
 
 	public String getFormula() {
-		return key.getFormula();
+		return key.getOtherInfo().get(BaseMetricKey.KEY_FORMULA);
 	}
 
 	@Override

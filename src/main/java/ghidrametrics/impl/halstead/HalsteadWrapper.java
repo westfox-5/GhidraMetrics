@@ -30,7 +30,9 @@ public class HalsteadWrapper extends BaseMetricWrapper {
 		this.N1 = result.N1;
 		this.N2 = result.N2;
 				
-		HalsteadMetricKey.ALL_KEYS.parallelStream();
+		HalsteadMetricKey.ALL_KEYS.forEach(k -> {
+			createMetric(k);
+		});
 	}
 	
 	public BigDecimal getNumDistinctOperators() {

@@ -10,8 +10,8 @@ import ghidrametrics.base.BaseMetricValue.MetricType;
 import ghidrametrics.util.StringUtils;
 
 public class BaseMetricKey {
-	private static final String KEY_DESCRIPTION = "description";
-	private static final String KEY_FORMULA = "formula";
+	public static final String KEY_DESCRIPTION = "description";
+	public static final String KEY_FORMULA = "formula";
 
 	private final MetricType type;
 	private final String name;
@@ -52,12 +52,8 @@ public class BaseMetricKey {
 		return type;
 	}
 
-	protected String getDescription() {
-		return data.get(KEY_DESCRIPTION);
-	}
-
-	protected String getFormula() {
-		return data.get(KEY_FORMULA);
+	public Map<String, String> getOtherInfo() {
+		return data;
 	}
 
 	@Override

@@ -84,31 +84,38 @@ public class GhidraMetricsMainProvider extends ComponentProvider {
 
 		// TODO lock UI while export in process?
 		BaseMetricWrapper wrapper = activeProvider.getWrapper();
-		Path export = GhidraMetricsExporter.of(type).export(wrapper);
-		
-		GhidraFileChooser fileChooser = new GhidraFileChooser(getComponent());
-		fileChooser.setMultiSelectionEnabled(false);
-		fileChooser.setSelectedFileFilter(new GhidraFileFilter() {
-			@Override
-			public String getDescription() {
-				return "Only " + type.name() + " files";
-			}
+		Path tmp = GhidraMetricsExporter.of(type).export(wrapper);
+		Path dst = null;
+		{
+			GhidraFileChooser fileChooser = new GhidraFileChooser(getComponent());
+			fileChooser.setMultiSelectionEnabled(false);
+			fileChooser.setSelectedFileFilter(new GhidraFileFilter() {
+				@Override
+				public String getDescription() {
+					return "Only " + type.name() + " files";
+				}
+				
+				@Override
+				public boolean accept(File arg0, GhidraFileChooserModel arg1) {					
+					String extension = StringUtils.getFileExtension(arg0);
+					return type.getExtension().equalsIgnoreCase(extension);
+				}
+			});
 			
-			@Override
-			public boolean accept(File arg0, GhidraFileChooserModel arg1) {					
-				String extension = StringUtils.getFileExtension(arg0);
-				return type.getExtension().equalsIgnoreCase(extension);
-			}
-		});
+			File selectedFile = fileChooser.getSelectedFile();
+			dst = selectedFile.toPath();
+		}
 		
-		File selectedFile = fileChooser.getSelectedFile();
+		if (dst == null) {
+			throw new RuntimeException("Could not open selected file.");
+		}
 		
 		try {
-			Path path = selectedFile.toPath();
-			Files.copy(export, path, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
-			Files.deleteIfExists(export);
+			Files.copy(tmp, dst, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
+			Files.deleteIfExists(tmp);
 			
-			Msg.info(this, "Export to file: "+ path.toAbsolutePath());
+			Msg.info(this, "Export to file: "+ dst.toAbsolutePath());
+			Msg.showInfo(this, getComponent(), "Export", "File exported: "+ dst.toAbsolutePath());
 			
 		// TODO handle these exceptions more gracefully
 		} catch (IOException x) {

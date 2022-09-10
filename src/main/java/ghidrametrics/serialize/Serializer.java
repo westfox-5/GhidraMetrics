@@ -36,7 +36,7 @@ public abstract class Serializer {
 	
 	public void toFile(Path dest) throws IOException {
 		if (lines != null) {
-			lines.forEachOrdered(line -> writeLineToFile(dest, line));
+			lines.map(line -> line + System.lineSeparator()).forEachOrdered(line -> writeLineToFile(dest, line));
 		}
 	}
 

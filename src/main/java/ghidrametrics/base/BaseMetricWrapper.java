@@ -32,9 +32,9 @@ public abstract class BaseMetricWrapper {
 
 	protected void createMetric(BaseMetricKey key) {
 		try {
-			BaseMetricValue<?> measure = createMetricByKey(key);
+			BaseMetricValue<?> metric = createMetricByKey(key);
 			
-			metricsByKey.put(measure.getName(), measure);
+			metricsByKey.put(metric.getName(), metric);
 
 		// TODO handle these exceptions more gracefully
 		} catch (IllegalAccessException x) {

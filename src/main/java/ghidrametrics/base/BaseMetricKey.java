@@ -1,42 +1,49 @@
 package ghidrametrics.base;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import ghidrametrics.base.BaseMetric.MetricType;
+import ghidrametrics.base.BaseMetricValue.MetricType;
+import ghidrametrics.util.StringUtils;
 
 public class BaseMetricKey {
 	private static final String KEY_DESCRIPTION = "description";
 	private static final String KEY_FORMULA = "formula";
 
-	public static final BaseMetricKey of(MetricType type, String name) {
-		return of(type, name, null, null);
-	}
-
-	public static final BaseMetricKey of(MetricType type, String name, String description) {
-		return of(type, name, description, null);
-	}
-
-	public static final BaseMetricKey of(MetricType type, String name, String description, String formula) {
-		BaseMetricKey key = new BaseMetricKey(type, name);
-		if (description != null)
-			key.data.put(KEY_DESCRIPTION, description);
-		if (formula != null)
-			key.data.put(KEY_FORMULA, formula);
-		return key;
-	}
-
 	private final MetricType type;
 	private final String name;
 	private final Map<String, String> data;
 
-	private BaseMetricKey(MetricType type, String name) {
+	public BaseMetricKey(MetricType type, String name) {
 		this.type = type;
 		this.name = name;
 		this.data = new HashMap<String, String>();
 	}
-
+	
+	public BaseMetricKey(MetricType type, String name, String description, String formula) {
+		this(type, name);
+		if (description != null)
+			data.put(KEY_DESCRIPTION, description);
+		if (formula != null)
+			data.put(KEY_FORMULA, formula);
+	}
+	
+	protected <T> T getTypedValue(Class<T> typeClz, BaseMetricWrapper wrapper) 
+			throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		String getterMethodName = StringUtils.getterMethodName(getName());
+		Method getterMethod = wrapper.getClass().getDeclaredMethod(getterMethodName);
+		Object value = getterMethod.invoke(wrapper);
+		
+		if (! typeClz.isAssignableFrom(value.getClass())) {
+			throw new RuntimeException("ERROR: key '" +getName()+"' does not return a '"+ typeClz.getName() +"' object for wrapper "+ wrapper.getName());
+		}
+		
+		return typeClz.cast(value);
+	}
+	
 	public String getName() {
 		return name;
 	}

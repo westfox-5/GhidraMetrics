@@ -1,7 +1,10 @@
 package ghidrametrics.util;
 
+import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+
+import org.apache.velocity.shaded.commons.io.FilenameUtils;
 
 public class StringUtils {
 	public static boolean isEmpty(String str) {
@@ -21,4 +24,14 @@ public class StringUtils {
 		}
 		return "\""+s+"\"";
 	}
+
+	public static String getFileExtension(File arg0) {
+		if (arg0 == null) return null;
+		return FilenameUtils.getExtension(arg0.getAbsolutePath());
+	}
+	
+	public static String getterMethodName(String name) {
+		return "get" + name.substring(0, 1).toUpperCase() + name.substring(1).replace(" ", "");
+	}
+
 }

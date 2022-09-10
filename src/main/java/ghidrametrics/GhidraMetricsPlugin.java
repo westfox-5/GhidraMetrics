@@ -25,7 +25,7 @@ import ghidra.framework.plugintool.PluginInfo;
 import ghidra.framework.plugintool.PluginTool;
 import ghidra.framework.plugintool.util.PluginStatus;
 import ghidra.util.HelpLocation;
-import ghidrametrics.base.ui.BaseMetricProvider;
+import ghidrametrics.base.BaseMetricProvider;
 import ghidrametrics.impl.halstead.ui.HalsteadProvider;
 
 /**
@@ -42,9 +42,9 @@ import ghidrametrics.impl.halstead.ui.HalsteadProvider;
 //@formatter:on
 public class GhidraMetricsPlugin extends ProgramPlugin {
 
-	private final GhidraMetricsProvider provider;
+	private final GhidraMetricsMainProvider provider;
 	
-	private Set<BaseMetricProvider<?>> mProviders;	
+	private Set<BaseMetricProvider<?>> enabledProviders;	
 
 	/**
 	 * Plugin constructor.
@@ -57,7 +57,7 @@ public class GhidraMetricsPlugin extends ProgramPlugin {
 		initMetricProviders();
 
 		String pluginName = getName();
-		provider = new GhidraMetricsProvider(this, pluginName);
+		provider = new GhidraMetricsMainProvider(this, pluginName);
 		
 		String topicName = this.getClass().getPackage().getName();
 		String anchorName = "HelpAnchor";
@@ -72,17 +72,17 @@ public class GhidraMetricsPlugin extends ProgramPlugin {
 	}
 
 	private void initMetricProviders() {
-		mProviders = new HashSet<>();
+		enabledProviders = new HashSet<>();
 		// TODO use a service
-		mProviders.add(new HalsteadProvider(this));
+		enabledProviders.add(new HalsteadProvider(this));
 	}
 	
-	public GhidraMetricsProvider getProvider() {
+	public GhidraMetricsMainProvider getProvider() {
 		return provider;
 	}
 
-	public Set<BaseMetricProvider<?>> getMetricProviders() {
-		return mProviders;
+	public Set<BaseMetricProvider<?>> getEnabledMetricProviders() {
+		return enabledProviders;
 	}
 
 }

@@ -1,5 +1,6 @@
 package ghidrametrics.base;
 
+import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
@@ -11,13 +12,16 @@ public abstract class BaseMetricWrapper {
 	
 	protected final String name;
 	protected final Program program;
-	private final Map<String, BaseMetric<?>> metricsByKey;
+	private final Map<String, BaseMetricValue<?>> metricsByKey;
 	
-	/* INIT UTILITIES */
-	protected abstract BigDecimal getNumericMetric(BaseMetricKey key);
-	protected abstract String getStringMetric(BaseMetricKey key);
+	private BigDecimal getNumericMetric(BaseMetricKey key) throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		return key.getTypedValue(BigDecimal.class, this);
+	}
+	private String getStringMetric(BaseMetricKey key) throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		return key.getTypedValue(String.class, this);
+	}
 	
-	private BaseMetric<?> createMetricByKey(BaseMetricKey key) {
+	private BaseMetricValue<?> createMetricByKey(BaseMetricKey key) throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		switch(key.getType()) {
 		case NUMERIC: return new NumericMetric(key, getNumericMetric(key));
 		case STRING:  return new StringMetric(key, getStringMetric(key));
@@ -26,16 +30,27 @@ public abstract class BaseMetricWrapper {
 		throw new RuntimeException("Measure Type not managed: " + key.getType());
 	}
 
-	protected void addMetric(BaseMetricKey key) {
-		BaseMetric<?> measure = createMetricByKey(key);
-		metricsByKey.put(measure.getName(), measure);
+	protected void createMetric(BaseMetricKey key) {
+		try {
+			BaseMetricValue<?> measure = createMetricByKey(key);
+			
+			metricsByKey.put(measure.getName(), measure);
+
+		// TODO handle these exceptions more gracefully
+		} catch (IllegalAccessException x) {
+		    x.printStackTrace();
+		} catch (InvocationTargetException x) {
+		    x.printStackTrace();
+		} catch (NoSuchMethodException x) {
+		    x.printStackTrace();
+		}
+		
 	}
-	/* ------------------- */
 	
 	protected BaseMetricWrapper(String name, Program program) {
 		this.name = name;
 		this.program = program;
-		this.metricsByKey = new HashMap<String, BaseMetric<?>>();
+		this.metricsByKey = new HashMap<String, BaseMetricValue<?>>();
 	}
 	
 	public String getName() {
@@ -46,15 +61,15 @@ public abstract class BaseMetricWrapper {
 		return program;
 	}
 	
-	public Set<BaseMetric<?>> getMetrics() {
+	public Set<BaseMetricValue<?>> getMetrics() {
 		return Set.copyOf(metricsByKey.values());
 	}
 	
-	public BaseMetric<?> getMetric(String keyName) {
+	public BaseMetricValue<?> getMetric(String keyName) {
 		return metricsByKey.get(keyName);
 	}
 	
-	public BaseMetric<?> getMetric(BaseMetricKey mKey) {
+	public BaseMetricValue<?> getMetric(BaseMetricKey mKey) {
 		return getMetric(mKey.getName());
 	}
 }

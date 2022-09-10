@@ -2,7 +2,7 @@ package ghidrametrics.base;
 
 import java.util.Objects;
 
-public class BaseMetric<V> {
+public class BaseMetricValue<V> {
 	
 	public static enum MetricType {
 		NUMERIC, STRING
@@ -11,7 +11,7 @@ public class BaseMetric<V> {
 	private final BaseMetricKey key;
 	private final V value;
 	
-	public BaseMetric(BaseMetricKey key, V value) {
+	public BaseMetricValue(BaseMetricKey key, V value) {
 		super();
 		this.key = key;
 		this.value = value;
@@ -53,7 +53,7 @@ public class BaseMetric<V> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		BaseMetric<?> other = (BaseMetric<?>) obj;
+		BaseMetricValue<?> other = (BaseMetricValue<?>) obj;
 		return Objects.equals(key, other.key) && Objects.equals(value, other.value);
 	}
 }

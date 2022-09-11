@@ -3,7 +3,7 @@ package ghidrametrics.ui;
 import docking.ActionContext;
 import docking.action.DockingAction;
 import docking.action.ToolBarData;
-import ghidrametrics.GhidraMetricsMainProvider;
+import ghidrametrics.GhidraMetricsProvider;
 import ghidrametrics.GhidraMetricsPlugin;
 import resources.ResourceManager;
 
@@ -23,7 +23,7 @@ public class GhidraMetricsActionBack extends DockingAction {
 
 	@Override
 	public void actionPerformed(ActionContext arg0) {
-		GhidraMetricsMainProvider provider = plugin.getProvider();
+		GhidraMetricsProvider provider = plugin.getProvider();
 		
 		provider.showView(null);
 	}

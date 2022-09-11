@@ -1,12 +1,32 @@
 package ghidrametrics.base;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
-public class BaseMetricValue<V> {
+public abstract class BaseMetricValue<V> {
 	
 	public static enum MetricType {
 		NUMERIC, STRING
 	}
+	
+	public static class NumericMetric extends BaseMetricValue<BigDecimal> {
+
+		public NumericMetric(BaseMetricKey mKey, Double value) {
+			this(mKey, BigDecimal.valueOf(value));
+		}
+
+		public NumericMetric(BaseMetricKey mKey, BigDecimal value) {
+			super(mKey, value);
+		}
+	}
+	
+	public static class StringMetric extends BaseMetricValue<String> {
+
+		public StringMetric(BaseMetricKey mKey, String value) {
+			super(mKey, value);
+		}
+	}
+	
 	
 	private final BaseMetricKey key;
 	private final V value;

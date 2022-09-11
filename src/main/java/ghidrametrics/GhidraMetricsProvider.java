@@ -24,7 +24,7 @@ import ghidrametrics.ui.GhidraMetricsActionExport;
 import ghidrametrics.ui.GhidraMetricsWindowManager;
 import ghidrametrics.util.StringUtils;
 
-public class GhidraMetricsMainProvider extends ComponentProvider {
+public class GhidraMetricsProvider extends ComponentProvider {
 	
 	private GhidraMetricsPlugin plugin;
 	
@@ -32,7 +32,7 @@ public class GhidraMetricsMainProvider extends ComponentProvider {
 	private BaseMetricProvider<?> activeProvider;
 	private List<DockingAction> actions;
 
-	public GhidraMetricsMainProvider(GhidraMetricsPlugin plugin, String owner) {
+	public GhidraMetricsProvider(GhidraMetricsPlugin plugin, String owner) {
 		super(plugin.getTool(), owner, owner);
 		this.plugin = plugin;
 		
@@ -42,7 +42,6 @@ public class GhidraMetricsMainProvider extends ComponentProvider {
 		createActions();
 	}
 
-	// Customize GUI
 	private void buildPanel() {
 		Set<BaseMetricProvider<?>> enabledProviders = plugin.getEnabledMetricProviders();
 		wManager.addMetricProviders(enabledProviders);

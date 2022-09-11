@@ -5,7 +5,7 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
-import ghidrametrics.GhidraMetricsMainProvider;
+import ghidrametrics.GhidraMetricsProvider;
 import ghidrametrics.GhidraMetricsPlugin;
 import ghidrametrics.base.BaseMetricProvider;
 
@@ -36,7 +36,7 @@ public class GhidraMetricsWrapperButton extends JButton implements ActionListene
 	public void actionPerformed(ActionEvent ae) {
 		String actionCommand = ae.getActionCommand();
 		if (actionCommand.equals(title)) {
-			GhidraMetricsMainProvider provider = plugin.getProvider();
+			GhidraMetricsProvider provider = plugin.getProvider();
 			
 			provider.showView(mProvider);
 		}

@@ -42,7 +42,7 @@ import ghidrametrics.impl.halstead.ui.HalsteadProvider;
 //@formatter:on
 public class GhidraMetricsPlugin extends ProgramPlugin {
 
-	private final GhidraMetricsMainProvider provider;
+	private final GhidraMetricsProvider provider;
 	
 	private Set<BaseMetricProvider<?>> enabledProviders;	
 
@@ -57,7 +57,7 @@ public class GhidraMetricsPlugin extends ProgramPlugin {
 		initMetricProviders();
 
 		String pluginName = getName();
-		provider = new GhidraMetricsMainProvider(this, pluginName);
+		provider = new GhidraMetricsProvider(this, pluginName);
 		
 		String topicName = this.getClass().getPackage().getName();
 		String anchorName = "HelpAnchor";
@@ -77,7 +77,7 @@ public class GhidraMetricsPlugin extends ProgramPlugin {
 		enabledProviders.add(new HalsteadProvider(this));
 	}
 	
-	public GhidraMetricsMainProvider getProvider() {
+	public GhidraMetricsProvider getProvider() {
 		return provider;
 	}
 

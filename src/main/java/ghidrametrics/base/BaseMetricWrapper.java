@@ -7,6 +7,8 @@ import java.util.Map;
 import java.util.Set;
 
 import ghidra.program.model.listing.Program;
+import ghidrametrics.base.BaseMetricValue.NumericMetric;
+import ghidrametrics.base.BaseMetricValue.StringMetric;
 
 public abstract class BaseMetricWrapper {
 	

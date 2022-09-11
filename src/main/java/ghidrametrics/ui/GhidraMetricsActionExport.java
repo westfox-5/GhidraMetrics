@@ -4,7 +4,7 @@ import docking.ActionContext;
 import docking.action.MenuData;
 import docking.menu.MultiActionDockingAction;
 import ghidrametrics.GhidraMetricsExporter;
-import ghidrametrics.GhidraMetricsMainProvider;
+import ghidrametrics.GhidraMetricsProvider;
 import ghidrametrics.GhidraMetricsPlugin;
 
 public final class GhidraMetricsActionExport extends MultiActionDockingAction {
@@ -27,7 +27,7 @@ public final class GhidraMetricsActionExport extends MultiActionDockingAction {
 
 	@Override
 	public void actionPerformed(ActionContext ctx) {
-		GhidraMetricsMainProvider provider = plugin.getProvider();
+		GhidraMetricsProvider provider = plugin.getProvider();
 		
 		provider.doExport(type);
 	}

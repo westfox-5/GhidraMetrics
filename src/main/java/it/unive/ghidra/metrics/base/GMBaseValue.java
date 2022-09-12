@@ -1,43 +1,43 @@
-package ghidrametrics.base;
+package it.unive.ghidra.metrics.base;
 
 import java.math.BigDecimal;
 import java.util.Objects;
 
-public abstract class BaseMetricValue<V> {
+public abstract class GMBaseValue<V> {
 	
 	public static enum MetricType {
 		NUMERIC, STRING
 	}
 	
-	public static class NumericMetric extends BaseMetricValue<BigDecimal> {
+	public static class NumericMetric extends GMBaseValue<BigDecimal> {
 
-		public NumericMetric(BaseMetricKey mKey, Double value) {
+		public NumericMetric(GMBaseKey mKey, Double value) {
 			this(mKey, BigDecimal.valueOf(value));
 		}
 
-		public NumericMetric(BaseMetricKey mKey, BigDecimal value) {
+		public NumericMetric(GMBaseKey mKey, BigDecimal value) {
 			super(mKey, value);
 		}
 	}
 	
-	public static class StringMetric extends BaseMetricValue<String> {
+	public static class StringMetric extends GMBaseValue<String> {
 
-		public StringMetric(BaseMetricKey mKey, String value) {
+		public StringMetric(GMBaseKey mKey, String value) {
 			super(mKey, value);
 		}
 	}
 	
 	
-	private final BaseMetricKey key;
+	private final GMBaseKey key;
 	private final V value;
 	
-	public BaseMetricValue(BaseMetricKey key, V value) {
+	public GMBaseValue(GMBaseKey key, V value) {
 		super();
 		this.key = key;
 		this.value = value;
 	}
 	
-	public BaseMetricKey getKey() {
+	public GMBaseKey getKey() {
 		return key;
 	}
 	public V getValue() {
@@ -53,11 +53,11 @@ public abstract class BaseMetricValue<V> {
 	}
 	
 	public String getDescription() {
-		return key.getOtherInfo().get(BaseMetricKey.KEY_DESCRIPTION);
+		return key.getOtherInfo().get(GMBaseKey.KEY_DESCRIPTION);
 	}
 
 	public String getFormula() {
-		return key.getOtherInfo().get(BaseMetricKey.KEY_FORMULA);
+		return key.getOtherInfo().get(GMBaseKey.KEY_FORMULA);
 	}
 
 	@Override
@@ -73,7 +73,7 @@ public abstract class BaseMetricValue<V> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		BaseMetricValue<?> other = (BaseMetricValue<?>) obj;
+		GMBaseValue<?> other = (GMBaseValue<?>) obj;
 		return Objects.equals(key, other.key) && Objects.equals(value, other.value);
 	}
 }

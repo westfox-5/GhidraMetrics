@@ -1,4 +1,4 @@
-package ghidrametrics.impl.halstead;
+package it.unive.ghidra.metrics.impl.halstead;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -11,13 +11,13 @@ import ghidra.program.model.listing.FunctionIterator;
 import ghidra.program.model.listing.Instruction;
 import ghidra.program.model.listing.InstructionIterator;
 import ghidra.program.model.listing.Program;
-import ghidrametrics.util.StringUtils;
+import it.unive.ghidra.metrics.util.StringUtils;
 
-class Parser {
+class GMHalsteadProgramParser {
 	private final List<String> ops;
 	private final List<String> opnds;
 
-	public Parser() {
+	public GMHalsteadProgramParser() {
 		this.ops = new ArrayList<>();
 		this.opnds = new ArrayList<>();
 	}
@@ -43,10 +43,7 @@ class Parser {
 		BigDecimal n2 = BigDecimal.valueOf(_distinctOpnds);
 
 		// total operators/operands number: union of all keys
-		//hWrapper.operators = new ArrayList<>(ops);
 		BigDecimal N1 = BigDecimal.valueOf(ops.size());
-
-		//hWrapper.operands =  new ArrayList<>(opnds);
 		BigDecimal N2 = BigDecimal.valueOf(opnds.size());
 		
 		return new Result(n1, n2, N1, N2);

@@ -1,13 +1,13 @@
-package ghidrametrics;
+package it.unive.ghidra.metrics;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import ghidrametrics.base.BaseMetricWrapper;
-import ghidrametrics.serialize.Serializer;
+import it.unive.ghidra.metrics.base.GMetric;
+import it.unive.ghidra.metrics.serialize.GMSerializer;
 
-public class GhidraMetricsExporter {
+public class GMExporter {
 	public static enum Type {
 		JSON("json", "application/json");
 		
@@ -31,20 +31,20 @@ public class GhidraMetricsExporter {
 		return Files.createTempFile("ghidra_metrics_export", ".ghidra");
 	}
 	
-	public static final GhidraMetricsExporter of(GhidraMetricsExporter.Type type) { 
-		return new GhidraMetricsExporter(type); 
+	public static final GMExporter of(GMExporter.Type type) { 
+		return new GMExporter(type); 
 	}
 	
 	
-	private final GhidraMetricsExporter.Type type;
+	private final GMExporter.Type type;
 	
-	private GhidraMetricsExporter(GhidraMetricsExporter.Type type) {
+	private GMExporter(GMExporter.Type type) {
 		this.type = type;
 	}
 	
-	public Path export(BaseMetricWrapper wrapper) {
-		if (wrapper == null) {
-			throw new RuntimeException("ERROR: No wrapper to export!");
+	public Path export(GMetric metric) {
+		if (metric == null) {
+			throw new RuntimeException("ERROR: No metric to export!");
 		}
 		
 		try {
@@ -53,8 +53,8 @@ public class GhidraMetricsExporter {
 				throw new RuntimeException("ERROR: Could not create a temporary file!");
 			}
 			
-			Serializer.of(type)
-						.serialize(wrapper)			
+			GMSerializer.of(type)
+						.serialize(metric)			
 						.toFile(tmp);
 			
 			return tmp;

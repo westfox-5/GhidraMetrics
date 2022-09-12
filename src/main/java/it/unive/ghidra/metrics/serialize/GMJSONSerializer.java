@@ -1,13 +1,13 @@
-package ghidrametrics.serialize;
+package it.unive.ghidra.metrics.serialize;
 
 import java.util.Iterator;
 import java.util.function.BiConsumer;
 
-import ghidrametrics.GhidraMetricsExporter;
-import ghidrametrics.base.BaseMetricKey;
-import ghidrametrics.base.BaseMetricValue;
-import ghidrametrics.base.BaseMetricWrapper;
-import ghidrametrics.util.StringUtils;
+import it.unive.ghidra.metrics.GMExporter;
+import it.unive.ghidra.metrics.base.GMBaseKey;
+import it.unive.ghidra.metrics.base.GMBaseValue;
+import it.unive.ghidra.metrics.base.GMetric;
+import it.unive.ghidra.metrics.util.StringUtils;
 
 /**
  * 
@@ -20,21 +20,21 @@ import ghidrametrics.util.StringUtils;
  * }
  * 
  */
-public class JSONSerializer extends Serializer {
+public class GMJSONSerializer extends GMSerializer {
 
-	public JSONSerializer() {
-		super(GhidraMetricsExporter.Type.JSON);
+	public GMJSONSerializer() {
+		super(GMExporter.Type.JSON);
 	}
 
 	@Override
-	protected <V> StringBuilder serializeWrapper(BaseMetricWrapper wrapper) {
+	protected <V> StringBuilder serializeMetric(GMetric metric) {
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append("{")
-			.append("name:").append(StringUtils.quotate(wrapper.getName())).append(",")
+			.append("name:").append(StringUtils.quotate(metric.getName())).append(",")
 			.append("metrics:").append("{")
-				.append("keys:[").append(dumpMetricKeys(wrapper)).append("],")
-				.append("values:[").append(dumpMetricValues(wrapper)).append("]")
+				.append("keys:[").append(dumpMetricKeys(metric)).append("],")
+				.append("values:[").append(dumpMetricValues(metric)).append("]")
 			.append("}")
 		.append("}")
 		.append(System.lineSeparator());
@@ -45,8 +45,8 @@ public class JSONSerializer extends Serializer {
 	/**
 	 * { name, type, info: [{name, value}] }
 	 */
-	private String dumpMetricKeys(BaseMetricWrapper wrapper) {
-		Iterator<BaseMetricKey> it = wrapper.getMetrics().stream().map(m -> m.getKey()).iterator();
+	private String dumpMetricKeys(GMetric metric) {
+		Iterator<GMBaseKey> it = metric.getMetrics().stream().map(m -> m.getKey()).iterator();
 		
 		StringBuilder dump = dumpAll(it, (sb, next) -> {
 			sb.append("{")
@@ -68,8 +68,8 @@ public class JSONSerializer extends Serializer {
 	/**
 	 * { keyName, value } 
 	 */
-	private String dumpMetricValues(BaseMetricWrapper wrapper) {
-		Iterator<BaseMetricValue<?>> it = wrapper.getMetrics().iterator();
+	private String dumpMetricValues(GMetric metric) {
+		Iterator<GMBaseValue<?>> it = metric.getMetrics().iterator();
 		
 		StringBuilder dump = dumpAll(it, (sb, next) -> {
 			sb.append("{")
@@ -83,9 +83,9 @@ public class JSONSerializer extends Serializer {
 	
 	private <T> StringBuilder dumpAll(Iterator<T> it, BiConsumer<StringBuilder, T> f) {
 		StringBuilder sb = new StringBuilder();
+		
 		while(it.hasNext()) {
 			T next = it.next();
-		
 			f.accept(sb, next);
 			
 			if (it.hasNext())

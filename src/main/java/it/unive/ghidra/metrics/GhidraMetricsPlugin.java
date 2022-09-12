@@ -13,20 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package ghidrametrics;
+package it.unive.ghidra.metrics;
 
-import java.util.HashSet;
 import java.util.Set;
 
-import ghidra.app.ExamplesPluginPackage;
 import ghidra.app.plugin.PluginCategoryNames;
 import ghidra.app.plugin.ProgramPlugin;
 import ghidra.framework.plugintool.PluginInfo;
 import ghidra.framework.plugintool.PluginTool;
 import ghidra.framework.plugintool.util.PluginStatus;
 import ghidra.util.HelpLocation;
-import ghidrametrics.base.BaseMetricProvider;
-import ghidrametrics.impl.halstead.ui.HalsteadProvider;
+import it.unive.ghidra.metrics.base.GMetric;
+import it.unive.ghidra.metrics.impl.halstead.GMHalstead;
 
 /**
  * TODO: Provide class-level documentation that describes what this plugin does.
@@ -34,18 +32,22 @@ import ghidrametrics.impl.halstead.ui.HalsteadProvider;
 //@formatter:off
 @PluginInfo(
 	status = PluginStatus.STABLE,
-	packageName = ExamplesPluginPackage.NAME,
-	category = PluginCategoryNames.EXAMPLES,
+	packageName = GhidraMetricsPlugin.PACKAGE_NAME,
+	category = PluginCategoryNames.MISC,
 	shortDescription = "Plugin short description goes here.",
 	description = "Plugin long description goes here."
 )
 //@formatter:on
 public class GhidraMetricsPlugin extends ProgramPlugin {
 
-	private final GhidraMetricsProvider provider;
+	public static final String PACKAGE_NAME = "it.unive.ghidra.metrics";
 	
-	private Set<BaseMetricProvider<?>> enabledProviders;	
-
+	public static Set<Class<? extends GMetric>> getEnabledMetrics() {
+		return Set.of(GMHalstead.class);
+	}
+	
+	private final GMProvider provider;
+	
 	/**
 	 * Plugin constructor.
 	 * 
@@ -54,35 +56,15 @@ public class GhidraMetricsPlugin extends ProgramPlugin {
 	public GhidraMetricsPlugin(PluginTool tool) {
 		super(tool, true, true);
 		
-		initMetricProviders();
-
 		String pluginName = getName();
-		provider = new GhidraMetricsProvider(this, pluginName);
+		provider = new GMProvider(this, pluginName);
 		
 		String topicName = this.getClass().getPackage().getName();
 		String anchorName = "HelpAnchor";
 		provider.setHelpLocation(new HelpLocation(topicName, anchorName));
 	}
-
-	@Override
-	public void init() {
-		super.init();
-
-		// TODO: Acquire services if necessary
-	}
-
-	private void initMetricProviders() {
-		enabledProviders = new HashSet<>();
-		// TODO use a service
-		enabledProviders.add(new HalsteadProvider(this));
-	}
 	
-	public GhidraMetricsProvider getProvider() {
+	public GMProvider getProvider() {
 		return provider;
 	}
-
-	public Set<BaseMetricProvider<?>> getEnabledMetricProviders() {
-		return enabledProviders;
-	}
-
 }

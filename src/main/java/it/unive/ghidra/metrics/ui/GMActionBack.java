@@ -1,16 +1,16 @@
-package ghidrametrics.ui;
+package it.unive.ghidra.metrics.ui;
 
 import docking.ActionContext;
 import docking.action.DockingAction;
 import docking.action.ToolBarData;
-import ghidrametrics.GhidraMetricsProvider;
-import ghidrametrics.GhidraMetricsPlugin;
+import it.unive.ghidra.metrics.GMProvider;
+import it.unive.ghidra.metrics.GhidraMetricsPlugin;
 import resources.ResourceManager;
 
-public class GhidraMetricsActionBack extends DockingAction {
+public class GMActionBack extends DockingAction {
 	private final GhidraMetricsPlugin plugin;
 
-	public GhidraMetricsActionBack(GhidraMetricsPlugin plugin) {
+	public GMActionBack(GhidraMetricsPlugin plugin) {
 		super("Back", plugin.getName());
 		this.plugin = plugin;
 
@@ -23,9 +23,9 @@ public class GhidraMetricsActionBack extends DockingAction {
 
 	@Override
 	public void actionPerformed(ActionContext arg0) {
-		GhidraMetricsProvider provider = plugin.getProvider();
+		GMProvider provider = plugin.getProvider();
 		
-		provider.showView(null);
+		provider.showMetric(null);
 	}
 
 }

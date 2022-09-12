@@ -1,10 +1,10 @@
-package ghidrametrics.util;
+package it.unive.ghidra.metrics.util;
 
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
-import org.apache.velocity.shaded.commons.io.FilenameUtils;
+import org.apache.commons.io.FilenameUtils;
 
 public class StringUtils {
 	public static boolean isEmpty(String str) {

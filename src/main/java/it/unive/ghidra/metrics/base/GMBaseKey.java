@@ -1,4 +1,4 @@
-package ghidrametrics.base;
+package it.unive.ghidra.metrics.base;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -6,10 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import ghidrametrics.base.BaseMetricValue.MetricType;
-import ghidrametrics.util.StringUtils;
+import it.unive.ghidra.metrics.base.GMBaseValue.MetricType;
+import it.unive.ghidra.metrics.util.StringUtils;
 
-public class BaseMetricKey {
+public class GMBaseKey {
 	public static final String KEY_DESCRIPTION = "description";
 	public static final String KEY_FORMULA = "formula";
 
@@ -17,13 +17,13 @@ public class BaseMetricKey {
 	private final String name;
 	private final Map<String, String> data;
 
-	public BaseMetricKey(MetricType type, String name) {
+	public GMBaseKey(MetricType type, String name) {
 		this.type = type;
 		this.name = name;
 		this.data = new HashMap<String, String>();
 	}
 	
-	public BaseMetricKey(MetricType type, String name, String description, String formula) {
+	public GMBaseKey(MetricType type, String name, String description, String formula) {
 		this(type, name);
 		if (description != null)
 			data.put(KEY_DESCRIPTION, description);
@@ -31,14 +31,14 @@ public class BaseMetricKey {
 			data.put(KEY_FORMULA, formula);
 	}
 	
-	protected <T> T getTypedValue(Class<T> typeClz, BaseMetricWrapper wrapper) 
+	protected <T> T getTypedValue(Class<T> typeClz, GMetric metric) 
 			throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		String getterMethodName = StringUtils.getterMethodName(getName());
-		Method getterMethod = wrapper.getClass().getDeclaredMethod(getterMethodName);
-		Object value = getterMethod.invoke(wrapper);
+		Method getterMethod = metric.getClass().getDeclaredMethod(getterMethodName);
+		Object value = getterMethod.invoke(metric);
 		
 		if (! typeClz.isAssignableFrom(value.getClass())) {
-			throw new RuntimeException("ERROR: key '" +getName()+"' does not return a '"+ typeClz.getName() +"' object for wrapper "+ wrapper.getName());
+			throw new RuntimeException("ERROR: key '" +getName()+"' does not return a '"+ typeClz.getName() +"' object for metric "+ metric.getName());
 		}
 		
 		return typeClz.cast(value);
@@ -69,7 +69,7 @@ public class BaseMetricKey {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		BaseMetricKey other = (BaseMetricKey) obj;
+		GMBaseKey other = (GMBaseKey) obj;
 		return Objects.equals(name, other.name);
 	}
 	

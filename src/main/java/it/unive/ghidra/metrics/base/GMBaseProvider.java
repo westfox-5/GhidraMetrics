@@ -1,4 +1,4 @@
-package ghidrametrics.base;
+package it.unive.ghidra.metrics.base;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -7,39 +7,35 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 import ghidra.program.model.listing.Program;
-import ghidrametrics.GhidraMetricsPlugin;
+import it.unive.ghidra.metrics.GhidraMetricsPlugin;
 
-public abstract class BaseMetricProvider<T extends BaseMetricWrapper> {
-
-	private final Class<T> wrapperClz;
+public class GMBaseProvider<T extends GMetric> {
+	private final Class<T> metricClz;
 	protected final GhidraMetricsPlugin plugin;
-	protected T wrapper;
+	protected T metric;
 	protected JPanel panel;
 
-	public BaseMetricProvider(GhidraMetricsPlugin plugin, Class<T> wrapperClz) {
+	public GMBaseProvider(GhidraMetricsPlugin plugin, Class<T> metricClz) {
 		this.plugin = plugin;
-		this.wrapperClz = wrapperClz;
+		this.metricClz = metricClz;
+		
+		init();
 	}
 
-	public final T getWrapper() {
-		return wrapper;
+	public final T getMetric() {
+		return metric;
 	}
 
-	public Class<T> getWrapperClz() {
-		return wrapperClz;
+	public Class<T> getMetricClz() {
+		return metricClz;
 	}
-
-	protected abstract void initWrapper(T wrapper);
-	protected abstract void buildComponent();
 	
-	public final void init() {
-		if (wrapper == null) {
+	private final void init() {
+		if (metric == null) {
 			
 			try {
-				Constructor<T> declaredConstructor = wrapperClz.getDeclaredConstructor(Program.class);
-				wrapper = declaredConstructor.newInstance(getCurrentProgram());
-				
-				initWrapper(wrapper);
+				Constructor<T> declaredConstructor = metricClz.getDeclaredConstructor(Program.class);
+				metric = declaredConstructor.newInstance(getCurrentProgram());
 
 			// TODO handle these exceptions more gracefully
 			} catch (InstantiationException x) {
@@ -51,8 +47,6 @@ public abstract class BaseMetricProvider<T extends BaseMetricWrapper> {
 			} catch (NoSuchMethodException x) {
 			    x.printStackTrace();
 			}
-			
-			buildComponent();
 		}
 	}
 

@@ -1,13 +1,20 @@
-package ghidrametrics.impl.halstead;
+package it.unive.ghidra.metrics.impl.halstead;
 
+import java.awt.BorderLayout;
 import java.math.BigDecimal;
+import java.util.Set;
+
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
 
 import ghidra.program.model.listing.Program;
-import ghidrametrics.base.BaseMetricWrapper;
-import ghidrametrics.impl.halstead.Parser.Result;
-import ghidrametrics.util.NumberUtils;
+import it.unive.ghidra.metrics.base.GMetric;
+import it.unive.ghidra.metrics.base.GMBaseValue;
+import it.unive.ghidra.metrics.impl.halstead.GMHalsteadProgramParser.Result;
+import it.unive.ghidra.metrics.util.NumberUtils;
+import it.unive.ghidra.metrics.util.StringUtils;
 
-public class HalsteadWrapper extends BaseMetricWrapper {
+public class GMHalstead extends GMetric {
 	public static final String NAME = "HALSTEAD";
 	
 	BigDecimal n1; // no. operators [distinct, total]
@@ -16,21 +23,21 @@ public class HalsteadWrapper extends BaseMetricWrapper {
 	BigDecimal n2; // no. operands [distinct, total]
 	BigDecimal N2;
 	
-	public HalsteadWrapper(Program program) {
+	public GMHalstead(Program program) {
 		super(NAME, program);
 		
 		init();
 	}
 	
 	private final void init() {
-		Result result = new Parser().parse(getProgram());
+		Result result = new GMHalsteadProgramParser().parse(getProgram());
 		
 		this.n1 = result.n1;
 		this.n2 = result.n2;
 		this.N1 = result.N1;
 		this.N2 = result.N2;
 				
-		HalsteadMetricKey.ALL_KEYS.forEach(k -> {
+		GMHalsteadKey.ALL_KEYS.forEach(k -> {
 			createMetric(k);
 		});
 	}
@@ -132,6 +139,28 @@ public class HalsteadWrapper extends BaseMetricWrapper {
 		BigDecimal V = getVolume();
 		return V.divide(new BigDecimal(3000), NumberUtils.DEFAULT_CONTEXT);
 	}
-	
+
+	@Override
+	protected void buildComponent() {
+		// TODO use a windowManager
+		component = new JPanel(new BorderLayout());
+		
+		JTextArea textArea = new JTextArea();
+		textArea.setEditable(false);
+			
+		StringBuilder sb = new StringBuilder();
+		
+		Set<GMBaseValue<?>> metrics = getMetrics();
+		for (GMBaseValue<?> metric: metrics) {			
+			String value = StringUtils.quotate(metric.getValue());
+			sb.append(metric.getDescription())
+				.append("(").append(metric.getName()).append("): ")
+				.append(value)
+				.append("\n");
+		}
+		
+		textArea.setText(sb.toString());
+		component.add(textArea, BorderLayout.CENTER);		
+	}
 
 }

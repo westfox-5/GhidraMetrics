@@ -1,4 +1,4 @@
-package ghidrametrics;
+package it.unive.ghidra.metrics;
 
 import java.io.File;
 import java.io.IOException;
@@ -6,7 +6,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import javax.swing.JComponent;
@@ -17,34 +19,38 @@ import docking.widgets.filechooser.GhidraFileChooser;
 import ghidra.util.Msg;
 import ghidra.util.filechooser.GhidraFileChooserModel;
 import ghidra.util.filechooser.GhidraFileFilter;
-import ghidrametrics.base.BaseMetricProvider;
-import ghidrametrics.base.BaseMetricWrapper;
-import ghidrametrics.ui.GhidraMetricsActionBack;
-import ghidrametrics.ui.GhidraMetricsActionExport;
-import ghidrametrics.ui.GhidraMetricsWindowManager;
-import ghidrametrics.util.StringUtils;
+import it.unive.ghidra.metrics.base.GMetric;
+import it.unive.ghidra.metrics.base.GMBaseProvider;
+import it.unive.ghidra.metrics.ui.GMActionBack;
+import it.unive.ghidra.metrics.ui.GMActionExport;
+import it.unive.ghidra.metrics.ui.GMWindowManager;
+import it.unive.ghidra.metrics.util.StringUtils;
 
-public class GhidraMetricsProvider extends ComponentProvider {
+public class GMProvider extends ComponentProvider {
 	
-	private GhidraMetricsPlugin plugin;
-	
-	private final GhidraMetricsWindowManager wManager;
-	private BaseMetricProvider<?> activeProvider;
+	private final GhidraMetricsPlugin plugin;
+	private final GMWindowManager wManager;
+	private final GMProvidersCache providersCache;	// caches instances of metric providers
+
+	private GMBaseProvider<? extends GMetric> activeProvider;
 	private List<DockingAction> actions;
+	
 
-	public GhidraMetricsProvider(GhidraMetricsPlugin plugin, String owner) {
+	public GMProvider(GhidraMetricsPlugin plugin, String owner) {
 		super(plugin.getTool(), owner, owner);
 		this.plugin = plugin;
 		
-		this.wManager = new GhidraMetricsWindowManager(plugin);
+		this.wManager = new GMWindowManager(plugin);
+		
+		this.providersCache = new GMProvidersCache();
 		
 		buildPanel();
 		createActions();
 	}
 
 	private void buildPanel() {
-		Set<BaseMetricProvider<?>> enabledProviders = plugin.getEnabledMetricProviders();
-		wManager.addMetricProviders(enabledProviders);
+		Set<Class<? extends GMetric>> enabledMetrics = GhidraMetricsPlugin.getEnabledMetrics();
+		wManager.addEnabledMetrics(enabledMetrics);
 		
 		setVisible(true);
 	}
@@ -52,10 +58,10 @@ public class GhidraMetricsProvider extends ComponentProvider {
 	private void createActions() {
 		this.actions = new ArrayList<>();
 		
-		actions.add(new GhidraMetricsActionBack(plugin));
+		actions.add(new GMActionBack(plugin));
 		
-		for (GhidraMetricsExporter.Type type: GhidraMetricsExporter.Type.values()) {
-			actions.add(new GhidraMetricsActionExport(plugin, type));
+		for (GMExporter.Type type: GMExporter.Type.values()) {
+			actions.add(new GMActionExport(plugin, type));
 		}
 	}
 
@@ -64,26 +70,36 @@ public class GhidraMetricsProvider extends ComponentProvider {
 		return wManager.getComponent();
 	}
 	
-	public BaseMetricProvider<?> getActiveProvider() {
+	public GMBaseProvider<?> getActiveProvider() {
 		return activeProvider;
 	}
 	
-	public void showView(BaseMetricProvider<? extends BaseMetricWrapper> provider) {
-		this.activeProvider = provider;
+	public <W extends GMetric> void showMetric(Class<W> metricClz) {
+		this.activeProvider = providersCache.get(metricClz);
 		
-		if (activeProvider!=null) activeProvider.init();
-		
-		wManager.showView(activeProvider);
-		refreshView();
+		wManager.show(activeProvider);
+		refresh();
 	}
 	
-	public void doExport(GhidraMetricsExporter.Type type) {
+	public void doExport(GMExporter.Type type) {
 		if (activeProvider == null) 
 			throw new RuntimeException("ERROR: No active provider is selected!");
 
-		// TODO lock UI while export in process?
-		BaseMetricWrapper wrapper = activeProvider.getWrapper();
-		Path tmp = GhidraMetricsExporter.of(type).export(wrapper);
+		GMetric metric = activeProvider.getMetric();
+		
+		// TODO create a builder for export
+		// try to separate the FileChooser from the exporter.
+		/*
+		 * GMExporter.of(metric).toFile(..path).export(type)
+		 * 
+		 * or
+		 * 
+		 * GMExporter.of(metric).withFileChooser().export(type)
+		 * 
+		 */
+		
+		Path tmp = GMExporter.of(type).export(metric);
+		
 		Path dst = null;
 		{
 			GhidraFileChooser fileChooser = new GhidraFileChooser(getComponent());
@@ -122,7 +138,7 @@ public class GhidraMetricsProvider extends ComponentProvider {
 		}
 	}
 	
-	public final void refreshView() {
+	public final void refresh() {
 		if (activeProvider == null) {
 			// main view
 			setSubTitle(null);
@@ -130,7 +146,7 @@ public class GhidraMetricsProvider extends ComponentProvider {
 			
 		} else {
 			// metric view
-			setSubTitle(activeProvider.getWrapper().getName());
+			setSubTitle(activeProvider.getMetric().getName());
 			addLocalActions();
 		}
 
@@ -146,6 +162,25 @@ public class GhidraMetricsProvider extends ComponentProvider {
 	private final void removeLocalActions() {
 		for (DockingAction action: actions) {
 			dockingTool.removeLocalAction(this, action);
+		}
+	}
+	
+
+	private final class GMProvidersCache {
+		private final Map<Class<? extends GMetric>, GMBaseProvider<?>> _cache;
+		
+		public GMProvidersCache(){
+			this._cache = new HashMap<>();	
+		}
+		
+		@SuppressWarnings("unchecked")
+		public <W extends GMetric> GMBaseProvider<W> get(Class<W> clz) {
+			GMBaseProvider<W> provider = (GMBaseProvider<W>) _cache.get(clz);
+			if (provider == null) {
+				provider = new GMBaseProvider<W>(plugin, clz);
+				_cache.put(clz, provider);
+			}
+			return provider;
 		}
 	}
 }

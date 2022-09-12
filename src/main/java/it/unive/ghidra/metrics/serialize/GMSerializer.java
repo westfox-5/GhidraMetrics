@@ -1,4 +1,4 @@
-package ghidrametrics.serialize;
+package it.unive.ghidra.metrics.serialize;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -7,27 +7,27 @@ import java.nio.file.StandardOpenOption;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import ghidrametrics.GhidraMetricsExporter;
-import ghidrametrics.base.BaseMetricWrapper;
+import it.unive.ghidra.metrics.GMExporter;
+import it.unive.ghidra.metrics.base.GMetric;
 
-public abstract class Serializer {
+public abstract class GMSerializer {
 	
-	public static Serializer of(GhidraMetricsExporter.Type type) {
-		if (type == GhidraMetricsExporter.Type.JSON) return new JSONSerializer();
+	public static GMSerializer of(GMExporter.Type type) {
+		if (type == GMExporter.Type.JSON) return new GMJSONSerializer();
 		return null;
 	}
 	
 	private Stream<String> lines;
-	private final GhidraMetricsExporter.Type type;
+	private final GMExporter.Type type;
 	
-	protected Serializer(GhidraMetricsExporter.Type type) {
+	protected GMSerializer(GMExporter.Type type) {
 		this.type = type;
 	}
 	
-	protected abstract <V> StringBuilder serializeWrapper(BaseMetricWrapper wrapper);
+	protected abstract <V> StringBuilder serializeMetric(GMetric metric);
 	
-	public Serializer serialize(BaseMetricWrapper wrapper) throws IOException {
-		StringBuilder sb = serializeWrapper(wrapper);
+	public GMSerializer serialize(GMetric metric) throws IOException {
+		StringBuilder sb = serializeMetric(metric);
 		
 		this.lines = Pattern.compile(System.lineSeparator()).splitAsStream(sb);
 		
@@ -50,7 +50,7 @@ public abstract class Serializer {
 		}				
 	}
 	
-	public GhidraMetricsExporter.Type getType() {
+	public GMExporter.Type getType() {
 		return type;
 	}
 

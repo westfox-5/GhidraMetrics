@@ -2,6 +2,7 @@ package it.unive.ghidra.metrics.base;
 
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -11,8 +12,23 @@ import javax.swing.JComponent;
 import ghidra.program.model.listing.Program;
 import it.unive.ghidra.metrics.base.GMBaseValue.NumericMetric;
 import it.unive.ghidra.metrics.base.GMBaseValue.StringMetric;
+import it.unive.ghidra.metrics.impl.halstead.GMHalstead;
 
 public abstract class GMetric {
+	
+	private static final Map<String, Class<? extends GMetric>> metricLookup;
+	static {
+		metricLookup = new HashMap<>();
+		metricLookup.put(GMHalstead.NAME, GMHalstead.class);
+		
+	}
+	
+	public static Class<? extends GMetric> metricByName(String name) {
+		return metricLookup.get(name);
+	}
+	public static Collection<Class<? extends GMetric>> allMetrics() {
+		return metricLookup.values();
+	}
 
 	private final Map<String, GMBaseValue<?>> metricsByKey;
 	

@@ -1,10 +1,7 @@
 package it.unive.ghidra.metrics;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,16 +12,12 @@ import javax.swing.JComponent;
 
 import docking.ComponentProvider;
 import docking.action.DockingAction;
-import docking.widgets.filechooser.GhidraFileChooser;
 import ghidra.util.Msg;
-import ghidra.util.filechooser.GhidraFileChooserModel;
-import ghidra.util.filechooser.GhidraFileFilter;
-import it.unive.ghidra.metrics.base.GMetric;
 import it.unive.ghidra.metrics.base.GMBaseProvider;
+import it.unive.ghidra.metrics.base.GMetric;
 import it.unive.ghidra.metrics.ui.GMActionBack;
 import it.unive.ghidra.metrics.ui.GMActionExport;
 import it.unive.ghidra.metrics.ui.GMWindowManager;
-import it.unive.ghidra.metrics.util.StringUtils;
 
 public class GMProvider extends ComponentProvider {
 	
@@ -86,51 +79,16 @@ public class GMProvider extends ComponentProvider {
 			throw new RuntimeException("ERROR: No active provider is selected!");
 
 		GMetric metric = activeProvider.getMetric();
-		
-		// TODO create a builder for export
-		// try to separate the FileChooser from the exporter.
-		/*
-		 * GMExporter.of(metric).toFile(..path).export(type)
-		 * 
-		 * or
-		 * 
-		 * GMExporter.of(metric).withFileChooser().export(type)
-		 * 
-		 */
-		
-		Path tmp = GMExporter.of(type).export(metric);
-		
-		Path dst = null;
-		{
-			GhidraFileChooser fileChooser = new GhidraFileChooser(getComponent());
-			fileChooser.setMultiSelectionEnabled(false);
-			fileChooser.setSelectedFileFilter(new GhidraFileFilter() {
-				@Override
-				public String getDescription() {
-					return "Only " + type.name() + " files";
-				}
-				
-				@Override
-				public boolean accept(File arg0, GhidraFileChooserModel arg1) {					
-					String extension = StringUtils.getFileExtension(arg0);
-					return type.getExtension().equalsIgnoreCase(extension);
-				}
-			});
-			
-			File selectedFile = fileChooser.getSelectedFile();
-			dst = selectedFile.toPath();
-		}
-		
-		if (dst == null) {
-			throw new RuntimeException("Could not open selected file.");
-		}
-		
+
 		try {
-			Files.copy(tmp, dst, StandardCopyOption.COPY_ATTRIBUTES, StandardCopyOption.REPLACE_EXISTING);
-			Files.deleteIfExists(tmp);
+			Path exportPath = GMExporter.make(plugin)
+					.addMetric(metric)
+					.exportType(type)
+					.withFileChooser()
+					.export();
 			
-			Msg.info(this, "Export to file: "+ dst.toAbsolutePath());
-			Msg.showInfo(this, getComponent(), "Export", "File exported: "+ dst.toAbsolutePath());
+			Msg.info(this, "Export to file: "+ exportPath.toAbsolutePath());
+			Msg.showInfo(this, getComponent(), "Export", "File exported: "+ exportPath.toAbsolutePath());
 			
 		// TODO handle these exceptions more gracefully
 		} catch (IOException x) {

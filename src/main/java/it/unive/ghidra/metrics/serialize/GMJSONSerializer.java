@@ -1,5 +1,6 @@
 package it.unive.ghidra.metrics.serialize;
 
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.function.BiConsumer;
 
@@ -11,14 +12,15 @@ import it.unive.ghidra.metrics.util.StringUtils;
 
 /**
  * 
- * {
- * 	name,
- * 	metrics: {
- * 	 keys: [{name, type, info: [{name, value}] }]
- *   values: [{keyName, value}]
- *  }
- * }
- * 
+ * [
+ *   {
+ *   	name,
+ *   	metrics: {
+ *   	 keys: [{name, type, info: [{name, value}] }]
+ *     values: [{keyName, value}]
+ *    }
+ *   }
+ * ]
  */
 public class GMJSONSerializer extends GMSerializer {
 
@@ -27,7 +29,30 @@ public class GMJSONSerializer extends GMSerializer {
 	}
 
 	@Override
-	protected <V> StringBuilder serializeMetric(GMetric metric) {
+	protected <V> StringBuilder serialize(Collection<GMetric> metrics) {
+		StringBuilder sb = new StringBuilder();
+		
+		sb.append("[");
+		dumpAll(metrics.iterator(), (sb_, next) -> {
+			sb_.append(serialize(next));
+		});
+		sb.append("]");
+
+		return sb;
+	}
+	
+	/**
+	 * A metric object is formatted as:
+	 * 
+	 * {
+	 * 	name, 
+	 * 	metric: { 
+	 * 		keys: [ metricKey ],
+	 * 		values: [ metricValue ]
+	 *  }
+	 * }
+	 */
+	private StringBuilder serialize(GMetric metric) {
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append("{")
@@ -43,9 +68,11 @@ public class GMJSONSerializer extends GMSerializer {
 	}
 
 	/**
+	 * A metric key is formatted as:
+	 * 
 	 * { name, type, info: [{name, value}] }
 	 */
-	private String dumpMetricKeys(GMetric metric) {
+	private StringBuilder dumpMetricKeys(GMetric metric) {
 		Iterator<GMBaseKey> it = metric.getMetrics().stream().map(m -> m.getKey()).iterator();
 		
 		StringBuilder dump = dumpAll(it, (sb, next) -> {
@@ -62,13 +89,14 @@ public class GMJSONSerializer extends GMSerializer {
 			sb.append("}");
 		});
 		
-		return dump.toString();
+		return dump;
 	}
 
 	/**
+	 * A metric value is formatted as:
 	 * { keyName, value } 
 	 */
-	private String dumpMetricValues(GMetric metric) {
+	private StringBuilder dumpMetricValues(GMetric metric) {
 		Iterator<GMBaseValue<?>> it = metric.getMetrics().iterator();
 		
 		StringBuilder dump = dumpAll(it, (sb, next) -> {
@@ -78,7 +106,7 @@ public class GMJSONSerializer extends GMSerializer {
 			.append("}");
 		});
 		
-		return dump.toString();
+		return dump;
 	}
 	
 	private <T> StringBuilder dumpAll(Iterator<T> it, BiConsumer<StringBuilder, T> f) {
@@ -94,5 +122,5 @@ public class GMJSONSerializer extends GMSerializer {
 		
 		return sb;
 	}
-		
+
 }

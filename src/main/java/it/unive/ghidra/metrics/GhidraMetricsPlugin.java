@@ -15,6 +15,7 @@
  */
 package it.unive.ghidra.metrics;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import ghidra.app.plugin.PluginCategoryNames;
@@ -24,7 +25,6 @@ import ghidra.framework.plugintool.PluginTool;
 import ghidra.framework.plugintool.util.PluginStatus;
 import ghidra.util.HelpLocation;
 import it.unive.ghidra.metrics.base.GMetric;
-import it.unive.ghidra.metrics.impl.halstead.GMHalstead;
 
 /**
  * TODO: Provide class-level documentation that describes what this plugin does.
@@ -43,7 +43,7 @@ public class GhidraMetricsPlugin extends ProgramPlugin {
 	public static final String PACKAGE_NAME = "it.unive.ghidra.metrics";
 	
 	public static Set<Class<? extends GMetric>> getEnabledMetrics() {
-		return Set.of(GMHalstead.class);
+		return new HashSet<>(GMetric.allMetrics());
 	}
 	
 	private final GMProvider provider;

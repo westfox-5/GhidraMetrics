@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Collection;
+import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -24,14 +26,12 @@ public abstract class GMSerializer {
 		this.type = type;
 	}
 	
-	protected abstract <V> StringBuilder serializeMetric(GMetric metric);
+	protected abstract <V> StringBuilder serialize(Collection<GMetric> metrics);
 	
-	public GMSerializer serialize(GMetric metric) throws IOException {
-		StringBuilder sb = serializeMetric(metric);
+	public void serializeAll(List<GMetric> metrics) throws IOException {
+		StringBuilder sb = serialize(metrics);
 		
 		this.lines = Pattern.compile(System.lineSeparator()).splitAsStream(sb);
-		
-		return this;
 	}
 	
 	public void toFile(Path dest) throws IOException {

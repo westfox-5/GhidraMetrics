@@ -1,2 +1,2 @@
 # GhidraMetrics
-Ghidra's extension for program metrics
+A plugin for Ghidra that calculates code metrics on binary

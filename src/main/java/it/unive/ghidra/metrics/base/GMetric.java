@@ -1,5 +1,6 @@
 package it.unive.ghidra.metrics.base;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -99,4 +100,27 @@ public abstract class GMetric {
 	public GMBaseValue<?> getMetric(GMBaseKey mKey) {
 		return getMetric(mKey.getName());
 	}
+	
+
+	public static <T extends GMetric> T initialize(Class<T> metricClz, Program progam) {
+		try {
+			Constructor<T> declaredConstructor = metricClz.getDeclaredConstructor(Program.class);
+			T metric = declaredConstructor.newInstance(progam);
+			
+			return metric;
+
+		// TODO handle these exceptions more gracefully
+		} catch (InstantiationException x) {
+		    x.printStackTrace();
+		} catch (IllegalAccessException x) {
+		    x.printStackTrace();
+		} catch (InvocationTargetException x) {
+		    x.printStackTrace();
+		} catch (NoSuchMethodException x) {
+		    x.printStackTrace();
+		}
+		
+		return null;
+	}
+	
 }

@@ -1,8 +1,5 @@
 package it.unive.ghidra.metrics.base;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
@@ -32,21 +29,7 @@ public class GMBaseProvider<T extends GMetric> {
 	
 	private final void init() {
 		if (metric == null) {
-			
-			try {
-				Constructor<T> declaredConstructor = metricClz.getDeclaredConstructor(Program.class);
-				metric = declaredConstructor.newInstance(getCurrentProgram());
-
-			// TODO handle these exceptions more gracefully
-			} catch (InstantiationException x) {
-			    x.printStackTrace();
-			} catch (IllegalAccessException x) {
-			    x.printStackTrace();
-			} catch (InvocationTargetException x) {
-			    x.printStackTrace();
-			} catch (NoSuchMethodException x) {
-			    x.printStackTrace();
-			}
+			metric = GMetric.initialize(metricClz, getCurrentProgram());
 		}
 	}
 

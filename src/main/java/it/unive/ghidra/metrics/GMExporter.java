@@ -33,6 +33,10 @@ public class GMExporter {
 		}
 	}
 	
+	public static final GMExporter.Builder make() {
+		return new Builder(null);
+	}
+
 	public static final GMExporter.Builder make(GhidraMetricsPlugin plugin) { 
 		return new Builder(plugin); 
 	}
@@ -63,6 +67,7 @@ public class GMExporter {
 		}
 		
 		public Builder withFileChooser() {
+			// TODO hide this method if plugin is null
 			this.withFileChooser = true;
 			this.path = null;
 			return this;

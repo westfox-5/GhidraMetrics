@@ -110,7 +110,7 @@ public abstract class GMScriptArgument<T> {
 		this.value = getTypedValue(str);
 	}
 	
-	protected T getValue() {
+	public T getValue() {
 		return value;
 	}
 

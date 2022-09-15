@@ -1,24 +1,25 @@
 import java.nio.file.Path;
 
 import ghidra.util.Msg;
-import it.unive.ghidra.metrics.GMExporter;
 import it.unive.ghidra.metrics.base.GMetric;
+import it.unive.ghidra.metrics.export.GMExporter;
 import it.unive.ghidra.metrics.script.GMBaseScript;
-import it.unive.ghidra.metrics.script.GMScriptArgument.GMScriptArgumentName;
+import it.unive.ghidra.metrics.script.GMScriptArgument.GMScriptArgumentOption;
 
 public class GMScript extends GMBaseScript {
-	
-	public GMScript() { 
-		super();
-	}
-	
+
 	@Override
-	protected void run() throws Exception {		
-		GMetric metric = GMetric.initialize(getArgValue(GMScriptArgumentName.METRIC_NAME), getCurrentProgram());
-		GMExporter.Type exportType = getArgValue(GMScriptArgumentName.EXPORT_TYPE);
-		Path exportPath = getArgValue(GMScriptArgumentName.EXPORT_PATH);
+	protected void run() throws Exception {
+		parseArgs();
 		
-		GMExporter.make().addMetric(metric).exportType(exportType).toPath(exportPath);
+		GMetric metric = GMetric.initialize(getArgValue(GMScriptArgumentOption.METRIC_NAME), getCurrentProgram());
+		GMExporter.Type exportType = getArgValue(GMScriptArgumentOption.EXPORT_TYPE);
+		Path exportPath = getArgValue(GMScriptArgumentOption.EXPORT_PATH);
+		
+		GMExporter.of(exportType)
+			.addMetric(metric)
+			.toPath(exportPath)
+		.export();
 		Msg.info(this, "Exported to: "+ exportPath.toAbsolutePath());
 	}
 

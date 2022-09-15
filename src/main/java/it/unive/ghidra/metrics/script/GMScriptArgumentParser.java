@@ -3,21 +3,27 @@ package it.unive.ghidra.metrics.script;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
-import it.unive.ghidra.metrics.script.GMScriptArgument.GMScriptArgumentName;
+import it.unive.ghidra.metrics.script.GMScriptArgument.GMScriptArgumentOption;
 
 public final class GMScriptArgumentParser {
 	private static final String ARG_VALUE_SEPARATOR = "=";
 	
-	protected static Map<GMScriptArgumentName, GMScriptArgument<?>> parse(String... args) {
-		Map<GMScriptArgumentName, GMScriptArgument<?>> map = new HashMap<>();
+	protected static Map<GMScriptArgumentOption, GMScriptArgument<?>> parse(String... args) {
+		Map<GMScriptArgumentOption, GMScriptArgument<?>> map = new HashMap<>();
 		
 		if (args != null && args.length>0) {			
 			List.of(args).forEach( token -> {
 				var arg = parseToken(token);
-				map.put(arg.getName(), arg);
+				map.put(arg.getOption(), arg);
 			});
 		}
+		
+		/// validation
+		validateAllRequiredArgs(map);
+		
+		validateAllCoupledArgs(map);
 		
 		return map;
 	}
@@ -39,4 +45,28 @@ public final class GMScriptArgumentParser {
 		return arg;
 	}
 	
+	private static void validateAllRequiredArgs(Map<GMScriptArgumentOption, GMScriptArgument<?>> args) {
+		Stream.of(GMScriptArgumentOption.values()).parallel()
+			.filter(opt -> opt.isRequired() && opt.getParent()==null && !args.containsKey(opt))
+			.forEach(opt -> {
+				throwRequiredParameterMissing(opt);
+			});
+	}
+	
+	private static void validateAllCoupledArgs(Map<GMScriptArgumentOption, GMScriptArgument<?>> args) {
+		Stream.of(GMScriptArgumentOption.values()).parallel()
+			.filter(opt -> opt.isRequired() && !args.containsKey(opt))
+			.filter(opt -> opt.getParent()!=null && args.containsKey(opt.getParent()))
+			.forEach(opt -> {
+				throwRequiredParameterCouple(opt.getParent(), opt);
+			});
+	}
+
+	private static void throwRequiredParameterCouple(GMScriptArgumentOption arg1, GMScriptArgumentOption arg2) {
+		throw new IllegalArgumentException("Missing parameter '"+arg2.getOption()+"' required by parameter '"+arg1.getOption()+"'");
+	}
+	
+	private static void throwRequiredParameterMissing(GMScriptArgumentOption arg) {
+		throw new IllegalArgumentException("Missing a required parameter: '"+arg.getOption()+"'");
+	}
 }

@@ -15,6 +15,7 @@ import docking.action.DockingAction;
 import ghidra.util.Msg;
 import it.unive.ghidra.metrics.base.GMBaseProvider;
 import it.unive.ghidra.metrics.base.GMetric;
+import it.unive.ghidra.metrics.export.GMExporter;
 import it.unive.ghidra.metrics.ui.GMActionBack;
 import it.unive.ghidra.metrics.ui.GMActionExport;
 import it.unive.ghidra.metrics.ui.GMWindowManager;
@@ -74,18 +75,14 @@ public class GMProvider extends ComponentProvider {
 		refresh();
 	}
 	
-	public void doExport(GMExporter.Type type) {
+	public void doExport(GMExporter.Type exportType) {
 		if (activeProvider == null) 
 			throw new RuntimeException("ERROR: No active provider is selected!");
 
 		GMetric metric = activeProvider.getMetric();
 
 		try {
-			Path exportPath = GMExporter.make(plugin)
-					.addMetric(metric)
-					.exportType(type)
-					.withFileChooser()
-					.export();
+			Path exportPath = GMExporter.of(exportType, plugin).addMetric(metric).withFileChooser().export();
 			
 			Msg.info(this, "Export to file: "+ exportPath.toAbsolutePath());
 			Msg.showInfo(this, getComponent(), "Export", "File exported: "+ exportPath.toAbsolutePath());

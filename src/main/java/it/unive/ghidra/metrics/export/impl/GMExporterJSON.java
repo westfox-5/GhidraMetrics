@@ -1,30 +1,18 @@
-package it.unive.ghidra.metrics.serialize;
+package it.unive.ghidra.metrics.export.impl;
 
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.function.BiConsumer;
 
-import it.unive.ghidra.metrics.GMExporter;
 import it.unive.ghidra.metrics.base.GMBaseKey;
 import it.unive.ghidra.metrics.base.GMBaseValue;
 import it.unive.ghidra.metrics.base.GMetric;
+import it.unive.ghidra.metrics.export.GMExporter;
 import it.unive.ghidra.metrics.util.StringUtils;
 
-/**
- * 
- * [
- *   {
- *   	name,
- *   	metrics: {
- *   	 keys: [{name, type, info: [{name, value}] }]
- *     values: [{keyName, value}]
- *    }
- *   }
- * ]
- */
-public class GMJSONSerializer extends GMSerializer {
+public class GMExporterJSON extends GMExporter {
 
-	public GMJSONSerializer() {
+	public GMExporterJSON() {
 		super(GMExporter.Type.JSON);
 	}
 
@@ -43,7 +31,6 @@ public class GMJSONSerializer extends GMSerializer {
 	
 	/**
 	 * A metric object is formatted as:
-	 * 
 	 * {
 	 * 	name, 
 	 * 	metric: { 
@@ -69,7 +56,6 @@ public class GMJSONSerializer extends GMSerializer {
 
 	/**
 	 * A metric key is formatted as:
-	 * 
 	 * { name, type, info: [{name, value}] }
 	 */
 	private StringBuilder dumpMetricKeys(GMetric metric) {

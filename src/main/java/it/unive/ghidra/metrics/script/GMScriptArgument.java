@@ -5,9 +5,9 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
-import it.unive.ghidra.metrics.GMExporter;
-import it.unive.ghidra.metrics.GMExporter.Type;
 import it.unive.ghidra.metrics.base.GMetric;
+import it.unive.ghidra.metrics.export.GMExporter;
+import it.unive.ghidra.metrics.export.GMExporter.Type;
 
 /**
  * 
@@ -17,29 +17,61 @@ import it.unive.ghidra.metrics.base.GMetric;
 public abstract class GMScriptArgument<T> {
 
 	/**
-	 * Argument name definition
+	 * Argument option definition
 	 */
-	public static enum GMScriptArgumentName {
-		METRIC_NAME("metricName"), EXPORT_TYPE("exportType"), EXPORT_PATH("exportPath");
+	public static enum GMScriptArgumentOption {
+		METRIC_NAME("metricName", true), 
+		EXPORT_TYPE("exportType"), EXPORT_PATH("exportPath", true, GMScriptArgumentOption.EXPORT_TYPE);
 		
-		private String name;
-		private GMScriptArgumentName(String name) {
-			this.name = name;
+		private final String option;
+		private final boolean required;
+		private final GMScriptArgumentOption parent;
+		
+		private GMScriptArgumentOption(String option, boolean required, GMScriptArgumentOption parent) {
+			this.option = option;
+			this.required = required;
+			this.parent = parent;
 		}
 		
-		private static final Map<String, GMScriptArgument.GMScriptArgumentName> lookupByName;
+		private GMScriptArgumentOption(String option) {
+			this(option, false, null);
+		}
+		
+		private GMScriptArgumentOption(String option, boolean required) {
+			this(option, required, null);
+		}
+		
+		private GMScriptArgumentOption(String option, GMScriptArgumentOption parent) {
+			this(option, false, parent);
+		}
+
+		
+		public String getOption() {
+			return option;
+		}
+		
+		public boolean isRequired() {
+			return required;
+		}
+
+		public GMScriptArgumentOption getParent() {
+			return parent;
+		}
+
+
+		private static final Map<String, GMScriptArgument.GMScriptArgumentOption> lookupByOption;
 		static {
-			lookupByName = new HashMap<>();
-			for (GMScriptArgument.GMScriptArgumentName argName: GMScriptArgumentName.values()) {
-				lookupByName.put(argName.name, argName);
+			lookupByOption = new HashMap<>();
+			for (GMScriptArgument.GMScriptArgumentOption argName: GMScriptArgumentOption.values()) {
+				lookupByOption.put(argName.option, argName);
 			}
 		}
-		public static final GMScriptArgument.GMScriptArgumentName of(String name) {
-			return lookupByName.get(name);
+		public static final GMScriptArgument.GMScriptArgumentOption of(String name) {
+			return lookupByOption.get(name);
 		}
 	}
 	
-	private static final Map<GMScriptArgument.GMScriptArgumentName, GMScriptArgument<?>> lookupByName = new HashMap<>();
+	private static final Map<GMScriptArgument.GMScriptArgumentOption, GMScriptArgument<?>> lookupByOption = new HashMap<>();
 
 	// -------------------
 	//     ARG_DEFAULT
@@ -58,7 +90,7 @@ public abstract class GMScriptArgument<T> {
 	// -----------------------
 	// -- Name: METRIC_NAME 
 	// -- Type: Class<? extends GMetric>
-	public static final GMScriptArgument<Class<? extends GMetric>> ARG_METRIC_NAME = new GMScriptArgument<>(GMScriptArgumentName.METRIC_NAME) {
+	public static final GMScriptArgument<Class<? extends GMetric>> ARG_METRIC_NAME = new GMScriptArgument<>(GMScriptArgumentOption.METRIC_NAME) {
 		@Override
 		protected Class<? extends GMetric> getTypedValue(String str) {
 			return GMetric.metricByName(str);
@@ -70,7 +102,7 @@ public abstract class GMScriptArgument<T> {
 	// -----------------------
 	// -- Name: EXPORT_TYPE 
 	// -- Type: GMExporter.Type
-	public static final GMScriptArgument<GMExporter.Type> ARG_EXPORT_TYPE = new GMScriptArgument<>(GMScriptArgumentName.EXPORT_TYPE) {
+	public static final GMScriptArgument<GMExporter.Type> ARG_EXPORT_TYPE = new GMScriptArgument<>(GMScriptArgumentOption.EXPORT_TYPE) {
 		@Override
 		protected Type getTypedValue(String str) {
 			return GMExporter.Type.valueOf(str);
@@ -82,7 +114,7 @@ public abstract class GMScriptArgument<T> {
 	// -----------------------
 	// -- Name: EXPORT_PATH 
 	// -- Type: Path
-	public static final GMScriptArgument<Path> ARG_EXPORT_PATH = new GMScriptArgument<>(GMScriptArgumentName.EXPORT_PATH) {
+	public static final GMScriptArgument<Path> ARG_EXPORT_PATH = new GMScriptArgument<>(GMScriptArgumentOption.EXPORT_PATH) {
 		@Override
 		protected Path getTypedValue(String str) {
 			return Paths.get(str);
@@ -91,17 +123,17 @@ public abstract class GMScriptArgument<T> {
 	};
 	
 	public static final GMScriptArgument<?> byName(String name) {
-		return lookupByName.getOrDefault(GMScriptArgumentName.of(name), ARG_DEFAULT);
+		return lookupByOption.getOrDefault(GMScriptArgumentOption.of(name), ARG_DEFAULT);
 	}
 
 	
-	private final GMScriptArgument.GMScriptArgumentName name;
+	private final GMScriptArgument.GMScriptArgumentOption option;
 	private T value;
 	
-	private GMScriptArgument(GMScriptArgument.GMScriptArgumentName name) {
-		this.name = name;
+	private GMScriptArgument(GMScriptArgument.GMScriptArgumentOption option) {
+		this.option = option;
 		
-		lookupByName.put(name, this);
+		lookupByOption.put(option, this);
 	}
 	
 	protected abstract T getTypedValue(String str);
@@ -114,7 +146,7 @@ public abstract class GMScriptArgument<T> {
 		return value;
 	}
 
-	public GMScriptArgument.GMScriptArgumentName getName() {
-		return name;
+	public GMScriptArgument.GMScriptArgumentOption getOption() {
+		return option;
 	}
 }

@@ -3,9 +3,9 @@ package it.unive.ghidra.metrics.ui;
 import docking.ActionContext;
 import docking.action.MenuData;
 import docking.menu.MultiActionDockingAction;
-import it.unive.ghidra.metrics.GMExporter;
 import it.unive.ghidra.metrics.GMProvider;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
+import it.unive.ghidra.metrics.export.GMExporter;
 
 public final class GMActionExport extends MultiActionDockingAction {
 	

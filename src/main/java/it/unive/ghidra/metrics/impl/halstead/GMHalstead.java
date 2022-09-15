@@ -1,21 +1,17 @@
 package it.unive.ghidra.metrics.impl.halstead;
 
-import java.awt.BorderLayout;
 import java.math.BigDecimal;
-import java.util.Set;
 
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
-
+import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.Program;
 import it.unive.ghidra.metrics.base.GMetric;
-import it.unive.ghidra.metrics.base.GMBaseValue;
-import it.unive.ghidra.metrics.impl.halstead.GMHalsteadProgramParser.Result;
+import it.unive.ghidra.metrics.impl.halstead.GMHalsteadParser.Result;
 import it.unive.ghidra.metrics.util.NumberUtils;
-import it.unive.ghidra.metrics.util.StringUtils;
 
 public class GMHalstead extends GMetric {
 	public static final String NAME = "HALSTEAD";
+	
+	private final GMHalsteadParser parser;
 	
 	BigDecimal n1; // no. operators [distinct, total]
 	BigDecimal N1;
@@ -23,14 +19,25 @@ public class GMHalstead extends GMetric {
 	BigDecimal n2; // no. operands [distinct, total]
 	BigDecimal N2;
 	
+	private Function function;
+	
+	private GMHalstead fnHalstead;
+	
 	public GMHalstead(Program program) {
-		super(NAME, program);
-		
-		init();
+		super(NAME, program, GMHalsteadWindowManager.class);
+		this.parser = GMHalsteadParser.programParser(program);
 	}
 	
-	private final void init() {
-		Result result = new GMHalsteadProgramParser().parse(getProgram());
+	public GMHalstead(Function function) {
+		super(NAME, function.getProgram(), GMHalsteadWindowManager.class);
+		this.parser = GMHalsteadParser.functionParser(function);
+		this.function = function;
+	}
+	
+	@Override
+	protected void init() {
+		clearMetrics();
+		Result result = getParser().parse();
 		
 		this.n1 = result.n1;
 		this.n2 = result.n2;
@@ -40,6 +47,16 @@ public class GMHalstead extends GMetric {
 		GMHalsteadKey.ALL_KEYS.forEach(k -> {
 			createMetric(k);
 		});
+	}
+
+	@Override
+	protected void functionChanged(Function fn) {
+		fnHalstead = new GMHalstead(fn);
+		fnHalstead.init();
+	}
+	
+	private GMHalsteadParser getParser() {
+		return parser;
 	}
 	
 	public BigDecimal getNumDistinctOperators() {
@@ -140,27 +157,12 @@ public class GMHalstead extends GMetric {
 		return V.divide(new BigDecimal(3000), NumberUtils.DEFAULT_CONTEXT);
 	}
 
-	@Override
-	protected void buildComponent() {
-		// TODO use a windowManager
-		component = new JPanel(new BorderLayout());
-		
-		JTextArea textArea = new JTextArea();
-		textArea.setEditable(false);
-			
-		StringBuilder sb = new StringBuilder();
-		
-		Set<GMBaseValue<?>> metrics = getMetrics();
-		for (GMBaseValue<?> metric: metrics) {			
-			String value = StringUtils.quotate(metric.getValue());
-			sb.append(metric.getDescription())
-				.append("(").append(metric.getName()).append("): ")
-				.append(value)
-				.append("\n");
-		}
-		
-		textArea.setText(sb.toString());
-		component.add(textArea, BorderLayout.CENTER);		
+	public GMHalstead getFnHalstead() {
+		return fnHalstead;
 	}
 
+	public Function getFunction() {
+		return function;
+	} 
+	
 }

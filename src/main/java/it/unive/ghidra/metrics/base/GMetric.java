@@ -8,8 +8,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import javax.swing.JComponent;
-
+import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.Program;
 import it.unive.ghidra.metrics.base.GMBaseValue.NumericMetric;
 import it.unive.ghidra.metrics.base.GMBaseValue.StringMetric;
@@ -31,12 +30,25 @@ public abstract class GMetric {
 		return metricLookup.values();
 	}
 
-	private final Map<String, GMBaseValue<?>> metricsByKey;
 	
+	
+	
+	private final Map<String, GMBaseValue<?>> metricsByKey;
 	protected final String name;
 	protected final Program program;
-	protected JComponent component;
+	protected final Class<? extends GMBaseMetricWindowManager<?>> wmClz;
 	
+	protected GMetric(String name, Program program, Class<? extends GMBaseMetricWindowManager<?>> wmClz) {
+		this.name = name;
+		this.program = program;
+		this.metricsByKey = new HashMap<String, GMBaseValue<?>>();
+		this.wmClz = wmClz;
+	}
+		
+	protected abstract void init();
+	protected abstract void functionChanged(Function fn);
+	
+
 	private BigDecimal getNumericMetric(GMBaseKey key) throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		return key.getTypedValue(BigDecimal.class, this);
 	}
@@ -68,25 +80,13 @@ public abstract class GMetric {
 		    x.printStackTrace();
 		}	
 	}
-	
-	protected abstract void buildComponent();
-	
-	protected GMetric(String name, Program program) {
-		this.name = name;
-		this.program = program;
-		this.metricsByKey = new HashMap<String, GMBaseValue<?>>();
-	}
-	
+
 	public String getName() {
 		return name;
 	}
 
 	public Program getProgram() {
 		return program;
-	}
-	
-	public JComponent getComponent() {
-		return component;
 	}
 	
 	public Set<GMBaseValue<?>> getMetrics() {
@@ -101,11 +101,18 @@ public abstract class GMetric {
 		return getMetric(mKey.getName());
 	}
 	
+	protected void clearMetrics() {
+		this.metricsByKey.clear();
+	}
 
+	
+	
 	public static <T extends GMetric> T initialize(Class<T> metricClz, Program progam) {
 		try {
 			Constructor<T> declaredConstructor = metricClz.getDeclaredConstructor(Program.class);
 			T metric = declaredConstructor.newInstance(progam);
+			
+			metric.init();
 			
 			return metric;
 
@@ -123,4 +130,27 @@ public abstract class GMetric {
 		return null;
 	}
 	
+	
+	
+	@SuppressWarnings("unchecked")
+	public static <M extends GMetric, T extends GMBaseMetricWindowManager<M>> T windowManagerFor(M metric) {
+		try {
+			Constructor<T> declaredConstructor = ((Class<T>)metric.wmClz).getDeclaredConstructor(metric.getClass());
+			T wm = declaredConstructor.newInstance(metric);
+			
+			return wm;
+		
+		// TODO handle these exceptions more gracefully
+		} catch (InstantiationException x) {
+		    x.printStackTrace();
+		} catch (IllegalAccessException x) {
+		    x.printStackTrace();
+		} catch (InvocationTargetException x) {
+		    x.printStackTrace();
+		} catch (NoSuchMethodException x) {
+		    x.printStackTrace();
+		}
+		
+		return null;
+	}
 }

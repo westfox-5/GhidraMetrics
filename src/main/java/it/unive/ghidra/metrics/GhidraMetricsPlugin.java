@@ -23,6 +23,7 @@ import ghidra.app.plugin.ProgramPlugin;
 import ghidra.framework.plugintool.PluginInfo;
 import ghidra.framework.plugintool.PluginTool;
 import ghidra.framework.plugintool.util.PluginStatus;
+import ghidra.program.util.ProgramLocation;
 import ghidra.util.HelpLocation;
 import it.unive.ghidra.metrics.base.GMetric;
 
@@ -62,6 +63,11 @@ public class GhidraMetricsPlugin extends ProgramPlugin {
 		String topicName = this.getClass().getPackage().getName();
 		String anchorName = "HelpAnchor";
 		provider.setHelpLocation(new HelpLocation(topicName, anchorName));
+	}
+	
+	@Override
+	protected void locationChanged(ProgramLocation loc) {
+		provider.locationChanged(loc);
 	}
 	
 	public GMProvider getProvider() {

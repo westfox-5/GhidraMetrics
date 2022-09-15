@@ -20,6 +20,7 @@ public class GMScript extends GMBaseScript {
 			.addMetric(metric)
 			.toPath(exportPath)
 		.export();
+		
 		Msg.info(this, "Exported to: "+ exportPath.toAbsolutePath());
 	}
 

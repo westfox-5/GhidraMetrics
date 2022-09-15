@@ -147,6 +147,21 @@ public abstract class GMExporter {
 			return fc;
 		}
 		
+		
+		private Path getExportPath() {
+			if (withFileChooser) {
+				final GhidraFileChooser fileChooser = createFileChooser();
+				File selectedFile = fileChooser.getSelectedFile();
+				
+				if (selectedFile == null)
+					return null;
+				
+				return selectedFile.toPath();
+			}
+			
+			return choosenPath;
+		}
+		
 		public Path export() throws IOException {
 			if (metrics.isEmpty()) 
 				return null;
@@ -154,17 +169,13 @@ public abstract class GMExporter {
 			if (exportType == null)
 				return null;
 			
-			Path destPath;
-			if (withFileChooser) {
-				final GhidraFileChooser fileChooser = createFileChooser();
-				destPath = fileChooser.getSelectedFile().toPath();
-			} else {
-				destPath = choosenPath;
-			}
+			Path exportPath = getExportPath();
+			if (exportPath == null) 
+				return null;
 			
-			newInstance(exportType).serializeToFile(destPath, metrics);
+			newInstance(exportType).serializeToFile(exportPath, metrics);
 			
-			return destPath;
+			return exportPath;
 		}
 	}
 }

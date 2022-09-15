@@ -12,6 +12,7 @@ import javax.swing.JComponent;
 
 import docking.ComponentProvider;
 import docking.action.DockingAction;
+import ghidra.program.util.ProgramLocation;
 import ghidra.util.Msg;
 import it.unive.ghidra.metrics.base.GMBaseProvider;
 import it.unive.ghidra.metrics.base.GMetric;
@@ -68,6 +69,12 @@ public class GMProvider extends ComponentProvider {
 		return activeProvider;
 	}
 	
+	public void showMainWindow() {
+		this.activeProvider = null;
+		wManager.show(null);
+		refresh();
+	}
+	
 	public <W extends GMetric> void showMetric(Class<W> metricClz) {
 		this.activeProvider = providersCache.get(metricClz);
 		
@@ -83,6 +90,9 @@ public class GMProvider extends ComponentProvider {
 
 		try {
 			Path exportPath = GMExporter.of(exportType, plugin).addMetric(metric).withFileChooser().export();
+			
+			if (exportPath == null)
+				throw new RuntimeException("Could not export selected metric.");
 			
 			Msg.info(this, "Export to file: "+ exportPath.toAbsolutePath());
 			Msg.showInfo(this, getComponent(), "Export", "File exported: "+ exportPath.toAbsolutePath());
@@ -137,5 +147,18 @@ public class GMProvider extends ComponentProvider {
 			}
 			return provider;
 		}
+	}
+
+	public void locationChanged(ProgramLocation loc) {
+		if (activeProvider == null)
+			return;
+		
+		if (loc == null) 
+			return;
+		
+		if (!isVisible())
+			return;
+		
+		activeProvider.locationChanged(loc);
 	}
 }

@@ -25,7 +25,7 @@ public class GMActionBack extends DockingAction {
 	public void actionPerformed(ActionContext arg0) {
 		GMProvider provider = plugin.getProvider();
 		
-		provider.showMetric(null);
+		provider.showMainWindow();
 	}
 
 }

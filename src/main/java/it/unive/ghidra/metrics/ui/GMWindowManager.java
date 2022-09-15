@@ -7,27 +7,21 @@ import java.util.Collection;
 
 import javax.swing.BoxLayout;
 import javax.swing.JComponent;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
-import it.unive.ghidra.metrics.base.GMetric;
 import it.unive.ghidra.metrics.base.GMBaseProvider;
+import it.unive.ghidra.metrics.base.GMBaseWindowManager;
+import it.unive.ghidra.metrics.base.GMetric;
 
-public class GMWindowManager {
+public class GMWindowManager extends GMBaseWindowManager {
 	
 	private final GhidraMetricsPlugin plugin;
 	
-	private final JPanel 
-			container, // Main window
+	private JPanel 
 			pnlMetricList, // Metrics buttons container
 			pnlMetricContainer // Metric content
-	;
-	
-	private final JLabel 
-		lblMetricName
 	;
 	
 	/**
@@ -35,8 +29,11 @@ public class GMWindowManager {
 	 */
 	public GMWindowManager(GhidraMetricsPlugin plugin) {
 		this.plugin = plugin;
-		
-		container = new JPanel();
+	}
+	
+	@Override
+	protected JComponent createComponent() {
+		JComponent container = new JPanel();
 		container.setBorder(new EmptyBorder(5, 5, 5, 5));
 
 		container.setLayout(new BorderLayout(0, 0));
@@ -55,20 +52,14 @@ public class GMWindowManager {
 		JPanel pnlMetricFooter= new JPanel();
 		pnlMetricContainer.add(pnlMetricFooter, BorderLayout.SOUTH);
 		
-		lblMetricName = new JLabel();
-		pnlMetricHeader.add(lblMetricName);
-		lblMetricName.setHorizontalAlignment(SwingConstants.LEFT);
-		
 		pnlMetricList = new JPanel();
 		container.add(pnlMetricList, BorderLayout.CENTER);
 		pnlMetricList.setLayout(new GridLayout(0, 1, 0, 0));
 		pnlMetricList.setVisible(true);
-	}
-
-	public JPanel getComponent() {
+		
 		return container;
 	}
-
+	
 	public final void addEnabledMetrics(Collection<Class<? extends GMetric>> metricsClz) {
 		for (Class<? extends GMetric> metricClz: metricsClz) {
 			pnlMetricList.add(GMButton.of(plugin, metricClz));
@@ -81,8 +72,6 @@ public class GMWindowManager {
 			pnlMetricList.setVisible(true);
 
 		} else {
-			lblMetricName.setText(mProvider.getMetric().getName());
-			
 			JComponent component = mProvider.getComponent();
 			pnlMetricContainer.add(component, BorderLayout.CENTER); 
 
@@ -90,10 +79,7 @@ public class GMWindowManager {
 			pnlMetricContainer.setVisible(true);			
 		}
 		
-		container.revalidate(); // note: goes recursively on children!
+		revalidate();
 	}
 
-	public final void refresh() {
-		container.repaint();
-	}
 }

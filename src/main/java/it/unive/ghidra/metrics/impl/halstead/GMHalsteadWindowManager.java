@@ -12,6 +12,8 @@ import it.unive.ghidra.metrics.base.GMBaseMetricWindowManager;
 import it.unive.ghidra.metrics.base.GMBaseValue;
 import it.unive.ghidra.metrics.base.GMetric;
 import javax.swing.JLabel;
+import javax.swing.SwingConstants;
+import java.awt.Font;
 
 public class GMHalsteadWindowManager extends GMBaseMetricWindowManager<GMHalstead> {
 
@@ -63,6 +65,8 @@ public class GMHalsteadWindowManager extends GMBaseMetricWindowManager<GMHalstea
 			pnlNoFunctionSelected.setLayout(new BorderLayout(0, 0));
 			
 			lblNewLabel = new JLabel("Select a valid function in the listing");
+			lblNewLabel.setFont(new Font("Dialog", Font.BOLD | Font.ITALIC, 14));
+			lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
 			pnlNoFunctionSelected.add(lblNewLabel, BorderLayout.CENTER);
 		}
 		

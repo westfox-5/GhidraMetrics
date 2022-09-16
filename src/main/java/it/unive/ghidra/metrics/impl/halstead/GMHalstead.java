@@ -10,29 +10,39 @@ import it.unive.ghidra.metrics.util.NumberUtils;
 
 public class GMHalstead extends GMetric {
 	public static final String NAME = "HALSTEAD";
+
+	public static final class GMHalsteadFunction extends GMHalstead {
+		private final Function function;
+
+		public GMHalsteadFunction(Function function) {
+			super(function.getProgram(), GMHalsteadParser.functionParser(function));
+			this.function = function;
+		}
+		
+
+		public Function getFunction() {
+			return function;
+		}
+	}
 	
 	private final GMHalsteadParser parser;
+	private GMHalsteadFunction fnHalstead; // specific function metric 
 	
-	BigDecimal n1; // no. operators [distinct, total]
-	BigDecimal N1;
+	private BigDecimal n1; // no. operators [distinct, total]
+	private BigDecimal N1;
 
-	BigDecimal n2; // no. operands [distinct, total]
-	BigDecimal N2;
-	
-	private Function function;
-	
-	private GMHalstead fnHalstead;
+	private BigDecimal n2; // no. operands [distinct, total]
+	private BigDecimal N2;
 	
 	public GMHalstead(Program program) {
+		this(program, GMHalsteadParser.programParser(program));
+	}
+
+	public GMHalstead(Program program, GMHalsteadParser parser) {
 		super(NAME, program, GMHalsteadWindowManager.class);
-		this.parser = GMHalsteadParser.programParser(program);
+		this.parser = parser;
 	}
 	
-	public GMHalstead(Function function) {
-		super(NAME, function.getProgram(), GMHalsteadWindowManager.class);
-		this.parser = GMHalsteadParser.functionParser(function);
-		this.function = function;
-	}
 	
 	@Override
 	protected void init() {
@@ -51,7 +61,7 @@ public class GMHalstead extends GMetric {
 
 	@Override
 	protected void functionChanged(Function fn) {
-		fnHalstead = new GMHalstead(fn);
+		fnHalstead = new GMHalsteadFunction(fn);
 		fnHalstead.init();
 	}
 	
@@ -161,8 +171,4 @@ public class GMHalstead extends GMetric {
 		return fnHalstead;
 	}
 
-	public Function getFunction() {
-		return function;
-	} 
-	
 }

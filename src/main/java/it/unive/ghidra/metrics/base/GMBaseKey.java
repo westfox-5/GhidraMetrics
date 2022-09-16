@@ -34,7 +34,7 @@ public class GMBaseKey {
 	protected <T> T getTypedValue(Class<T> typeClz, GMetric metric) 
 			throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		String getterMethodName = StringUtils.getterMethodName(getName());
-		Method getterMethod = metric.getClass().getDeclaredMethod(getterMethodName);
+		Method getterMethod = metric.getClass().getMethod(getterMethodName);
 		Object value = getterMethod.invoke(metric);
 		
 		if (! typeClz.isAssignableFrom(value.getClass())) {

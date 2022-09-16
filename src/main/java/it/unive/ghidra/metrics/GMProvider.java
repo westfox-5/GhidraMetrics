@@ -3,10 +3,10 @@ package it.unive.ghidra.metrics;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.swing.JComponent;
 
@@ -44,7 +44,7 @@ public class GMProvider extends ComponentProvider {
 	}
 
 	private void buildPanel() {
-		Set<Class<? extends GMetric>> enabledMetrics = GhidraMetricsPlugin.getEnabledMetrics();
+		Collection<Class<? extends GMetric>> enabledMetrics = GhidraMetricsPlugin.DEBUG ? GMetric.allMetrics():  GhidraMetricsPlugin.getEnabledMetrics();
 		wManager.addEnabledMetrics(enabledMetrics);
 		
 		setVisible(true);

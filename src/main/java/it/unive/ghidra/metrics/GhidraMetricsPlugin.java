@@ -40,8 +40,10 @@ import it.unive.ghidra.metrics.base.GMetric;
 )
 //@formatter:on
 public class GhidraMetricsPlugin extends ProgramPlugin {
-
 	public static final String PACKAGE_NAME = "it.unive.ghidra.metrics";
+	
+	public static final boolean DEBUG = true;
+
 	
 	public static Set<Class<? extends GMetric>> getEnabledMetrics() {
 		return new HashSet<>(GMetric.allMetrics());

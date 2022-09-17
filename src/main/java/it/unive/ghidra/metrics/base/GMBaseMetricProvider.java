@@ -13,6 +13,8 @@ import it.unive.ghidra.metrics.export.GMExporter;
 import it.unive.ghidra.metrics.export.GMExporter.Type;
 import it.unive.ghidra.metrics.impl.halstead.GMHalstead;
 import it.unive.ghidra.metrics.impl.halstead.GMHalsteadProvider;
+import it.unive.ghidra.metrics.impl.ncd.GMNCD;
+import it.unive.ghidra.metrics.impl.ncd.GMNCDProvider;
 
 public class GMBaseMetricProvider<
 	M extends GMBaseMetric<M, P, W>,
@@ -29,11 +31,16 @@ public class GMBaseMetricProvider<
 			W extends GMBaseMetricWinManager<M, P, W>> 
 		P create(GhidraMetricsPlugin plugin, Class<M> metricClass) {
 			
-			if (GMHalstead.class.isAssignableFrom( metricClass ) ) {
+			if (GMHalstead.class.isAssignableFrom(metricClass)) {
 				return (P) new GMHalsteadProvider(plugin);
 			}
 			
-			return null;
+			if (GMNCD.class.isAssignableFrom(metricClass)) {
+				return (P) new GMNCDProvider(plugin);
+			}
+			
+			throw new RuntimeException("ERROR: no mapping defined for metric '"+ metricClass.getCanonicalName() +"'.");
+
 		}
 		
 		public static 
@@ -46,7 +53,12 @@ public class GMBaseMetricProvider<
 				return (P) new GMHalsteadProvider(program);
 			}
 			
-			return null;
+			if (GMNCD.NAME.equals(metricName)) {
+				return (P) new GMNCDProvider(program);
+			}
+			
+			throw new RuntimeException("ERROR: no mapping defined for metric '"+ metricName +"'.");
+
 		}
 	}
 	
@@ -64,21 +76,21 @@ public class GMBaseMetricProvider<
 		this.program = program;
 		this.headlessMode = true;
 		
-		init(metricClass);
+		init(metricClass, null);
 	}
-	public GMBaseMetricProvider(GhidraMetricsPlugin plugin, Class<M> metricClass) {
+	public GMBaseMetricProvider(GhidraMetricsPlugin plugin, Class<M> metricClass, Class<W> winManagerClass) {
 		this.plugin = plugin;
 		this.program = plugin.getCurrentProgram();
 		this.headlessMode = false;
 		
-		init(metricClass);
+		init(metricClass, winManagerClass);
 	}
 	
-	private final void init(Class<M> metricClass) {
+	private final void init(Class<M> metricClass, Class<W> winManagerClass) {
 		initMetric(metricClass);
 		
 		if (!isHeadlessMode()) {
-			initWinManager();
+			initWinManager(winManagerClass);
 		}
 	}
 
@@ -126,7 +138,8 @@ public class GMBaseMetricProvider<
 		GMExporter.Builder builder = GMExporter.of(exportType, plugin); 
 		getMetricsToExport().forEach(m -> builder.addMetric(m));
 		
-		if (!isHeadlessMode()) builder.withFileChooser();
+		if (!isHeadlessMode()) 
+			builder.withFileChooser();
 		
 		
 		return builder;
@@ -151,9 +164,9 @@ public class GMBaseMetricProvider<
 		
 	}
 	
-	private final void initWinManager() {
+	private final void initWinManager(Class<W> winManagerClass) {
 		try {
-			Constructor<W> declaredConstructor = this.metric.getWinManagerClass().getDeclaredConstructor(getClass());
+			Constructor<W> declaredConstructor = winManagerClass.getDeclaredConstructor(getClass());
 			this.wm = declaredConstructor.newInstance(this);
 			this.wm.init();
 

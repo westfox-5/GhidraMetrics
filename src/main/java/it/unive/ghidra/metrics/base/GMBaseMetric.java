@@ -12,6 +12,7 @@ import it.unive.ghidra.metrics.base.interfaces.GMiMetric;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetricKey;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetricValue;
 import it.unive.ghidra.metrics.impl.halstead.GMHalstead;
+import it.unive.ghidra.metrics.impl.ncd.GMNCD;
 
 public abstract class GMBaseMetric<
 	M extends GMBaseMetric<M, P, W>,		// The metric itself
@@ -25,6 +26,8 @@ public abstract class GMBaseMetric<
 	static {
 		metricLookup = new HashMap<>();
 		metricLookup.put(GMHalstead.NAME, GMHalstead.class);
+		metricLookup.put(GMNCD.NAME, GMNCD.class);
+
 	}
 	
 	public static Class<? extends GMBaseMetric<?,?,?>> metricByName(String name) {
@@ -41,13 +44,11 @@ public abstract class GMBaseMetric<
 	protected final String name;
 
 	protected final P provider;
-	protected final Class<W> winManagerClz;	
 	protected final Program program;
 	
-	protected GMBaseMetric(String name, P provider, Class<W> wmClz) {
+	public GMBaseMetric(String name, P provider) {
 		this.name = name;
 
-		this.winManagerClz = wmClz;
 		this.provider = provider;
 		this.program = provider.getProgram();
 	}
@@ -82,10 +83,6 @@ public abstract class GMBaseMetric<
 		return getProvider().isHeadlessMode();
 	}
 	
-	public Class<W> getWinManagerClass() {
-		return winManagerClz;
-	}
-	
 	protected void createMetricValue(GMiMetricKey key) {
 		GMMetricValue<?> gmMetricValue = null;
 		
@@ -110,10 +107,12 @@ public abstract class GMBaseMetric<
 		    x.printStackTrace();
 		}	
 		
-		
-		if (gmMetricValue != null) {
-			metricsByKey.put(key, gmMetricValue);
-		}
+		addMetricValue(gmMetricValue);
+	}
+	
+	protected void addMetricValue(GMiMetricValue<?> value) {
+		if (value != null)
+			metricsByKey.put(value.getKey(), value);
 	}
 	
 	private BigDecimal getNumericValue(GMiMetricKey key) throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {

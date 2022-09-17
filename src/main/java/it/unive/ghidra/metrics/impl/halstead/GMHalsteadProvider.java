@@ -15,7 +15,7 @@ public class GMHalsteadProvider extends GMBaseMetricProvider<GMHalstead, GMHalst
 	}
 
 	public GMHalsteadProvider(GhidraMetricsPlugin plugin) {
-		super(plugin, GMHalstead.class);
+		super(plugin, GMHalstead.class, GMHalsteadWinManager.class);
 	}
 
 	@Override

@@ -11,7 +11,7 @@ extends GMBaseWinManager implements GMiMetricWinManager<M, P, W> {
 	private final P provider;
 	
 
-	protected GMBaseMetricWinManager(P provider) {
+	public GMBaseMetricWinManager(P provider) {
 		super();
 		this.provider = provider;
 	}

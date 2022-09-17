@@ -33,6 +33,9 @@ public class GMHalsteadWinManager extends GMBaseMetricWinManager<GMHalstead, GMH
 		populateFunctionMetrics();
 	}
 
+	/**
+	 * @wbp.parser.entryPoint
+	 */
 	@Override
 	protected JComponent createComponent(){
 		JComponent component = new JPanel();

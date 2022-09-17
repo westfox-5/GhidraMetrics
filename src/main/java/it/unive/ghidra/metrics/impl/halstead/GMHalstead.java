@@ -39,7 +39,7 @@ public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadProvider, GMH
 	private BigDecimal N2;
 
 	protected GMHalstead(String name, GMHalsteadProvider provider) {
-		super(name, provider, GMHalsteadWinManager.class);
+		super(name, provider);
 	}
 
 	public GMHalstead(GMHalsteadProvider provider) {

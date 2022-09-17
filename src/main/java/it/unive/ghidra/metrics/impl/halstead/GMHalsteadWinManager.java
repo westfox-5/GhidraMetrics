@@ -11,12 +11,11 @@ import javax.swing.JTable;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 
-import it.unive.ghidra.metrics.base.GMBaseMetric;
-import it.unive.ghidra.metrics.base.GMBaseMetricProvider;
-import it.unive.ghidra.metrics.base.GMBaseMetricValue;
-import it.unive.ghidra.metrics.base.GMBaseMetricWindowManager;
+import it.unive.ghidra.metrics.base.GMBaseMetricWinManager;
+import it.unive.ghidra.metrics.base.interfaces.GMiMetricKey;
+import it.unive.ghidra.metrics.base.interfaces.GMiMetricValue;
 
-public class GMHalsteadWindowManager extends GMBaseMetricWindowManager<GMHalstead> {
+public class GMHalsteadWinManager extends GMBaseMetricWinManager<GMHalstead, GMHalsteadProvider, GMHalsteadWinManager> {
 
 	private JTable tableProgramMetrics;
 	private JTable tableFunctionMetrics;
@@ -24,7 +23,7 @@ public class GMHalsteadWindowManager extends GMBaseMetricWindowManager<GMHalstea
 	private JPanel pnlNoFunctionSelected;
 	private JLabel lblNewLabel;
 	
-	public GMHalsteadWindowManager(GMBaseMetricProvider<GMHalstead> provider) {
+	public GMHalsteadWinManager(GMHalsteadProvider provider) {
 		super(provider);
 	}
 	
@@ -32,16 +31,10 @@ public class GMHalsteadWindowManager extends GMBaseMetricWindowManager<GMHalstea
 	public void init() {
 		populateProgramMetrics();
 		populateFunctionMetrics();
-		
-		refresh();
 	}
 
-	
-	/**
-	 * @wbp.parser.entryPoint
-	 */
 	@Override
-	protected JComponent createComponent() {
+	protected JComponent createComponent(){
 		JComponent component = new JPanel();
 		component.setLayout(new BorderLayout(0, 0));
 		
@@ -118,17 +111,18 @@ public class GMHalsteadWindowManager extends GMBaseMetricWindowManager<GMHalstea
 	}
 	
 
-	private static <M extends GMBaseMetric<?>> void populateMetricTable(JTable table, M metric) {
+	private static void populateMetricTable(JTable table, GMHalstead metric) {
 		DefaultTableModel dtm = new DefaultTableModel(0, 4);
 		dtm.setColumnIdentifiers(new String[]{"Name", "Value", "Description", "Formula"});
 		
-		GMHalsteadKey.ALL_KEYS.forEach(k -> {
-			GMBaseMetricValue<?> m = metric.getMetric(k);
+		GMHalsteadKey.ALL_KEYS.forEach(key -> {
+			GMiMetricValue<?> val = metric.getMetricValue(key);
 			dtm.addRow(new Object[] { 
-					m.getName(),
-					m.getValue(),
-					m.getDescription(),
-					m.getFormula()});			
+					key.getName(),
+					val.getValue(),
+					key.getInfo(GMiMetricKey.KEY_DESCRIPTION),
+					key.getInfo(GMiMetricKey.KEY_FORMULA)
+			});			
 		});
 		
 		table.setModel(dtm);

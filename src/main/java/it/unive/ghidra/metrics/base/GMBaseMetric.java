@@ -1,92 +1,106 @@
 package it.unive.ghidra.metrics.base;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.Program;
-import it.unive.ghidra.metrics.base.GMBaseMetricValue.NumericMetric;
-import it.unive.ghidra.metrics.base.GMBaseMetricValue.StringMetric;
+import it.unive.ghidra.metrics.base.interfaces.GMiMetric;
+import it.unive.ghidra.metrics.base.interfaces.GMiMetricKey;
+import it.unive.ghidra.metrics.base.interfaces.GMiMetricValue;
 import it.unive.ghidra.metrics.impl.halstead.GMHalstead;
 
-public abstract class GMBaseMetric<M extends GMBaseMetric<M>> {
+public abstract class GMBaseMetric<
+	M extends GMBaseMetric<M, P, W>,		// The metric itself
+	P extends GMBaseMetricProvider<M, P, W>,		// The provider
+	W extends GMBaseMetricWinManager<M, P, W>	// The window manager>
+> implements GMiMetric<M, P , W> {
 	
-	private static final Map<String, Class<? extends GMBaseMetric<?>>> metricLookup;
+	
+	
+	private static final Map<String, Class<? extends GMBaseMetric<?,?,?>>> metricLookup;
 	static {
 		metricLookup = new HashMap<>();
 		metricLookup.put(GMHalstead.NAME, GMHalstead.class);
-		
 	}
 	
-	public static Class<? extends GMBaseMetric<?>> metricByName(String name) {
+	public static Class<? extends GMBaseMetric<?,?,?>> metricByName(String name) {
 		return metricLookup.get(name);
 	}
-	public static Collection<Class<? extends GMBaseMetric<?>>> allMetrics() {
+	public static Collection<Class<? extends GMBaseMetric<?,?,?>>> allMetrics() {
 		return metricLookup.values();
 	}
 
 	
 	
 	
-	private final Map<String, GMBaseMetricValue<?>> metricsByKey = new HashMap<String, GMBaseMetricValue<?>>();
+	private final Map<GMiMetricKey, GMiMetricValue<?>> metricsByKey = new HashMap<>();
 	protected final String name;
 
-	protected final GMBaseMetricProvider<M> provider;
-	protected final Class<? extends GMBaseMetricWindowManager<? extends GMBaseMetric<?>>> wmClz;
-	
-	protected final boolean headlessMode;
+	protected final P provider;
+	protected final Class<W> winManagerClz;	
 	protected final Program program;
 	
-	protected GMBaseMetric(String name, GMBaseMetricProvider<M> provider, Class<? extends GMBaseMetricWindowManager<M>> wmClz) {
+	protected GMBaseMetric(String name, P provider, Class<W> wmClz) {
 		this.name = name;
 
-		this.headlessMode = false;
-		this.wmClz = wmClz;
+		this.winManagerClz = wmClz;
 		this.provider = provider;
-		this.program = provider.getCurrentProgram();
+		this.program = provider.getProgram();
 	}
 	
-	protected GMBaseMetric(String name, Program program) {
-		this.name = name;
-		
-		this.headlessMode = true;
-		this.wmClz = null;
-		this.provider = null;
-		this.program = program;
-	}
-		
-	protected abstract void init();
+	
 	protected abstract void functionChanged(Function fn);
-	
 
-	private BigDecimal getNumericMetric(GMBaseMetricKey key) throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		return key.getTypedValue(BigDecimal.class, this);
-	}
-	private String getStringMetric(GMBaseMetricKey key) throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		return key.getTypedValue(String.class, this);
+	@Override
+	public String getName() {
+		return name;
 	}
 	
-	private GMBaseMetricValue<?> createMetricByKey(GMBaseMetricKey key) throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
-		switch(key.getType()) {
-		case NUMERIC: return new NumericMetric(key, getNumericMetric(key));
-		case STRING:  return new StringMetric(key, getStringMetric(key));
-		}
-
-		throw new RuntimeException("Measure Type not managed: " + key.getType());
+	@Override
+	public P getProvider() {
+		return provider;
 	}
 
-	protected void createMetric(GMBaseMetricKey key) {
+	@Override
+	public GMiMetricValue<?> getMetricValue(GMiMetricKey key) {
+		if (key == null) return null;
+		return metricsByKey.get(key);
+	}
+	
+	public Collection<GMiMetricValue<?>> getMetrics() {
+		return metricsByKey.values();
+	}
+	public Collection<GMiMetricKey> getMetricKeys() {
+		return metricsByKey.keySet();
+	}
+	
+	public boolean isHeadlessMode() {
+		return getProvider().isHeadlessMode();
+	}
+	
+	public Class<W> getWinManagerClass() {
+		return winManagerClz;
+	}
+	
+	protected void createMetricValue(GMiMetricKey key) {
+		GMMetricValue<?> gmMetricValue = null;
+		
 		try {
-			GMBaseMetricValue<?> metric = createMetricByKey(key);
+			switch(key.getType()) {
+			case NUMERIC: 
+				gmMetricValue = GMMetricValue.ofNumeric(key, getNumericValue(key));
+				break;
+			case STRING:
+				gmMetricValue = GMMetricValue.ofString(key, getStringValue(key));
+				break;
+			default:
+				throw new RuntimeException("Metric type not managed: " + key.getType());
+			}
 			
-			metricsByKey.put(metric.getName(), metric);
-
 		// TODO handle these exceptions more gracefully
 		} catch (IllegalAccessException x) {
 		    x.printStackTrace();
@@ -95,92 +109,17 @@ public abstract class GMBaseMetric<M extends GMBaseMetric<M>> {
 		} catch (NoSuchMethodException x) {
 		    x.printStackTrace();
 		}	
-	}
-	
-	public boolean isHeadlessMode() {
-		return headlessMode;
-	}
-	
-	public String getName() {
-		return name;
-	}
-
-	public GMBaseMetricProvider<M> getProvider() {
-		return provider;
-	}
-	
-	public Program getProgram() {
-		return program;
-	}
-	
-	public Set<GMBaseMetricValue<?>> getMetrics() {
-		return Set.copyOf(metricsByKey.values());
-	}
-	
-	public GMBaseMetricValue<?> getMetric(String keyName) {
-		return metricsByKey.get(keyName);
-	}
-	
-	public GMBaseMetricValue<?> getMetric(GMBaseMetricKey mKey) {
-		return getMetric(mKey.getName());
-	}
-	
-	protected void clearMetrics() {
-		this.metricsByKey.clear();
-	}
-	
-	public Class<? extends GMBaseMetricWindowManager<? extends GMBaseMetric<?>>> getWindowManagerClass() {
-		return wmClz;
-	}
-	
-	
-	public Collection<GMBaseMetric<?>> getMetricsToExport() {
-		return Collections.singletonList(this);
-	}
-	
-	public static <M extends GMBaseMetric<?>> M initialize(Class<M> metricClz, GMBaseMetricProvider<M> provider) {
-		try {
-			Constructor<M> declaredConstructor = metricClz.getDeclaredConstructor(GMBaseMetricProvider.class);
-			M metric = declaredConstructor.newInstance(provider);
-			
-			metric.init();
-			
-			return metric;
-
-		// TODO handle these exceptions more gracefully
-		} catch (InstantiationException x) {
-		    x.printStackTrace();
-		} catch (IllegalAccessException x) {
-		    x.printStackTrace();
-		} catch (InvocationTargetException x) {
-		    x.printStackTrace();
-		} catch (NoSuchMethodException x) {
-		    x.printStackTrace();
-		}
 		
-		return null;
+		
+		if (gmMetricValue != null) {
+			metricsByKey.put(key, gmMetricValue);
+		}
 	}
 	
-	public static <M extends GMBaseMetric<?>> M initializeHeadless(Class<M> metricClz, Program program) {
-		try {
-			Constructor<M> declaredConstructor = metricClz.getDeclaredConstructor(Program.class);
-			M metric = declaredConstructor.newInstance(program);
-			
-			metric.init();
-			
-			return metric;
-
-		// TODO handle these exceptions more gracefully
-		} catch (InstantiationException x) {
-		    x.printStackTrace();
-		} catch (IllegalAccessException x) {
-		    x.printStackTrace();
-		} catch (InvocationTargetException x) {
-		    x.printStackTrace();
-		} catch (NoSuchMethodException x) {
-		    x.printStackTrace();
-		}
-		
-		return null;
+	private BigDecimal getNumericValue(GMiMetricKey key) throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		return key.getTypedValue(BigDecimal.class, this);
+	}
+	private String getStringValue(GMiMetricKey key) throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
+		return key.getTypedValue(String.class, this);
 	}
 }

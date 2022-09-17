@@ -3,67 +3,112 @@ package it.unive.ghidra.metrics.base;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-import javax.swing.JComponent;
-
 import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
+import it.unive.ghidra.metrics.GhidraMetricsProvider;
+import it.unive.ghidra.metrics.base.interfaces.GMiMetricProvider;
 import it.unive.ghidra.metrics.export.GMExporter;
 import it.unive.ghidra.metrics.export.GMExporter.Type;
+import it.unive.ghidra.metrics.impl.halstead.GMHalstead;
+import it.unive.ghidra.metrics.impl.halstead.GMHalsteadProvider;
 
-public class GMBaseMetricProvider<M extends GMBaseMetric<?>> {
-	private final Class<M> metricClz;
+public class GMBaseMetricProvider<
+	M extends GMBaseMetric<M, P, W>,
+	P extends GMBaseMetricProvider<M, P, W>,
+	W extends GMBaseMetricWinManager<M, P, W> 
+> implements GMiMetricProvider<M, P, W> {
+	
+	@SuppressWarnings("unchecked")
+	public static class GMMetricProviderFactory  {
+		
+		public static 
+			<M extends GMBaseMetric<M, P, W>,
+			P extends GMBaseMetricProvider<M, P, W>,
+			W extends GMBaseMetricWinManager<M, P, W>> 
+		P create(GhidraMetricsPlugin plugin, Class<M> metricClass) {
+			
+			if (GMHalstead.class.isAssignableFrom( metricClass ) ) {
+				return (P) new GMHalsteadProvider(plugin);
+			}
+			
+			return null;
+		}
+		
+		public static 
+			<M extends GMBaseMetric<M, P, W>,
+			P extends GMBaseMetricProvider<M, P, W>,
+			W extends GMBaseMetricWinManager<M, P, W>> 
+		P createHeadless(String metricName, Program program) {
+			
+			if (GMHalstead.NAME.equals(metricName)) {
+				return (P) new GMHalsteadProvider(program);
+			}
+			
+			return null;
+		}
+	}
+	
+	private final boolean headlessMode;
 	protected final GhidraMetricsPlugin plugin;
+	protected final Program program;
 	
 	protected M metric;
-	protected GMBaseMetricWindowManager<M> wm;
+	protected W wm;
 	
-	protected Function prevFn; // to detect if location has changed to new fn
+	private Function prevFn; // avoid recomputing metrics on same function!
 
-	public GMBaseMetricProvider(GhidraMetricsPlugin plugin, Class<M> metricClz) {
+	public GMBaseMetricProvider(Program program, Class<M> metricClass) {
+		this.plugin = null;
+		this.program = program;
+		this.headlessMode = true;
+		
+		init(metricClass);
+	}
+	public GMBaseMetricProvider(GhidraMetricsPlugin plugin, Class<M> metricClass) {
 		this.plugin = plugin;
-		this.metricClz = metricClz;
+		this.program = plugin.getCurrentProgram();
+		this.headlessMode = false;
 		
-		init();
+		init(metricClass);
+	}
+	
+	private final void init(Class<M> metricClass) {
+		initMetric(metricClass);
+		
+		if (!isHeadlessMode()) {
+			initWinManager();
+		}
 	}
 
-	private final void init() {
-		metric = GMBaseMetric.initialize(metricClz, this);
-		
-		wm = GMBaseMetricProvider.initializeWindowManager(metric, this);
-		wm.init();
+	public boolean isHeadlessMode() {
+		return headlessMode;
 	}
-
-	public final M getMetric() {
+	
+	@Override
+	public M getMetric() {
 		return metric;
 	}
 
-	public Class<M> getMetricClz() {
-		return metricClz;
-	}
-	
-	public GMBaseMetricWindowManager<M> getWindowManager() {
+	@Override
+	public W getWinManager() {
 		return wm;
 	}
 	
-	public final Program getCurrentProgram() {
-		return plugin.getCurrentProgram();
+	@Override
+	public Program getProgram() {
+		return program;
 	}
 
-	public final JComponent getComponent() {
-		return wm.getComponent();
+	@Override
+	public GhidraMetricsProvider getMainProvider() {
+		return plugin.getProvider();
 	}
 	
-	
-	public GMExporter createExporter(Type exportType) {
-		GMExporter.Builder builder = GMExporter.of(exportType, plugin).withFileChooser();
-		metric.getMetricsToExport().forEach(m -> builder.addMetric(m));
-		return builder.build();
-	}
-
+	@Override
 	public void locationChanged(ProgramLocation loc) {
-		Function fn = getCurrentProgram().getFunctionManager().getFunctionContaining(loc.getAddress());
+		Function fn = getProgram().getFunctionManager().getFunctionContaining(loc.getAddress());
 		
 		if (fn == null)
 			return;
@@ -76,24 +121,23 @@ public class GMBaseMetricProvider<M extends GMBaseMetric<?>> {
 			wm.refresh();
 		}
 	}
-	
-	
-	private static boolean equals(Function f1, Function f2) {
-		if (f1 != null && f2 != null)
-			return f1.getEntryPoint().equals(f2.getEntryPoint());
-		return false;
+
+	public GMExporter.Builder makeExporter(Type exportType) {
+		GMExporter.Builder builder = GMExporter.of(exportType, plugin); 
+		getMetricsToExport().forEach(m -> builder.addMetric(m));
+		
+		if (!isHeadlessMode()) builder.withFileChooser();
+		
+		
+		return builder;
 	}
 	
-
-	@SuppressWarnings("unchecked")
-	public static <M extends GMBaseMetric<?>> GMBaseMetricWindowManager<M> initializeWindowManager(M metric, GMBaseMetricProvider<M> provider) {
+	private final void initMetric(Class<M> metricClass) {
 		try {
-			Class<? extends GMBaseMetricWindowManager<M>> wmClz = (Class<? extends GMBaseMetricWindowManager<M>>) metric.getWindowManagerClass();
-			
-			Constructor<? extends GMBaseMetricWindowManager<M>> declaredConstructor = wmClz.getDeclaredConstructor(provider.getClass());
-			GMBaseMetricWindowManager<M> newInstance = declaredConstructor.newInstance(provider);
-		
-			return newInstance;
+			Constructor<M> declaredConstructor = metricClass.getDeclaredConstructor(getClass());
+			this.metric = declaredConstructor.newInstance(this);
+			this.metric.init();
+
 		// TODO handle these exceptions more gracefully
 		} catch (InstantiationException x) {
 		    x.printStackTrace();
@@ -104,8 +148,34 @@ public class GMBaseMetricProvider<M extends GMBaseMetric<?>> {
 		} catch (NoSuchMethodException x) {
 		    x.printStackTrace();
 		}
-				
-		return null;
+		
+	}
+	
+	private final void initWinManager() {
+		try {
+			Constructor<W> declaredConstructor = this.metric.getWinManagerClass().getDeclaredConstructor(getClass());
+			this.wm = declaredConstructor.newInstance(this);
+			this.wm.init();
+
+		// TODO handle these exceptions more gracefully
+		} catch (InstantiationException x) {
+		    x.printStackTrace();
+		} catch (IllegalAccessException x) {
+		    x.printStackTrace();
+		} catch (InvocationTargetException x) {
+		    x.printStackTrace();
+		} catch (NoSuchMethodException x) {
+		    x.printStackTrace();
+		}
+		
+	}
+	
+	
+	
+	private static boolean equals(Function f1, Function f2) {
+		if (f1 != null && f2 != null)
+			return f1.getEntryPoint().equals(f2.getEntryPoint());
+		return false;
 	}
 
 }

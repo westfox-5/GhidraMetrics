@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import it.unive.ghidra.metrics.base.GMBaseMetricKey;
-import it.unive.ghidra.metrics.base.GMBaseMetricValue.MetricType;
+import it.unive.ghidra.metrics.base.GMMetricKey;
+import it.unive.ghidra.metrics.base.interfaces.GMiMetricKey;
 
-public final class GMHalsteadKey extends GMBaseMetricKey {
+public final class GMHalsteadKey extends GMMetricKey {
 
 	private static final GMHalsteadKey NUM_DISTINCT_OPERATORS;
 	private static final GMHalsteadKey NUM_DISTINCT_OPERANDS;
@@ -22,33 +22,33 @@ public final class GMHalsteadKey extends GMBaseMetricKey {
 	private static final GMHalsteadKey CODING_TIME;
 	private static final GMHalsteadKey ESTIMATED_ERRORS;
 	
-	private static final Map<String, GMBaseMetricKey> lookupByName;
+	private static final Map<String, GMMetricKey> lookupByName;
 	
 	static {
 		lookupByName = new HashMap<>();
 		
-		NUM_DISTINCT_OPERATORS	= new GMHalsteadKey(MetricType.NUMERIC, "Num Distinct Operators", "Number of distinct operators.", null);		
-		NUM_DISTINCT_OPERANDS	= new GMHalsteadKey(MetricType.NUMERIC, "Num Distinct Operands", "Number of distinct operands.", null);
-		NUM_OPERATORS			= new GMHalsteadKey(MetricType.NUMERIC, "Num Operators", "Number of operators.", null);
-		NUM_OPERANDS			= new GMHalsteadKey(MetricType.NUMERIC, "Num Operands", "Number of operands.", null);
-		VOCABULARY			= new GMHalsteadKey(MetricType.NUMERIC, "Vocabulary", "Program vocabulary.", "n = n1 + n2");
-		PROGRAM_LENGTH		= new GMHalsteadKey(MetricType.NUMERIC, "Program Length", "Program length.", "N = N1 + N2");
-		ESTIMATED_LENGTH	= new GMHalsteadKey(MetricType.NUMERIC, "Estimated Length", "Program estimated length.", "N^ = n1*log2(n1) + n2*log2(n2)");
-		VOLUME				= new GMHalsteadKey(MetricType.NUMERIC, "Volume", "Program volume.", "V = N*log2(n)");
-		DIFFICULTY			= new GMHalsteadKey(MetricType.NUMERIC, "Difficulty", "Program difficulty.", "D(n1/2) * (N2/n2)");
-		EFFORT				= new GMHalsteadKey(MetricType.NUMERIC, "Effort", "Program effort of programming.", "E = D * V");
-		CODING_TIME			= new GMHalsteadKey(MetricType.NUMERIC, "Coding Time", "Time taken to code the program.", "T = E / 18");
-		ESTIMATED_ERRORS	= new GMHalsteadKey(MetricType.NUMERIC, "Estimated Errors", "Number of estimated errors.", "B = V / 3000");
+		NUM_DISTINCT_OPERATORS	= new GMHalsteadKey(GMiMetricKey.Type.NUMERIC, "Num Distinct Operators", "Number of distinct operators.", null);		
+		NUM_DISTINCT_OPERANDS	= new GMHalsteadKey(GMiMetricKey.Type.NUMERIC, "Num Distinct Operands", "Number of distinct operands.", null);
+		NUM_OPERATORS			= new GMHalsteadKey(GMiMetricKey.Type.NUMERIC, "Num Operators", "Number of operators.", null);
+		NUM_OPERANDS			= new GMHalsteadKey(GMiMetricKey.Type.NUMERIC, "Num Operands", "Number of operands.", null);
+		VOCABULARY			= new GMHalsteadKey(GMiMetricKey.Type.NUMERIC, "Vocabulary", "Program vocabulary.", "n = n1 + n2");
+		PROGRAM_LENGTH		= new GMHalsteadKey(GMiMetricKey.Type.NUMERIC, "Program Length", "Program length.", "N = N1 + N2");
+		ESTIMATED_LENGTH	= new GMHalsteadKey(GMiMetricKey.Type.NUMERIC, "Estimated Length", "Program estimated length.", "N^ = n1*log2(n1) + n2*log2(n2)");
+		VOLUME				= new GMHalsteadKey(GMiMetricKey.Type.NUMERIC, "Volume", "Program volume.", "V = N*log2(n)");
+		DIFFICULTY			= new GMHalsteadKey(GMiMetricKey.Type.NUMERIC, "Difficulty", "Program difficulty.", "D(n1/2) * (N2/n2)");
+		EFFORT				= new GMHalsteadKey(GMiMetricKey.Type.NUMERIC, "Effort", "Program effort of programming.", "E = D * V");
+		CODING_TIME			= new GMHalsteadKey(GMiMetricKey.Type.NUMERIC, "Coding Time", "Time taken to code the program.", "T = E / 18");
+		ESTIMATED_ERRORS	= new GMHalsteadKey(GMiMetricKey.Type.NUMERIC, "Estimated Errors", "Number of estimated errors.", "B = V / 3000");
 	}
 
-	public static final List<GMBaseMetricKey> ALL_KEYS = List.of(NUM_DISTINCT_OPERATORS, NUM_DISTINCT_OPERANDS, NUM_OPERATORS, NUM_OPERANDS,
+	public static final List<GMMetricKey> ALL_KEYS = List.of(NUM_DISTINCT_OPERATORS, NUM_DISTINCT_OPERANDS, NUM_OPERATORS, NUM_OPERANDS,
 			VOCABULARY, PROGRAM_LENGTH, ESTIMATED_LENGTH, VOLUME, DIFFICULTY, EFFORT, CODING_TIME, ESTIMATED_ERRORS);
 
-	public static final GMBaseMetricKey byName(String name) {
+	public static final GMMetricKey byName(String name) {
 		return lookupByName.get(name);
 	}
 	
-	private GMHalsteadKey(MetricType type, String name, String description, String formula) {
+	private GMHalsteadKey(GMiMetricKey.Type type, String name, String description, String formula) {
 		super(type, name, description, formula);
 		
 		lookupByName.put(name, this);

@@ -5,7 +5,6 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
-import it.unive.ghidra.metrics.base.GMBaseMetric;
 import it.unive.ghidra.metrics.export.GMExporter;
 import it.unive.ghidra.metrics.export.GMExporter.Type;
 
@@ -89,11 +88,11 @@ public abstract class GMScriptArgument<T> {
 	//      ARG_METRIC_NAME
 	// -----------------------
 	// -- Name: METRIC_NAME 
-	// -- Type: Class<? extends GMetric>
-	public static final GMScriptArgument<Class<? extends GMBaseMetric<?>>> ARG_METRIC_NAME = new GMScriptArgument<>(GMScriptArgumentOption.METRIC_NAME) {
+	// -- Type: String
+	public static final GMScriptArgument<String> ARG_METRIC_NAME = new GMScriptArgument<>(GMScriptArgumentOption.METRIC_NAME) {
 		@Override
-		protected Class<? extends GMBaseMetric<?>> getTypedValue(String str) {
-			return GMBaseMetric.metricByName(str);
+		protected String getTypedValue(String str) {
+			return str;
 		}
 	};
 	

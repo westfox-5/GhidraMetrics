@@ -7,21 +7,24 @@ import javax.swing.JButton;
 
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
 import it.unive.ghidra.metrics.GhidraMetricsProvider;
+import it.unive.ghidra.metrics.base.GMBaseMetricProvider;
 import it.unive.ghidra.metrics.base.GMBaseMetric;
+import it.unive.ghidra.metrics.base.GMBaseMetricWinManager;
 
-public class GMButton<M extends GMBaseMetric<?>> extends JButton implements ActionListener {
+public class GMMetricButton
+	<M extends GMBaseMetric<M, P, W>,
+	P extends GMBaseMetricProvider<M, P, W>,
+	W extends GMBaseMetricWinManager<M, P, W>>
+	extends JButton implements ActionListener {
+	
 	private static final long serialVersionUID = 1L;
-
-	public static final <M extends GMBaseMetric<?>> GMButton<M> of(GhidraMetricsPlugin plugin, Class<M> metricClz) {
-		return new GMButton<M>(plugin, metricClz);
-	}
-
+	
 	private final String title;
 
 	private final GhidraMetricsPlugin plugin;
 	private final Class<M> metricClz;
 
-	private GMButton(GhidraMetricsPlugin plugin, Class<M> metricClz) {
+	public GMMetricButton(GhidraMetricsPlugin plugin, Class<M> metricClz) {
 		super();
 		this.plugin = plugin;
 		this.metricClz = metricClz;

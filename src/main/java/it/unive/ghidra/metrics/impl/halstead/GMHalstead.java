@@ -1,18 +1,13 @@
 package it.unive.ghidra.metrics.impl.halstead;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 
 import ghidra.program.model.listing.Function;
-import ghidra.program.model.listing.Program;
 import it.unive.ghidra.metrics.base.GMBaseMetric;
-import it.unive.ghidra.metrics.base.GMBaseMetricProvider;
 import it.unive.ghidra.metrics.impl.halstead.GMHalsteadParser.Result;
 import it.unive.ghidra.metrics.util.NumberUtils;
 
-public class GMHalstead extends GMBaseMetric<GMHalstead> {
+public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadProvider, GMHalsteadWinManager> {
 	public static final String NAME = "HALSTEAD";
 
 	public static final class GMHalsteadFunction extends GMHalstead {
@@ -20,13 +15,8 @@ public class GMHalstead extends GMBaseMetric<GMHalstead> {
 
 		private final Function function;
 
-		protected GMHalsteadFunction(GMBaseMetricProvider<GMHalstead> provider, Function function) {
+		protected GMHalsteadFunction(GMHalsteadProvider provider, Function function) {
 			super(NAME, provider);
-			this.function = function;
-		}
-		
-		protected GMHalsteadFunction(Function function) {
-			super(NAME,function.getProgram());
 			this.function = function;
 		}
 		
@@ -40,33 +30,24 @@ public class GMHalstead extends GMBaseMetric<GMHalstead> {
 		}
 	}
 	
-	private GMHalsteadFunction fnHalstead; // specific function metric 
-	
+	private GMHalsteadFunction halsteadFn; // specific function metric 
+
 	private BigDecimal n1; // no. operators [distinct, total]
 	private BigDecimal N1;
 
 	private BigDecimal n2; // no. operands [distinct, total]
 	private BigDecimal N2;
 
-	protected GMHalstead(String name, GMBaseMetricProvider<GMHalstead> provider) {
-		super(name, provider, GMHalsteadWindowManager.class);
+	protected GMHalstead(String name, GMHalsteadProvider provider) {
+		super(name, provider, GMHalsteadWinManager.class);
 	}
 
-	public GMHalstead(GMBaseMetricProvider<GMHalstead> provider) {
+	public GMHalstead(GMHalsteadProvider provider) {
 		this(NAME, provider);
-	}
-	
-	protected GMHalstead(String name, Program program) {
-		super(name, program);
-	}
-
-	public GMHalstead(Program program) {
-		super(NAME, program);
 	}
 
 	@Override
-	protected void init() {
-		clearMetrics();
+	public void init() {
 		Result result = getParser().parse();
 		
 		this.n1 = result.n1;
@@ -75,52 +56,22 @@ public class GMHalstead extends GMBaseMetric<GMHalstead> {
 		this.N2 = result.N2;
 				
 		GMHalsteadKey.ALL_KEYS.forEach(k -> {
-			createMetric(k);
+			createMetricValue(k);
 		});
 	}
 
 	@Override
 	protected void functionChanged(Function fn) {
-		if (isHeadlessMode()) {
-			fnHalstead = new GMHalsteadFunction(fn);
-		} else {
-			fnHalstead = new GMHalsteadFunction(getProvider(), fn);
-		}
-		
-		fnHalstead.init();
-	}
-
-	@Override
-	public Collection<GMBaseMetric<?>> getMetricsToExport() {
-		List<GMBaseMetric<?>> list = new ArrayList<>(super.getMetricsToExport());
-		
-		if (fnHalstead != null) {
-			
-			// in headless mode, always add fnHalstead
-			// since fnHalstead != null IFF user has provided FUNCTION parameter for analysis
-			if (isHeadlessMode()) {
-				list.add(fnHalstead);
-			}
-			
-			// in non headless mode, add fnHalstead IFF
-			// fnHalstead != null AND windowManager is currently showing function analysis (function tab)
-			else {
-				GMHalsteadWindowManager wm = (GMHalsteadWindowManager)getProvider().getWindowManager();
-				if (wm.isFunctionTabVisible()) {
-					list.add(fnHalstead);
-				}
-			}	
-		}
-		
-		return list;
-	}
-
-	protected GMHalsteadParser getParser() {
-		return GMHalsteadParser.programParser(getProgram());
+		halsteadFn = new GMHalsteadFunction(getProvider(), fn);
+		halsteadFn.init();
 	}
 	
+	protected GMHalsteadParser getParser() {
+		return GMHalsteadParser.programParser(getProvider().getProgram());
+	}
+
 	public GMHalstead getHalsteadFunction() {
-		return fnHalstead;
+		return halsteadFn;
 	}
 	
 	public BigDecimal getNumDistinctOperators() {

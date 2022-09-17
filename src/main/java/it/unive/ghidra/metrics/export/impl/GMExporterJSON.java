@@ -5,8 +5,8 @@ import java.util.Iterator;
 import java.util.function.BiConsumer;
 
 import it.unive.ghidra.metrics.base.GMBaseMetric;
-import it.unive.ghidra.metrics.base.GMBaseMetricKey;
-import it.unive.ghidra.metrics.base.GMBaseMetricValue;
+import it.unive.ghidra.metrics.base.interfaces.GMiMetricKey;
+import it.unive.ghidra.metrics.base.interfaces.GMiMetricValue;
 import it.unive.ghidra.metrics.export.GMExporter;
 import it.unive.ghidra.metrics.util.StringUtils;
 
@@ -20,8 +20,8 @@ public class GMExporterJSON extends GMExporter {
 	}
 
 	@Override
-	protected <V> StringBuilder serialize(Collection<GMBaseMetric<?>> metrics) {
-		Iterator<GMBaseMetric<?>> it = metrics.iterator();
+	protected <V> StringBuilder serialize(Collection<GMBaseMetric<?,?,?>> metrics) {
+		Iterator<GMBaseMetric<?,?,?>> it = metrics.iterator();
 		
 		StringBuilder dump = dumpAll(it, (sb, metric) -> {
 			sb.append(serialize(metric));
@@ -44,7 +44,7 @@ public class GMExporterJSON extends GMExporter {
 	 *  info: [{name, value}]
 	 * }
 	 */
-	private <M extends GMBaseMetric<?>> StringBuilder serialize(M metric) {
+	private <M extends GMBaseMetric<?,?,?>> StringBuilder serialize(M metric) {
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append("{") 
@@ -63,16 +63,16 @@ public class GMExporterJSON extends GMExporter {
 	 * A metric key is formatted as:
 	 * { name, type, info: [{name, value}] }
 	 */
-	private <M extends GMBaseMetric<?>> StringBuilder dumpMetricKeys(M metric) {
-		Iterator<GMBaseMetricKey> it = metric.getMetrics().stream().map(m -> m.getKey()).iterator();
+	private <M extends GMBaseMetric<?,?,?>> StringBuilder dumpMetricKeys(M metric) {
+		Iterator<GMiMetricKey> it = metric.getMetricKeys().iterator();
 		
 		StringBuilder dump = dumpAll(it, (sb, next) -> {
 			sb.append("{")
 				.append(format("name", next.getName())).append(JSON_SEP)
 				.append(format("type", next.getType().name())).append(JSON_SEP)
 				.append(format("info")).append("[");
-				next.getOtherInfo().forEach((key,value) -> {
-					sb.append("{") .append(format(key, value)).append("}").append(JSON_SEP);
+				next.getAllInfo().forEach((key) -> {
+					sb.append("{") .append(format(key, next.getInfo(key))).append("}").append(JSON_SEP);
 				}); sb.deleteCharAt(sb.length()-1) // remove last ','
 				.append("]");
 			sb.append("}");
@@ -85,12 +85,12 @@ public class GMExporterJSON extends GMExporter {
 	 * A metric value is formatted as:
 	 * { keyName, value } 
 	 */
-	private <M extends GMBaseMetric<?>> StringBuilder dumpMetricValues(M metric) {
-		Iterator<GMBaseMetricValue<?>> it = metric.getMetrics().iterator();
+	private <M extends GMBaseMetric<?,?,?>> StringBuilder dumpMetricValues(M metric) {
+		Iterator<GMiMetricValue<?>> it = metric.getMetrics().iterator();
 		
 		StringBuilder dump = dumpAll(it, (sb, next) -> {
 			sb.append("{")
-				.append(format("keyName", next.getName())).append(JSON_SEP)
+				.append(format("keyName", next.getKey().getName())).append(JSON_SEP)
 				.append(format("value", next.getValue()))
 			.append("}");
 		});

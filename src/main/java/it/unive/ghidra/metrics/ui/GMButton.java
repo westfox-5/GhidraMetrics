@@ -5,8 +5,8 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 
-import it.unive.ghidra.metrics.GMProvider;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
+import it.unive.ghidra.metrics.GhidraMetricsProvider;
 import it.unive.ghidra.metrics.base.GMBaseMetric;
 
 public class GMButton<M extends GMBaseMetric<?>> extends JButton implements ActionListener {
@@ -36,7 +36,7 @@ public class GMButton<M extends GMBaseMetric<?>> extends JButton implements Acti
 	public void actionPerformed(ActionEvent ae) {
 		String actionCommand = ae.getActionCommand();
 		if (actionCommand.equals(title)) {
-			GMProvider provider = plugin.getProvider();
+			GhidraMetricsProvider provider = plugin.getProvider();
 
 			provider.showMetric(metricClz);
 		}

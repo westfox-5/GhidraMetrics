@@ -3,8 +3,8 @@ package it.unive.ghidra.metrics.ui;
 import docking.ActionContext;
 import docking.action.MenuData;
 import docking.menu.MultiActionDockingAction;
-import it.unive.ghidra.metrics.GMProvider;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
+import it.unive.ghidra.metrics.GhidraMetricsProvider;
 import it.unive.ghidra.metrics.export.GMExporter;
 
 public final class GMActionExport extends MultiActionDockingAction {
@@ -27,7 +27,7 @@ public final class GMActionExport extends MultiActionDockingAction {
 
 	@Override
 	public void actionPerformed(ActionContext ctx) {
-		GMProvider provider = plugin.getProvider();
+		GhidraMetricsProvider provider = plugin.getProvider();
 		
 		provider.doExport(type);
 	}

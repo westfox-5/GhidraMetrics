@@ -21,7 +21,7 @@ import it.unive.ghidra.metrics.ui.GMActionBack;
 import it.unive.ghidra.metrics.ui.GMActionExport;
 import it.unive.ghidra.metrics.ui.GMWindowManager;
 
-public class GMProvider extends ComponentProvider {
+public class GhidraMetricsProvider extends ComponentProvider {
 	
 	private final GhidraMetricsPlugin plugin;
 	private final GMWindowManager wManager;
@@ -31,7 +31,7 @@ public class GMProvider extends ComponentProvider {
 	private List<DockingAction> actions;
 	
 
-	public GMProvider(GhidraMetricsPlugin plugin, String owner) {
+	public GhidraMetricsProvider(GhidraMetricsPlugin plugin, String owner) {
 		super(plugin.getTool(), owner, owner);
 		this.plugin = plugin;
 		

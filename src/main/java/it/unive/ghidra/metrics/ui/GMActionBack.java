@@ -3,8 +3,8 @@ package it.unive.ghidra.metrics.ui;
 import docking.ActionContext;
 import docking.action.DockingAction;
 import docking.action.ToolBarData;
-import it.unive.ghidra.metrics.GMProvider;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
+import it.unive.ghidra.metrics.GhidraMetricsProvider;
 import resources.ResourceManager;
 
 public class GMActionBack extends DockingAction {
@@ -23,7 +23,7 @@ public class GMActionBack extends DockingAction {
 
 	@Override
 	public void actionPerformed(ActionContext arg0) {
-		GMProvider provider = plugin.getProvider();
+		GhidraMetricsProvider provider = plugin.getProvider();
 		
 		provider.showMainWindow();
 	}

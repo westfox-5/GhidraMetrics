@@ -49,7 +49,7 @@ public class GhidraMetricsPlugin extends ProgramPlugin {
 		return new HashSet<>(GMBaseMetric.allMetrics());
 	}
 	
-	private final GMProvider provider;
+	private final GhidraMetricsProvider provider;
 	
 	/**
 	 * Plugin constructor.
@@ -60,7 +60,7 @@ public class GhidraMetricsPlugin extends ProgramPlugin {
 		super(tool, true, true);
 		
 		String pluginName = getName();
-		provider = new GMProvider(this, pluginName);
+		provider = new GhidraMetricsProvider(this, pluginName);
 		
 		String topicName = this.getClass().getPackage().getName();
 		String anchorName = "HelpAnchor";
@@ -72,7 +72,7 @@ public class GhidraMetricsPlugin extends ProgramPlugin {
 		provider.locationChanged(loc);
 	}
 	
-	public GMProvider getProvider() {
+	public GhidraMetricsProvider getProvider() {
 		return provider;
 	}
 }

@@ -60,8 +60,8 @@ public class GMWindowManager extends GMBaseWindowManager {
 		return container;
 	}
 	
-	public final void addEnabledMetrics(Collection<Class<? extends GMBaseMetric>> metricsClz) {
-		for (Class<? extends GMBaseMetric> metricClz: metricsClz) {
+	public final void addEnabledMetrics(Collection<Class<? extends GMBaseMetric<?>>> metricsClz) {
+		for (Class<? extends GMBaseMetric<?>> metricClz: metricsClz) {
 			pnlMetricList.add(GMButton.of(plugin, metricClz));
 		}
 	}

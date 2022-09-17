@@ -1,22 +1,27 @@
 package it.unive.ghidra.metrics.base;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
 import javax.swing.JComponent;
 
 import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
+import it.unive.ghidra.metrics.export.GMExporter;
+import it.unive.ghidra.metrics.export.GMExporter.Type;
 
-public class GMBaseMetricProvider<T extends GMBaseMetric> {
-	private final Class<T> metricClz;
+public class GMBaseMetricProvider<M extends GMBaseMetric<?>> {
+	private final Class<M> metricClz;
 	protected final GhidraMetricsPlugin plugin;
 	
-	protected T metric;
-	protected GMBaseMetricWindowManager<T> wm;
+	protected M metric;
+	protected GMBaseMetricWindowManager<M> wm;
 	
 	protected Function prevFn; // to detect if location has changed to new fn
 
-	public GMBaseMetricProvider(GhidraMetricsPlugin plugin, Class<T> metricClz) {
+	public GMBaseMetricProvider(GhidraMetricsPlugin plugin, Class<M> metricClz) {
 		this.plugin = plugin;
 		this.metricClz = metricClz;
 		
@@ -25,19 +30,22 @@ public class GMBaseMetricProvider<T extends GMBaseMetric> {
 
 	private final void init() {
 		metric = GMBaseMetric.initialize(metricClz, this);
-		wm = GMBaseMetric.windowManagerFor(metric);
 		
+		wm = GMBaseMetricProvider.initializeWindowManager(metric, this);
 		wm.init();
 	}
 
-	public final T getMetric() {
+	public final M getMetric() {
 		return metric;
 	}
 
-	public Class<T> getMetricClz() {
+	public Class<M> getMetricClz() {
 		return metricClz;
 	}
 	
+	public GMBaseMetricWindowManager<M> getWindowManager() {
+		return wm;
+	}
 	
 	public final Program getCurrentProgram() {
 		return plugin.getCurrentProgram();
@@ -45,6 +53,13 @@ public class GMBaseMetricProvider<T extends GMBaseMetric> {
 
 	public final JComponent getComponent() {
 		return wm.getComponent();
+	}
+	
+	
+	public GMExporter createExporter(Type exportType) {
+		GMExporter.Builder builder = GMExporter.of(exportType, plugin).withFileChooser();
+		metric.getMetricsToExport().forEach(m -> builder.addMetric(m));
+		return builder.build();
 	}
 
 	public void locationChanged(ProgramLocation loc) {
@@ -69,5 +84,28 @@ public class GMBaseMetricProvider<T extends GMBaseMetric> {
 		return false;
 	}
 	
-	
+
+	@SuppressWarnings("unchecked")
+	public static <M extends GMBaseMetric<?>> GMBaseMetricWindowManager<M> initializeWindowManager(M metric, GMBaseMetricProvider<M> provider) {
+		try {
+			Class<? extends GMBaseMetricWindowManager<M>> wmClz = (Class<? extends GMBaseMetricWindowManager<M>>) metric.getWindowManagerClass();
+			
+			Constructor<? extends GMBaseMetricWindowManager<M>> declaredConstructor = wmClz.getDeclaredConstructor(provider.getClass());
+			GMBaseMetricWindowManager<M> newInstance = declaredConstructor.newInstance(provider);
+		
+			return newInstance;
+		// TODO handle these exceptions more gracefully
+		} catch (InstantiationException x) {
+		    x.printStackTrace();
+		} catch (IllegalAccessException x) {
+		    x.printStackTrace();
+		} catch (InvocationTargetException x) {
+		    x.printStackTrace();
+		} catch (NoSuchMethodException x) {
+		    x.printStackTrace();
+		}
+				
+		return null;
+	}
+
 }

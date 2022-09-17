@@ -90,9 +90,9 @@ public abstract class GMScriptArgument<T> {
 	// -----------------------
 	// -- Name: METRIC_NAME 
 	// -- Type: Class<? extends GMetric>
-	public static final GMScriptArgument<Class<? extends GMBaseMetric>> ARG_METRIC_NAME = new GMScriptArgument<>(GMScriptArgumentOption.METRIC_NAME) {
+	public static final GMScriptArgument<Class<? extends GMBaseMetric<?>>> ARG_METRIC_NAME = new GMScriptArgument<>(GMScriptArgumentOption.METRIC_NAME) {
 		@Override
-		protected Class<? extends GMBaseMetric> getTypedValue(String str) {
+		protected Class<? extends GMBaseMetric<?>> getTypedValue(String str) {
 			return GMBaseMetric.metricByName(str);
 		}
 	};

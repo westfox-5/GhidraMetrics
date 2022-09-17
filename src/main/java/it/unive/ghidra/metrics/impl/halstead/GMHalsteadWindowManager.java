@@ -1,19 +1,20 @@
 package it.unive.ghidra.metrics.impl.halstead;
 
 import java.awt.BorderLayout;
+import java.awt.Font;
 
 import javax.swing.JComponent;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
+import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 
-import it.unive.ghidra.metrics.base.GMBaseMetricWindowManager;
-import it.unive.ghidra.metrics.base.GMBaseMetricValue;
 import it.unive.ghidra.metrics.base.GMBaseMetric;
-import javax.swing.JLabel;
-import javax.swing.SwingConstants;
-import java.awt.Font;
+import it.unive.ghidra.metrics.base.GMBaseMetricProvider;
+import it.unive.ghidra.metrics.base.GMBaseMetricValue;
+import it.unive.ghidra.metrics.base.GMBaseMetricWindowManager;
 
 public class GMHalsteadWindowManager extends GMBaseMetricWindowManager<GMHalstead> {
 
@@ -23,13 +24,23 @@ public class GMHalsteadWindowManager extends GMBaseMetricWindowManager<GMHalstea
 	private JPanel pnlNoFunctionSelected;
 	private JLabel lblNewLabel;
 	
-	public GMHalsteadWindowManager(GMHalstead halstead) {
-		super(halstead);
+	public GMHalsteadWindowManager(GMBaseMetricProvider<GMHalstead> provider) {
+		super(provider);
 	}
+	
+	@Override
+	public void init() {
+		populateProgramMetrics();
+		populateFunctionMetrics();
+		
+		refresh();
+	}
+
 	
 	/**
 	 * @wbp.parser.entryPoint
 	 */
+	@Override
 	protected JComponent createComponent() {
 		JComponent component = new JPanel();
 		component.setLayout(new BorderLayout(0, 0));
@@ -37,7 +48,7 @@ public class GMHalsteadWindowManager extends GMBaseMetricWindowManager<GMHalstea
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		component.add(tabbedPane, BorderLayout.CENTER);
 		
-		// Program metrics
+		// tab 0 - Program metrics 
 		{ 
 			JPanel pnlProgramMetrics = new JPanel();
 			tabbedPane.addTab("Program metrics", null, pnlProgramMetrics, null);
@@ -48,7 +59,7 @@ public class GMHalsteadWindowManager extends GMBaseMetricWindowManager<GMHalstea
 			pnlProgramMetrics.add(tableProgramMetrics, BorderLayout.CENTER);
 		}
 		
-		// Function metrics
+		// tab 1 - Function metrics
 		{
 			JPanel pnlFunctionMetrics = new JPanel();
 			tabbedPane.addTab("Function metrics", null, pnlFunctionMetrics, null);
@@ -73,15 +84,6 @@ public class GMHalsteadWindowManager extends GMBaseMetricWindowManager<GMHalstea
 		return component;
 	}
 	
-	
-	@Override
-	public void init() {
-		populateProgramMetrics();
-		populateFunctionMetrics();
-		
-		refresh();
-	}
-
 	@Override
 	public void revalidate() {
 		//populateProgramMetrics();
@@ -106,8 +108,17 @@ public class GMHalsteadWindowManager extends GMBaseMetricWindowManager<GMHalstea
 			pnlNoFunctionSelected.setVisible(true);
 		}
 	}
+	
+	public boolean isProgramTabVisible() {
+		return tabbedPane.getSelectedIndex() == 0;
+	}
+	
+	public boolean isFunctionTabVisible() {
+		return tabbedPane.getSelectedIndex() == 1;
+	}
+	
 
-	private static void populateMetricTable(JTable table, GMBaseMetric metric) {
+	private static <M extends GMBaseMetric<?>> void populateMetricTable(JTable table, M metric) {
 		DefaultTableModel dtm = new DefaultTableModel(0, 4);
 		dtm.setColumnIdentifiers(new String[]{"Name", "Value", "Description", "Formula"});
 		

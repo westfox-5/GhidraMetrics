@@ -14,8 +14,8 @@ import docking.ComponentProvider;
 import docking.action.DockingAction;
 import ghidra.program.util.ProgramLocation;
 import ghidra.util.Msg;
-import it.unive.ghidra.metrics.base.GMBaseMetricProvider;
 import it.unive.ghidra.metrics.base.GMBaseMetric;
+import it.unive.ghidra.metrics.base.GMBaseMetricProvider;
 import it.unive.ghidra.metrics.export.GMExporter;
 import it.unive.ghidra.metrics.ui.GMActionBack;
 import it.unive.ghidra.metrics.ui.GMActionExport;
@@ -27,7 +27,7 @@ public class GMProvider extends ComponentProvider {
 	private final GMWindowManager wManager;
 	private final GMProvidersCache providersCache;	// caches instances of metric providers
 
-	private GMBaseMetricProvider<? extends GMBaseMetric> activeProvider;
+	private GMBaseMetricProvider<? extends GMBaseMetric<?>> activeProvider;
 	private List<DockingAction> actions;
 	
 
@@ -44,7 +44,7 @@ public class GMProvider extends ComponentProvider {
 	}
 
 	private void buildPanel() {
-		Collection<Class<? extends GMBaseMetric>> enabledMetrics = GhidraMetricsPlugin.DEBUG ? GMBaseMetric.allMetrics():  GhidraMetricsPlugin.getEnabledMetrics();
+		Collection<Class<? extends GMBaseMetric<?>>> enabledMetrics = GhidraMetricsPlugin.DEBUG ? GMBaseMetric.allMetrics():  GhidraMetricsPlugin.getEnabledMetrics();
 		wManager.addEnabledMetrics(enabledMetrics);
 		
 		setVisible(true);
@@ -75,7 +75,7 @@ public class GMProvider extends ComponentProvider {
 		refresh();
 	}
 	
-	public <W extends GMBaseMetric> void showMetric(Class<W> metricClz) {
+	public <M extends GMBaseMetric<?>> void showMetric(Class<M> metricClz) {
 		this.activeProvider = providersCache.get(metricClz);
 		
 		wManager.show(activeProvider);
@@ -86,10 +86,10 @@ public class GMProvider extends ComponentProvider {
 		if (activeProvider == null) 
 			throw new RuntimeException("ERROR: No active provider is selected!");
 
-		GMBaseMetric metric = activeProvider.getMetric();
-
+		GMExporter exporter = activeProvider.createExporter(exportType);
+		
 		try {
-			Path exportPath = GMExporter.of(exportType, plugin).addMetric(metric).withFileChooser().export();
+			Path exportPath = exporter.export();
 			
 			if (exportPath == null)
 				throw new RuntimeException("Could not export selected metric.");
@@ -132,17 +132,17 @@ public class GMProvider extends ComponentProvider {
 	
 
 	private final class GMProvidersCache {
-		private final Map<Class<? extends GMBaseMetric>, GMBaseMetricProvider<?>> _cache;
+		private final Map<Class<? extends GMBaseMetric<?>>, GMBaseMetricProvider<?>> _cache;
 		
 		public GMProvidersCache(){
 			this._cache = new HashMap<>();	
 		}
 		
 		@SuppressWarnings("unchecked")
-		public <W extends GMBaseMetric> GMBaseMetricProvider<W> get(Class<W> clz) {
-			GMBaseMetricProvider<W> provider = (GMBaseMetricProvider<W>) _cache.get(clz);
+		public <M extends GMBaseMetric<?>> GMBaseMetricProvider<M> get(Class<M> clz) {
+			GMBaseMetricProvider<M> provider = (GMBaseMetricProvider<M>) _cache.get(clz);
 			if (provider == null) {
-				provider = new GMBaseMetricProvider<W>(plugin, clz);
+				provider = new GMBaseMetricProvider<M>(plugin, clz);
 				_cache.put(clz, provider);
 			}
 			return provider;

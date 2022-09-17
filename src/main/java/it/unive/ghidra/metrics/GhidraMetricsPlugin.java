@@ -45,7 +45,7 @@ public class GhidraMetricsPlugin extends ProgramPlugin {
 	public static final boolean DEBUG = true;
 
 	
-	public static Set<Class<? extends GMBaseMetric>> getEnabledMetrics() {
+	public static Set<Class<? extends GMBaseMetric<?>>> getEnabledMetrics() {
 		return new HashSet<>(GMBaseMetric.allMetrics());
 	}
 	

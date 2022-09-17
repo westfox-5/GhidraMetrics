@@ -9,20 +9,19 @@ import it.unive.ghidra.metrics.GMProvider;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
 import it.unive.ghidra.metrics.base.GMBaseMetric;
 
-public class GMButton<T extends GMBaseMetric> extends JButton implements ActionListener {
+public class GMButton<M extends GMBaseMetric<?>> extends JButton implements ActionListener {
 	private static final long serialVersionUID = 1L;
 
-	public static final <T extends GMBaseMetric> GMButton<T> of(
-			GhidraMetricsPlugin plugin, Class<T> metricClz) {
-		return new GMButton<T>(plugin, metricClz);
+	public static final <M extends GMBaseMetric<?>> GMButton<M> of(GhidraMetricsPlugin plugin, Class<M> metricClz) {
+		return new GMButton<M>(plugin, metricClz);
 	}
 
 	private final String title;
 
 	private final GhidraMetricsPlugin plugin;
-	private final Class<T> metricClz;
+	private final Class<M> metricClz;
 
-	private GMButton(GhidraMetricsPlugin plugin, Class<T> metricClz) {
+	private GMButton(GhidraMetricsPlugin plugin, Class<M> metricClz) {
 		super();
 		this.plugin = plugin;
 		this.metricClz = metricClz;

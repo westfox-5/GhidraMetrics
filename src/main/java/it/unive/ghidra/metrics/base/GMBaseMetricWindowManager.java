@@ -1,18 +1,23 @@
 package it.unive.ghidra.metrics.base;
 
-public abstract class GMBaseMetricWindowManager<T extends GMBaseMetric>  extends GMBaseWindowManager {
+public abstract class GMBaseMetricWindowManager<M extends GMBaseMetric<?>> extends GMBaseWindowManager {
 
-	private final T metric;
+	private final GMBaseMetricProvider<M> provider;
 
-	protected GMBaseMetricWindowManager(T metric) {
+	protected GMBaseMetricWindowManager(GMBaseMetricProvider<M> provider) {
 		super();
-		this.metric = metric;
+		this.provider = provider;
 	}
 	
 	public abstract void init();
 
-	public T getMetric() {
-		return metric;
+	
+	public GMBaseMetricProvider<M> getProvider() {
+		return provider;
+	}
+
+	public M getMetric() {
+		return provider.getMetric();
 	}
 
 }

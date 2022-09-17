@@ -3,7 +3,6 @@ package it.unive.ghidra.metrics.export;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
@@ -13,6 +12,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import docking.widgets.filechooser.GhidraFileChooser;
+import docking.widgets.filechooser.GhidraFileChooserMode;
 import ghidra.util.filechooser.GhidraFileChooserModel;
 import ghidra.util.filechooser.GhidraFileFilter;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
@@ -55,30 +55,32 @@ public abstract class GMExporter {
 		}
 	}
 	
-	
 	private final GMExporter.Type exportType;
+	private List<GMBaseMetric<?>> metrics;
+	private Path exportPath;
 	
 	protected GMExporter(GMExporter.Type exportType) {
 		this.exportType = exportType;
 	}
 	
-	protected abstract <V> StringBuilder serialize(Collection<GMBaseMetric> metrics);
+	protected abstract <V> StringBuilder serialize(Collection<GMBaseMetric<?>> metrics);
 	
-	public void serializeToFile(Path path, Collection<GMBaseMetric> metrics) throws IOException {
-		if (Files.notExists(path, LinkOption.NOFOLLOW_LINKS)) {
-			Files.createDirectories(path.getParent());
-			Files.createFile(path);
-		}
+	public Path export() throws IOException {
+		
+		Files.deleteIfExists(exportPath);		
+		Files.createDirectories(exportPath.getParent());
+		Files.createFile(exportPath);
 		
 		StringBuilder sb = serialize(metrics);
 		Stream<String> lines = Pattern.compile(System.lineSeparator()).splitAsStream(sb);
 		
-		if (lines == null)
-			return;
+		if (lines != null) {
+			lines
+				.map(line -> line + System.lineSeparator())
+				.forEachOrdered(line -> writeLineToFile(exportPath, line));
+		}
 		
-		lines
-			.map(line -> line + System.lineSeparator())
-			.forEachOrdered(line -> writeLineToFile(path, line));
+		return exportPath;
 	}
 
 	private void writeLineToFile(final Path path, final String line) {
@@ -99,7 +101,7 @@ public abstract class GMExporter {
 		private final GMExporter.Type exportType;
 		private final GhidraMetricsPlugin plugin;
 		
-		private List<GMBaseMetric> metrics;
+		private List<GMBaseMetric<?>> metrics;
 		
 		private boolean withFileChooser;
 		private Path choosenPath;
@@ -110,7 +112,7 @@ public abstract class GMExporter {
 			metrics = new ArrayList<>();
 		}
 		
-		public Builder addMetric(GMBaseMetric metric) {
+		public Builder addMetric(GMBaseMetric<?> metric) {
 			this.metrics.add(metric);
 			return this;
 		}
@@ -129,9 +131,10 @@ public abstract class GMExporter {
 		}
 		
 		private GhidraFileChooser createFileChooser() {
-			GhidraFileChooser fc = new GhidraFileChooser( plugin.getProvider().getComponent() );
-			fc.setMultiSelectionEnabled(false);
-			fc.setSelectedFileFilter(new GhidraFileFilter() {
+			GhidraFileChooser fileChooser = new GhidraFileChooser( plugin.getProvider().getComponent() );
+			fileChooser.setMultiSelectionEnabled(false);
+			fileChooser.setFileSelectionMode(GhidraFileChooserMode.FILES_ONLY);
+			fileChooser.setSelectedFileFilter(new GhidraFileFilter() {
 				@Override
 				public String getDescription() {
 					return "Only " + exportType.name() + " files";
@@ -144,7 +147,7 @@ public abstract class GMExporter {
 				}
 			});
 			
-			return fc;
+			return fileChooser;
 		}
 		
 		
@@ -162,7 +165,7 @@ public abstract class GMExporter {
 			return choosenPath;
 		}
 		
-		public Path export() throws IOException {
+		public GMExporter build() {
 			if (metrics.isEmpty()) 
 				return null;
 			
@@ -173,9 +176,11 @@ public abstract class GMExporter {
 			if (exportPath == null) 
 				return null;
 			
-			newInstance(exportType).serializeToFile(exportPath, metrics);
+			GMExporter exporter = newInstance(exportType);
+			exporter.exportPath = exportPath;
+			exporter.metrics = metrics;
 			
-			return exportPath;
+			return exporter;
 		}
 	}
 }

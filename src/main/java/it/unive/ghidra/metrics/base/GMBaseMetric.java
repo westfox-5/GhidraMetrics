@@ -4,6 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -14,53 +15,49 @@ import it.unive.ghidra.metrics.base.GMBaseMetricValue.NumericMetric;
 import it.unive.ghidra.metrics.base.GMBaseMetricValue.StringMetric;
 import it.unive.ghidra.metrics.impl.halstead.GMHalstead;
 
-public abstract class GMBaseMetric {
+public abstract class GMBaseMetric<M extends GMBaseMetric<M>> {
 	
-	private static final Map<String, Class<? extends GMBaseMetric>> metricLookup;
+	private static final Map<String, Class<? extends GMBaseMetric<?>>> metricLookup;
 	static {
 		metricLookup = new HashMap<>();
 		metricLookup.put(GMHalstead.NAME, GMHalstead.class);
 		
 	}
 	
-	public static Class<? extends GMBaseMetric> metricByName(String name) {
+	public static Class<? extends GMBaseMetric<?>> metricByName(String name) {
 		return metricLookup.get(name);
 	}
-	public static Collection<Class<? extends GMBaseMetric>> allMetrics() {
+	public static Collection<Class<? extends GMBaseMetric<?>>> allMetrics() {
 		return metricLookup.values();
 	}
 
 	
 	
 	
-	private final Map<String, GMBaseMetricValue<?>> metricsByKey;
+	private final Map<String, GMBaseMetricValue<?>> metricsByKey = new HashMap<String, GMBaseMetricValue<?>>();
 	protected final String name;
-	
-	protected final GMBaseMetricProvider<? extends GMBaseMetric> provider;
-	protected final Class<? extends GMBaseMetricWindowManager<?>> wmClz;
+
+	protected final GMBaseMetricProvider<M> provider;
+	protected final Class<? extends GMBaseMetricWindowManager<? extends GMBaseMetric<?>>> wmClz;
 	
 	protected final boolean headlessMode;
 	protected final Program program;
 	
-	protected GMBaseMetric(String name, GMBaseMetricProvider<? extends GMBaseMetric> provider, Class<? extends GMBaseMetricWindowManager<?>> wmClz) {
+	protected GMBaseMetric(String name, GMBaseMetricProvider<M> provider, Class<? extends GMBaseMetricWindowManager<M>> wmClz) {
 		this.name = name;
-		this.metricsByKey = new HashMap<String, GMBaseMetricValue<?>>();
 
-		this.provider = provider;
-		this.wmClz = wmClz;
-		
 		this.headlessMode = false;
+		this.wmClz = wmClz;
+		this.provider = provider;
 		this.program = provider.getCurrentProgram();
 	}
 	
 	protected GMBaseMetric(String name, Program program) {
 		this.name = name;
-		this.metricsByKey = new HashMap<String, GMBaseMetricValue<?>>();
-		
-		this.provider = null;
-		this.wmClz = null;
 		
 		this.headlessMode = true;
+		this.wmClz = null;
+		this.provider = null;
 		this.program = program;
 	}
 		
@@ -108,7 +105,7 @@ public abstract class GMBaseMetric {
 		return name;
 	}
 
-	public GMBaseMetricProvider<? extends GMBaseMetric> getProvider() {
+	public GMBaseMetricProvider<M> getProvider() {
 		return provider;
 	}
 	
@@ -131,13 +128,20 @@ public abstract class GMBaseMetric {
 	protected void clearMetrics() {
 		this.metricsByKey.clear();
 	}
-
+	
+	public Class<? extends GMBaseMetricWindowManager<? extends GMBaseMetric<?>>> getWindowManagerClass() {
+		return wmClz;
+	}
 	
 	
-	public static <T extends GMBaseMetric> T initialize(Class<T> metricClz, GMBaseMetricProvider<T> provider) {
+	public Collection<GMBaseMetric<?>> getMetricsToExport() {
+		return Collections.singletonList(this);
+	}
+	
+	public static <M extends GMBaseMetric<?>> M initialize(Class<M> metricClz, GMBaseMetricProvider<M> provider) {
 		try {
-			Constructor<T> declaredConstructor = metricClz.getDeclaredConstructor(GMBaseMetricProvider.class);
-			T metric = declaredConstructor.newInstance(provider);
+			Constructor<M> declaredConstructor = metricClz.getDeclaredConstructor(GMBaseMetricProvider.class);
+			M metric = declaredConstructor.newInstance(provider);
 			
 			metric.init();
 			
@@ -157,40 +161,15 @@ public abstract class GMBaseMetric {
 		return null;
 	}
 	
-	public static <T extends GMBaseMetric> T initializeHeadless(Class<T> metricClz, Program program) {
+	public static <M extends GMBaseMetric<?>> M initializeHeadless(Class<M> metricClz, Program program) {
 		try {
-			Constructor<T> declaredConstructor = metricClz.getDeclaredConstructor(Program.class);
-			T metric = declaredConstructor.newInstance(program);
+			Constructor<M> declaredConstructor = metricClz.getDeclaredConstructor(Program.class);
+			M metric = declaredConstructor.newInstance(program);
 			
 			metric.init();
 			
 			return metric;
 
-		// TODO handle these exceptions more gracefully
-		} catch (InstantiationException x) {
-		    x.printStackTrace();
-		} catch (IllegalAccessException x) {
-		    x.printStackTrace();
-		} catch (InvocationTargetException x) {
-		    x.printStackTrace();
-		} catch (NoSuchMethodException x) {
-		    x.printStackTrace();
-		}
-		
-		return null;
-	}
-	
-	
-	
-	
-	@SuppressWarnings("unchecked")
-	public static <M extends GMBaseMetric, T extends GMBaseMetricWindowManager<M>> T windowManagerFor(M metric) {
-		try {
-			Constructor<T> declaredConstructor = ((Class<T>)metric.wmClz).getDeclaredConstructor(metric.getClass());
-			T wm = declaredConstructor.newInstance(metric);
-			
-			return wm;
-		
 		// TODO handle these exceptions more gracefully
 		} catch (InstantiationException x) {
 		    x.printStackTrace();

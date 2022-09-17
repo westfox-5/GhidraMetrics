@@ -12,14 +12,16 @@ public class GMScript extends GMBaseScript {
 	protected void run() throws Exception {
 		parseArgs();
 		
-		GMBaseMetric metric = GMBaseMetric.initializeHeadless(getArgValue(GMScriptArgumentOption.METRIC_NAME), getCurrentProgram());
+		GMBaseMetric<?> metric = GMBaseMetric.initializeHeadless(getArgValue(GMScriptArgumentOption.METRIC_NAME), getCurrentProgram());
 		GMExporter.Type exportType = getArgValue(GMScriptArgumentOption.EXPORT_TYPE);
 		Path exportPath = getArgValue(GMScriptArgumentOption.EXPORT_PATH);
 		
-		GMExporter.of(exportType)
+		GMExporter exporter = GMExporter.of(exportType)
 			.addMetric(metric)
 			.toPath(exportPath)
-		.export();
+			.build();
+		
+		exportPath = exporter.export();
 		
 		Msg.info(this, "Exported to: "+ exportPath.toAbsolutePath());
 	}

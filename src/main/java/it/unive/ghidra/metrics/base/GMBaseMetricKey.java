@@ -31,7 +31,7 @@ public class GMBaseMetricKey {
 			data.put(KEY_FORMULA, formula);
 	}
 	
-	protected <T> T getTypedValue(Class<T> typeClz, GMBaseMetric metric) 
+	protected <T> T getTypedValue(Class<T> typeClz, GMBaseMetric<?> metric) 
 			throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		String getterMethodName = StringUtils.getterMethodName(getName());
 		Method getterMethod = metric.getClass().getMethod(getterMethodName);

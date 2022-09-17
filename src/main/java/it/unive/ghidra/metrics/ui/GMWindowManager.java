@@ -11,9 +11,9 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
-import it.unive.ghidra.metrics.base.GMBaseProvider;
+import it.unive.ghidra.metrics.base.GMBaseMetricProvider;
 import it.unive.ghidra.metrics.base.GMBaseWindowManager;
-import it.unive.ghidra.metrics.base.GMetric;
+import it.unive.ghidra.metrics.base.GMBaseMetric;
 
 public class GMWindowManager extends GMBaseWindowManager {
 	
@@ -60,13 +60,13 @@ public class GMWindowManager extends GMBaseWindowManager {
 		return container;
 	}
 	
-	public final void addEnabledMetrics(Collection<Class<? extends GMetric>> metricsClz) {
-		for (Class<? extends GMetric> metricClz: metricsClz) {
+	public final void addEnabledMetrics(Collection<Class<? extends GMBaseMetric>> metricsClz) {
+		for (Class<? extends GMBaseMetric> metricClz: metricsClz) {
 			pnlMetricList.add(GMButton.of(plugin, metricClz));
 		}
 	}
 	
-	public final void show(GMBaseProvider<?> mProvider) {
+	public final void show(GMBaseMetricProvider<?> mProvider) {
 		if (mProvider == null) {
 			pnlMetricContainer.setVisible(false);
 			pnlMetricList.setVisible(true);

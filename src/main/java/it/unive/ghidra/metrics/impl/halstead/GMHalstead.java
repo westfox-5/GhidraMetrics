@@ -4,28 +4,37 @@ import java.math.BigDecimal;
 
 import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.Program;
-import it.unive.ghidra.metrics.base.GMetric;
+import it.unive.ghidra.metrics.base.GMBaseMetric;
+import it.unive.ghidra.metrics.base.GMBaseMetricProvider;
 import it.unive.ghidra.metrics.impl.halstead.GMHalsteadParser.Result;
 import it.unive.ghidra.metrics.util.NumberUtils;
 
-public class GMHalstead extends GMetric {
+public class GMHalstead extends GMBaseMetric {
 	public static final String NAME = "HALSTEAD";
 
 	public static final class GMHalsteadFunction extends GMHalstead {
 		private final Function function;
 
-		public GMHalsteadFunction(Function function) {
-			super(function.getProgram(), GMHalsteadParser.functionParser(function));
+		protected GMHalsteadFunction(GMBaseMetricProvider<GMHalstead> provider, Function function) {
+			super(provider);
 			this.function = function;
 		}
 		
+		protected GMHalsteadFunction(Function function) {
+			super(function.getProgram());
+			this.function = function;
+		}
+		
+		@Override
+		protected GMHalsteadParser getParser() {
+			return GMHalsteadParser.functionParser(function);
+		}
 
 		public Function getFunction() {
 			return function;
 		}
 	}
 	
-	private final GMHalsteadParser parser;
 	private GMHalsteadFunction fnHalstead; // specific function metric 
 	
 	private BigDecimal n1; // no. operators [distinct, total]
@@ -33,17 +42,15 @@ public class GMHalstead extends GMetric {
 
 	private BigDecimal n2; // no. operands [distinct, total]
 	private BigDecimal N2;
-	
-	public GMHalstead(Program program) {
-		this(program, GMHalsteadParser.programParser(program));
+
+	public GMHalstead(GMBaseMetricProvider<GMHalstead> provider) {
+		super(NAME, provider, GMHalsteadWindowManager.class);
 	}
 
-	public GMHalstead(Program program, GMHalsteadParser parser) {
-		super(NAME, program, GMHalsteadWindowManager.class);
-		this.parser = parser;
+	public GMHalstead(Program program) {
+		super(NAME, program);
 	}
-	
-	
+
 	@Override
 	protected void init() {
 		clearMetrics();
@@ -60,13 +67,23 @@ public class GMHalstead extends GMetric {
 	}
 
 	@Override
+	@SuppressWarnings("unchecked")
 	protected void functionChanged(Function fn) {
-		fnHalstead = new GMHalsteadFunction(fn);
+		if (isHeadlessMode()) {
+			fnHalstead = new GMHalsteadFunction((GMBaseMetricProvider<GMHalstead>) getProvider(), fn);
+		} else {
+			fnHalstead = new GMHalsteadFunction((GMBaseMetricProvider<GMHalstead>) getProvider(), fn);
+		}
+		
 		fnHalstead.init();
 	}
 	
-	private GMHalsteadParser getParser() {
-		return parser;
+	protected GMHalsteadParser getParser() {
+		return GMHalsteadParser.programParser(getProgram());
+	}
+	
+	public GMHalstead getHalsteadFunction() {
+		return fnHalstead;
 	}
 	
 	public BigDecimal getNumDistinctOperators() {
@@ -165,10 +182,6 @@ public class GMHalstead extends GMetric {
 	public BigDecimal getEstimatedErrors() {
 		BigDecimal V = getVolume();
 		return V.divide(new BigDecimal(3000), NumberUtils.DEFAULT_CONTEXT);
-	}
-
-	public GMHalstead getFnHalstead() {
-		return fnHalstead;
 	}
 
 }

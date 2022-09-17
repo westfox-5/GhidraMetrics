@@ -6,10 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import it.unive.ghidra.metrics.base.GMBaseValue.MetricType;
+import it.unive.ghidra.metrics.base.GMBaseMetricValue.MetricType;
 import it.unive.ghidra.metrics.util.StringUtils;
 
-public class GMBaseKey {
+public class GMBaseMetricKey {
 	public static final String KEY_DESCRIPTION = "description";
 	public static final String KEY_FORMULA = "formula";
 
@@ -17,13 +17,13 @@ public class GMBaseKey {
 	private final String name;
 	private final Map<String, String> data;
 
-	public GMBaseKey(MetricType type, String name) {
+	public GMBaseMetricKey(MetricType type, String name) {
 		this.type = type;
 		this.name = name;
 		this.data = new HashMap<String, String>();
 	}
 	
-	public GMBaseKey(MetricType type, String name, String description, String formula) {
+	public GMBaseMetricKey(MetricType type, String name, String description, String formula) {
 		this(type, name);
 		if (description != null)
 			data.put(KEY_DESCRIPTION, description);
@@ -31,7 +31,7 @@ public class GMBaseKey {
 			data.put(KEY_FORMULA, formula);
 	}
 	
-	protected <T> T getTypedValue(Class<T> typeClz, GMetric metric) 
+	protected <T> T getTypedValue(Class<T> typeClz, GMBaseMetric metric) 
 			throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		String getterMethodName = StringUtils.getterMethodName(getName());
 		Method getterMethod = metric.getClass().getMethod(getterMethodName);
@@ -69,7 +69,7 @@ public class GMBaseKey {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		GMBaseKey other = (GMBaseKey) obj;
+		GMBaseMetricKey other = (GMBaseMetricKey) obj;
 		return Objects.equals(name, other.name);
 	}
 	

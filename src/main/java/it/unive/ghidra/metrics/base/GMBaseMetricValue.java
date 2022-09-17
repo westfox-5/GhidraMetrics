@@ -3,41 +3,41 @@ package it.unive.ghidra.metrics.base;
 import java.math.BigDecimal;
 import java.util.Objects;
 
-public abstract class GMBaseValue<V> {
+public abstract class GMBaseMetricValue<V> {
 	
 	public static enum MetricType {
 		NUMERIC, STRING
 	}
 	
-	public static class NumericMetric extends GMBaseValue<BigDecimal> {
+	public static class NumericMetric extends GMBaseMetricValue<BigDecimal> {
 
-		public NumericMetric(GMBaseKey mKey, Double value) {
+		public NumericMetric(GMBaseMetricKey mKey, Double value) {
 			this(mKey, BigDecimal.valueOf(value));
 		}
 
-		public NumericMetric(GMBaseKey mKey, BigDecimal value) {
+		public NumericMetric(GMBaseMetricKey mKey, BigDecimal value) {
 			super(mKey, value);
 		}
 	}
 	
-	public static class StringMetric extends GMBaseValue<String> {
+	public static class StringMetric extends GMBaseMetricValue<String> {
 
-		public StringMetric(GMBaseKey mKey, String value) {
+		public StringMetric(GMBaseMetricKey mKey, String value) {
 			super(mKey, value);
 		}
 	}
 	
 	
-	private final GMBaseKey key;
+	private final GMBaseMetricKey key;
 	private final V value;
 	
-	public GMBaseValue(GMBaseKey key, V value) {
+	public GMBaseMetricValue(GMBaseMetricKey key, V value) {
 		super();
 		this.key = key;
 		this.value = value;
 	}
 	
-	public GMBaseKey getKey() {
+	public GMBaseMetricKey getKey() {
 		return key;
 	}
 	public V getValue() {
@@ -53,11 +53,11 @@ public abstract class GMBaseValue<V> {
 	}
 	
 	public String getDescription() {
-		return key.getOtherInfo().get(GMBaseKey.KEY_DESCRIPTION);
+		return key.getOtherInfo().get(GMBaseMetricKey.KEY_DESCRIPTION);
 	}
 
 	public String getFormula() {
-		return key.getOtherInfo().get(GMBaseKey.KEY_FORMULA);
+		return key.getOtherInfo().get(GMBaseMetricKey.KEY_FORMULA);
 	}
 
 	@Override
@@ -73,7 +73,7 @@ public abstract class GMBaseValue<V> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		GMBaseValue<?> other = (GMBaseValue<?>) obj;
+		GMBaseMetricValue<?> other = (GMBaseMetricValue<?>) obj;
 		return Objects.equals(key, other.key) && Objects.equals(value, other.value);
 	}
 }

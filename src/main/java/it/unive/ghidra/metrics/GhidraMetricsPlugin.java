@@ -25,7 +25,7 @@ import ghidra.framework.plugintool.PluginTool;
 import ghidra.framework.plugintool.util.PluginStatus;
 import ghidra.program.util.ProgramLocation;
 import ghidra.util.HelpLocation;
-import it.unive.ghidra.metrics.base.GMetric;
+import it.unive.ghidra.metrics.base.GMBaseMetric;
 
 /**
  * TODO: Provide class-level documentation that describes what this plugin does.
@@ -45,8 +45,8 @@ public class GhidraMetricsPlugin extends ProgramPlugin {
 	public static final boolean DEBUG = true;
 
 	
-	public static Set<Class<? extends GMetric>> getEnabledMetrics() {
-		return new HashSet<>(GMetric.allMetrics());
+	public static Set<Class<? extends GMBaseMetric>> getEnabledMetrics() {
+		return new HashSet<>(GMBaseMetric.allMetrics());
 	}
 	
 	private final GMProvider provider;

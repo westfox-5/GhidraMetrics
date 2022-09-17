@@ -1,6 +1,6 @@
 package it.unive.ghidra.metrics.base;
 
-public abstract class GMBaseMetricWindowManager<T extends GMetric>  extends GMBaseWindowManager {
+public abstract class GMBaseMetricWindowManager<T extends GMBaseMetric>  extends GMBaseWindowManager {
 
 	private final T metric;
 

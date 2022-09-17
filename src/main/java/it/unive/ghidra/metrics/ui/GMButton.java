@@ -7,12 +7,12 @@ import javax.swing.JButton;
 
 import it.unive.ghidra.metrics.GMProvider;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
-import it.unive.ghidra.metrics.base.GMetric;
+import it.unive.ghidra.metrics.base.GMBaseMetric;
 
-public class GMButton<T extends GMetric> extends JButton implements ActionListener {
+public class GMButton<T extends GMBaseMetric> extends JButton implements ActionListener {
 	private static final long serialVersionUID = 1L;
 
-	public static final <T extends GMetric> GMButton<T> of(
+	public static final <T extends GMBaseMetric> GMButton<T> of(
 			GhidraMetricsPlugin plugin, Class<T> metricClz) {
 		return new GMButton<T>(plugin, metricClz);
 	}

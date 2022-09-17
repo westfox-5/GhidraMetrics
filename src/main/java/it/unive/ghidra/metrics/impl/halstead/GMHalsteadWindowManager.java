@@ -9,8 +9,8 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 import it.unive.ghidra.metrics.base.GMBaseMetricWindowManager;
-import it.unive.ghidra.metrics.base.GMBaseValue;
-import it.unive.ghidra.metrics.base.GMetric;
+import it.unive.ghidra.metrics.base.GMBaseMetricValue;
+import it.unive.ghidra.metrics.base.GMBaseMetric;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 import java.awt.Font;
@@ -95,7 +95,7 @@ public class GMHalsteadWindowManager extends GMBaseMetricWindowManager<GMHalstea
 	}
 	
 	protected void populateFunctionMetrics() {
-		GMHalstead fnHalstead = getMetric().getFnHalstead();
+		GMHalstead fnHalstead = getMetric().getHalsteadFunction();
 		if (fnHalstead != null) {
 			populateMetricTable(tableFunctionMetrics, fnHalstead);
 			
@@ -107,12 +107,12 @@ public class GMHalsteadWindowManager extends GMBaseMetricWindowManager<GMHalstea
 		}
 	}
 
-	private static void populateMetricTable(JTable table, GMetric metric) {
+	private static void populateMetricTable(JTable table, GMBaseMetric metric) {
 		DefaultTableModel dtm = new DefaultTableModel(0, 4);
 		dtm.setColumnIdentifiers(new String[]{"Name", "Value", "Description", "Formula"});
 		
 		GMHalsteadKey.ALL_KEYS.forEach(k -> {
-			GMBaseValue<?> m = metric.getMetric(k);
+			GMBaseMetricValue<?> m = metric.getMetric(k);
 			dtm.addRow(new Object[] { 
 					m.getName(),
 					m.getValue(),

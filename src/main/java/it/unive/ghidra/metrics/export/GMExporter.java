@@ -16,7 +16,7 @@ import docking.widgets.filechooser.GhidraFileChooser;
 import ghidra.util.filechooser.GhidraFileChooserModel;
 import ghidra.util.filechooser.GhidraFileFilter;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
-import it.unive.ghidra.metrics.base.GMetric;
+import it.unive.ghidra.metrics.base.GMBaseMetric;
 import it.unive.ghidra.metrics.export.impl.GMExporterJSON;
 import it.unive.ghidra.metrics.util.StringUtils;
 
@@ -62,9 +62,9 @@ public abstract class GMExporter {
 		this.exportType = exportType;
 	}
 	
-	protected abstract <V> StringBuilder serialize(Collection<GMetric> metrics);
+	protected abstract <V> StringBuilder serialize(Collection<GMBaseMetric> metrics);
 	
-	public void serializeToFile(Path path, Collection<GMetric> metrics) throws IOException {
+	public void serializeToFile(Path path, Collection<GMBaseMetric> metrics) throws IOException {
 		if (Files.notExists(path, LinkOption.NOFOLLOW_LINKS)) {
 			Files.createDirectories(path.getParent());
 			Files.createFile(path);
@@ -99,7 +99,7 @@ public abstract class GMExporter {
 		private final GMExporter.Type exportType;
 		private final GhidraMetricsPlugin plugin;
 		
-		private List<GMetric> metrics;
+		private List<GMBaseMetric> metrics;
 		
 		private boolean withFileChooser;
 		private Path choosenPath;
@@ -110,7 +110,7 @@ public abstract class GMExporter {
 			metrics = new ArrayList<>();
 		}
 		
-		public Builder addMetric(GMetric metric) {
+		public Builder addMetric(GMBaseMetric metric) {
 			this.metrics.add(metric);
 			return this;
 		}

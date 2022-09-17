@@ -4,10 +4,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import it.unive.ghidra.metrics.base.GMBaseKey;
-import it.unive.ghidra.metrics.base.GMBaseValue.MetricType;
+import it.unive.ghidra.metrics.base.GMBaseMetricKey;
+import it.unive.ghidra.metrics.base.GMBaseMetricValue.MetricType;
 
-public final class GMHalsteadKey extends GMBaseKey {
+public final class GMHalsteadKey extends GMBaseMetricKey {
 
 	private static final GMHalsteadKey NUM_DISTINCT_OPERATORS;
 	private static final GMHalsteadKey NUM_DISTINCT_OPERANDS;
@@ -22,7 +22,7 @@ public final class GMHalsteadKey extends GMBaseKey {
 	private static final GMHalsteadKey CODING_TIME;
 	private static final GMHalsteadKey ESTIMATED_ERRORS;
 	
-	private static final Map<String, GMBaseKey> lookupByName;
+	private static final Map<String, GMBaseMetricKey> lookupByName;
 	
 	static {
 		lookupByName = new HashMap<>();
@@ -41,10 +41,10 @@ public final class GMHalsteadKey extends GMBaseKey {
 		ESTIMATED_ERRORS	= new GMHalsteadKey(MetricType.NUMERIC, "Estimated Errors", "Number of estimated errors.", "B = V / 3000");
 	}
 
-	public static final List<GMBaseKey> ALL_KEYS = List.of(NUM_DISTINCT_OPERATORS, NUM_DISTINCT_OPERANDS, NUM_OPERATORS, NUM_OPERANDS,
+	public static final List<GMBaseMetricKey> ALL_KEYS = List.of(NUM_DISTINCT_OPERATORS, NUM_DISTINCT_OPERANDS, NUM_OPERATORS, NUM_OPERANDS,
 			VOCABULARY, PROGRAM_LENGTH, ESTIMATED_LENGTH, VOLUME, DIFFICULTY, EFFORT, CODING_TIME, ESTIMATED_ERRORS);
 
-	public static final GMBaseKey byName(String name) {
+	public static final GMBaseMetricKey byName(String name) {
 		return lookupByName.get(name);
 	}
 	

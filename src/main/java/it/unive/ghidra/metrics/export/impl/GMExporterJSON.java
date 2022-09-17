@@ -4,9 +4,9 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.function.BiConsumer;
 
-import it.unive.ghidra.metrics.base.GMBaseKey;
-import it.unive.ghidra.metrics.base.GMBaseValue;
-import it.unive.ghidra.metrics.base.GMetric;
+import it.unive.ghidra.metrics.base.GMBaseMetricKey;
+import it.unive.ghidra.metrics.base.GMBaseMetricValue;
+import it.unive.ghidra.metrics.base.GMBaseMetric;
 import it.unive.ghidra.metrics.export.GMExporter;
 import it.unive.ghidra.metrics.util.StringUtils;
 
@@ -17,7 +17,7 @@ public class GMExporterJSON extends GMExporter {
 	}
 
 	@Override
-	protected <V> StringBuilder serialize(Collection<GMetric> metrics) {
+	protected <V> StringBuilder serialize(Collection<GMBaseMetric> metrics) {
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append("[");
@@ -39,7 +39,7 @@ public class GMExporterJSON extends GMExporter {
 	 *  }
 	 * }
 	 */
-	private StringBuilder serialize(GMetric metric) {
+	private StringBuilder serialize(GMBaseMetric metric) {
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append("{")
@@ -58,8 +58,8 @@ public class GMExporterJSON extends GMExporter {
 	 * A metric key is formatted as:
 	 * { name, type, info: [{name, value}] }
 	 */
-	private StringBuilder dumpMetricKeys(GMetric metric) {
-		Iterator<GMBaseKey> it = metric.getMetrics().stream().map(m -> m.getKey()).iterator();
+	private StringBuilder dumpMetricKeys(GMBaseMetric metric) {
+		Iterator<GMBaseMetricKey> it = metric.getMetrics().stream().map(m -> m.getKey()).iterator();
 		
 		StringBuilder dump = dumpAll(it, (sb, next) -> {
 			sb.append("{")
@@ -82,8 +82,8 @@ public class GMExporterJSON extends GMExporter {
 	 * A metric value is formatted as:
 	 * { keyName, value } 
 	 */
-	private StringBuilder dumpMetricValues(GMetric metric) {
-		Iterator<GMBaseValue<?>> it = metric.getMetrics().iterator();
+	private StringBuilder dumpMetricValues(GMBaseMetric metric) {
+		Iterator<GMBaseMetricValue<?>> it = metric.getMetrics().iterator();
 		
 		StringBuilder dump = dumpAll(it, (sb, next) -> {
 			sb.append("{")

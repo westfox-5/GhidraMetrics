@@ -7,7 +7,7 @@ import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
 
-public class GMBaseProvider<T extends GMetric> {
+public class GMBaseMetricProvider<T extends GMBaseMetric> {
 	private final Class<T> metricClz;
 	protected final GhidraMetricsPlugin plugin;
 	
@@ -16,7 +16,7 @@ public class GMBaseProvider<T extends GMetric> {
 	
 	protected Function prevFn; // to detect if location has changed to new fn
 
-	public GMBaseProvider(GhidraMetricsPlugin plugin, Class<T> metricClz) {
+	public GMBaseMetricProvider(GhidraMetricsPlugin plugin, Class<T> metricClz) {
 		this.plugin = plugin;
 		this.metricClz = metricClz;
 		
@@ -24,8 +24,8 @@ public class GMBaseProvider<T extends GMetric> {
 	}
 
 	private final void init() {
-		metric = GMetric.initialize(metricClz, getCurrentProgram());
-		wm = GMetric.windowManagerFor(metric);
+		metric = GMBaseMetric.initialize(metricClz, this);
+		wm = GMBaseMetric.windowManagerFor(metric);
 		
 		wm.init();
 	}

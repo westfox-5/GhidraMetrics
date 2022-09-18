@@ -5,7 +5,7 @@ import java.util.Collections;
 
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
-import it.unive.ghidra.metrics.GhidraMetricsProvider;
+import it.unive.ghidra.metrics.GhidraMetricsPlugin;
 
 public interface GMiMetricProvider<
 	M extends GMiMetric<M, P, W>,
@@ -13,7 +13,7 @@ public interface GMiMetricProvider<
 	W extends GMiMetricWinManager<M, P ,W>
 > {
 	
-	GhidraMetricsProvider getMainProvider();
+	GhidraMetricsPlugin getPlugin();
 
 	M getMetric();
 	W getWinManager();

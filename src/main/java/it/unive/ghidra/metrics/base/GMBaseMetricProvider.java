@@ -7,7 +7,6 @@ import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
-import it.unive.ghidra.metrics.GhidraMetricsProvider;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetricProvider;
 import it.unive.ghidra.metrics.export.GMExporter;
 import it.unive.ghidra.metrics.export.GMExporter.Type;
@@ -112,12 +111,12 @@ public class GMBaseMetricProvider<
 	public Program getProgram() {
 		return program;
 	}
-
-	@Override
-	public GhidraMetricsProvider getMainProvider() {
-		return plugin.getProvider();
-	}
 	
+	@Override
+	public GhidraMetricsPlugin getPlugin() {
+		return plugin;
+	}
+
 	@Override
 	public void locationChanged(ProgramLocation loc) {
 		Function fn = getProgram().getFunctionManager().getFunctionContaining(loc.getAddress());
@@ -182,8 +181,6 @@ public class GMBaseMetricProvider<
 		}
 		
 	}
-	
-	
 	
 	private static boolean equals(Function f1, Function f2) {
 		if (f1 != null && f2 != null)

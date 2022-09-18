@@ -12,12 +12,12 @@ public class GMMetricKey implements GMiMetricKey {
 	private final GMiMetricKey.Type type;
 
 	private final Map<String, String> data = new HashMap<>();
-	
+
 	public GMMetricKey(GMiMetricKey.Type type, String name) {
 		this.type = type;
 		this.name = name;
 	}
-	
+
 	public GMMetricKey(GMiMetricKey.Type type, String name, String description, String formula) {
 		this(type, name);
 		if (description != null)
@@ -35,17 +35,17 @@ public class GMMetricKey implements GMiMetricKey {
 	public Type getType() {
 		return type;
 	}
-	
+
 	@Override
 	public void addInfo(String key, String value) {
 		data.put(key, value);
 	}
-	
+
 	@Override
 	public String getInfo(String key) {
 		return data.get(key);
 	}
-	
+
 	@Override
 	public Collection<String> getAllInfo() {
 		return data.keySet();

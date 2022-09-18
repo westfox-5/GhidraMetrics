@@ -15,9 +15,9 @@ import it.unive.ghidra.metrics.impl.halstead.GMHalstead;
 import it.unive.ghidra.metrics.impl.ncd.GMNCD;
 
 public abstract class GMBaseMetric<
-	M extends GMBaseMetric<M, P, W>,		// The metric itself
-	P extends GMBaseMetricProvider<M, P, W>,		// The provider
-	W extends GMBaseMetricWinManager<M, P, W>	// The window manager>
+/* The metric itself */	 M extends GMBaseMetric<M, P, W>,
+/* The provider */       P extends GMBaseMetricProvider<M, P, W>,
+/* The window manager */ W extends GMBaseMetricWinManager<M, P, W>
 > implements GMiMetric<M, P , W> {
 	
 	

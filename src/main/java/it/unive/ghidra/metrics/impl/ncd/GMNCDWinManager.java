@@ -101,10 +101,12 @@ public class GMNCDWinManager extends GMBaseMetricWinManager<GMNCD, GMNCDProvider
 		}
 		
 		pnlNcdContainer = new JPanel();
-		component.add(pnlNcdContainer, BorderLayout.SOUTH);
+		pnlNcdContainer.setLayout(new BorderLayout(0, 0));
+		component.add(pnlNcdContainer, BorderLayout.CENTER);
 		
 		tblNcd = new JTable();
-		pnlNcdContainer.add(tblNcd);
+		pnlNcdContainer.add(tblNcd.getTableHeader(), BorderLayout.NORTH);
+		pnlNcdContainer.add(tblNcd, BorderLayout.CENTER);
 		pnlNcdContainer.setVisible(false);
 		
 		return component;

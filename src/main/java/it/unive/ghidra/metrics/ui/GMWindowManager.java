@@ -68,6 +68,8 @@ public class GMWindowManager extends GMBaseWinManager {
 		P extends GMBaseMetricProvider<M, P, W>,
 		W extends GMBaseMetricWinManager<M, P, W>>
 	void showView(P provider) {
+		pnlMetricContainer.removeAll();
+		
 		if (provider == null) {
 			pnlMetricContainer.setVisible(false);
 			pnlMetricList.setVisible(true);

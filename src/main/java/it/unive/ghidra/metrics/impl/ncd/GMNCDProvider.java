@@ -24,7 +24,7 @@ public class GMNCDProvider extends GMBaseMetricProvider<GMNCD, GMNCDProvider, GM
 			List<File> selectedFiles = getWinManager().getSelectedFiles();
 			
 			try {
-				getMetric().init(selectedFiles);
+				getMetric().compute(selectedFiles);
 			
 			// TODO handle these exceptions more gracefully
 			} catch(IOException x) {

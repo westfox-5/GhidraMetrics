@@ -7,17 +7,32 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
+import ghidra.app.util.exporter.BinaryExporter;
+import ghidra.app.util.exporter.ExporterException;
+import ghidra.framework.model.DomainFile;
+import ghidra.framework.model.DomainObject;
 import ghidra.program.model.listing.Function;
+import ghidra.util.exception.CancelledException;
+import ghidra.util.exception.VersionException;
+import ghidra.util.task.TaskMonitor;
 import it.unive.ghidra.metrics.base.GMBaseMetric;
 import it.unive.ghidra.metrics.base.GMMetricValue;
 import it.unive.ghidra.metrics.util.PathHelper;
 import it.unive.ghidra.metrics.util.ZipHelper;
-import it.unive.ghidra.metrics.util.ZipHelper.Zipper;
 
 public class GMNCD extends GMBaseMetric<GMNCD, GMNCDProvider, GMNCDWinManager> {
 	public static final String NAME = "NCD Similarity";
 	
-	private Path currentPath;
+	private static final String DEFAULT_DIR = "ghidra_metrics";
+	private static final String DEFUALT_PREFIX = "ghidra_ncd_";
+	
+	private Path tmpDir;
+	
+	private Path exportPath;
+	private Path zipPath;
+	private Long zipSize;
+	
+	private final ZipHelper.Zipper zipper = ZipHelper::rzip;
 	
 	public GMNCD(GMNCDProvider provider) {
 		super(NAME, provider);
@@ -25,13 +40,34 @@ public class GMNCD extends GMBaseMetric<GMNCD, GMNCDProvider, GMNCDWinManager> {
 
 	@Override
 	public void init() {
-		currentPath = new File(getProvider().getProgram().getDomainFile().getPathname()).toPath();		
+		try {
+			this.tmpDir = Files.createTempDirectory(DEFAULT_DIR);
+			this.exportPath = Files.createTempFile(tmpDir, DEFUALT_PREFIX, null);
+			
+			DomainObject immutableDomainObject = getProvider().getProgram().getDomainFile().getImmutableDomainObject(this, DomainFile.DEFAULT_VERSION, TaskMonitor.DUMMY);
+	
+			BinaryExporter binaryExporter = new BinaryExporter();
+			binaryExporter.export(exportPath.toFile(), immutableDomainObject, null, null);
+			
+			this.zipPath = zipper.zip(tmpDir, exportPath);
+			this.zipSize = Files.size(zipPath);
+			
+		} catch(IOException x) {
+			x.printStackTrace();
+		} catch (VersionException x) {
+			x.printStackTrace();
+		} catch (CancelledException x) {
+			x.printStackTrace();
+		} catch (ExporterException x) {
+			x.printStackTrace();
+		}
+				
 	}
 	
-	protected void init(List<File> files) throws IOException {
+	protected void compute(List<File> files) throws IOException {
 		for (File file: files) {
 			Path path = file.toPath();
-			double ncd = calculateNCD(path);
+			double ncd = ncd(path);
 			
 			GMNCDKey key = new GMNCDKey(path.getFileName().toString());
 			
@@ -44,30 +80,20 @@ public class GMNCD extends GMBaseMetric<GMNCD, GMNCDProvider, GMNCDWinManager> {
 	
 	}
 
-	private double calculateNCD(Path path) throws IOException {
-		return ncd(currentPath, path, ZipHelper::rzip);
-	}
-	
-
-	private static double ncd(Path path1, Path path2, Zipper zipper) throws IOException {
+	private double ncd(Path path) throws IOException {
 		Double similarity = null;
 		
-		Path dir = Files.createTempDirectory("ghidra_metrics");
 		try {			
-			Path zip1 = zipper.zip(dir, path1);
-			Long size1 = Files.size(zip1);
+			Path zipPath2 = zipper.zip(tmpDir, path);
+			Long zipSize2 = Files.size(zipPath2);
 
-			Path zip2 = zipper.zip(dir, path2);
-			Long size2 = Files.size(zip2);
+			Path concatPath = PathHelper.concatPaths2(tmpDir, exportPath, path);
+			Path zipConcat = zipper.zip(tmpDir, concatPath);
+			Long zipSizeConcat = Files.size(zipConcat);
 
-			Path concatenated = PathHelper.concatPaths2(dir, path1, path2);
-			Path zipConcat = zipper.zip(dir, concatenated);
-			Long sizeConcat = Files.size(zipConcat);
-
-			Double ncd = (1.00 * sizeConcat - Math.min(size1, size2)) / (1.00 * Math.max(size1, size2));
+			Double ncd = (1.00 * zipSizeConcat - Math.min(zipSize, zipSize2)) / (1.00 * Math.max(zipSize, zipSize2));
 			similarity = 1.00 - ncd;
 			
-			PathHelper.deleteDirectory(dir);
 
 		} catch (IOException e) {
 			e.printStackTrace();

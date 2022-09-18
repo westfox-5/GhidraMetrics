@@ -53,8 +53,7 @@ public class GMExporterJSON extends GMExporter {
 				.append(format("keys")).append("[").append(dumpMetricKeys(metric)).append("]").append(JSON_SEP)
 				.append(format("values")).append("[").append(dumpMetricValues(metric)).append("]")
 			.append("}")
-		.append("}")
-		.append(System.lineSeparator());
+		.append("}");
 		
 		return sb;
 	}
@@ -106,7 +105,7 @@ public class GMExporterJSON extends GMExporter {
 			f.accept(sb, next);
 			
 			if (it.hasNext())
-				sb.append(",");
+				sb.append(JSON_SEP);
 		}
 		
 		return sb;

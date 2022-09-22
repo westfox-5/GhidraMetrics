@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.nio.file.Path;
 
 import ghidra.util.Msg;
@@ -14,6 +15,16 @@ public class GhidraMetricsScript extends GMBaseScript {
 		
 		
 		GMBaseMetricProvider<?,?,?> provider = GMBaseMetricProvider.GMMetricProviderFactory.createHeadless(getArgValue(GMScriptArgumentOption.METRIC_NAME), getCurrentProgram());
+		
+		if (hasArg(GMScriptArgumentOption.EXPORT_TYPE)) {
+			doExport(provider);
+		}
+		
+		
+		Msg.info(this, "Completed!");
+	}
+
+	private final void doExport(GMBaseMetricProvider<?, ?, ?> provider) throws IOException {
 		GMExporter.Type exportType = getArgValue(GMScriptArgumentOption.EXPORT_TYPE);
 		Path exportPath = getArgValue(GMScriptArgumentOption.EXPORT_PATH);
 		
@@ -23,7 +34,7 @@ public class GhidraMetricsScript extends GMBaseScript {
 		
 		exportPath = exporter.export();
 		
-		Msg.info(this, "GhidraMetricsScript: "+provider.getMetric().getName()+" exported to: "+ exportPath.toAbsolutePath());
+		Msg.info(this, "'"+provider.getMetric().getName()+"' exported to: "+ exportPath.toAbsolutePath());
 	}
 
 }

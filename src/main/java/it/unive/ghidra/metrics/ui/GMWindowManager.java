@@ -12,7 +12,6 @@ import javax.swing.border.EmptyBorder;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
 import it.unive.ghidra.metrics.base.GMBaseMetric;
 import it.unive.ghidra.metrics.base.GMBaseMetricProvider;
-import it.unive.ghidra.metrics.base.GMBaseMetricWinManager;
 import it.unive.ghidra.metrics.base.GMBaseWinManager;
 
 public class GMWindowManager extends GMBaseWinManager {
@@ -63,11 +62,7 @@ public class GMWindowManager extends GMBaseWinManager {
 		return component;
 	}
 	
-	public final 
-		<M extends GMBaseMetric<M, P, W>, 
-		P extends GMBaseMetricProvider<M, P, W>,
-		W extends GMBaseMetricWinManager<M, P, W>>
-	void showView(P provider) {
+	public final void showView(GMBaseMetricProvider<?,?,?> provider) {
 		pnlMetricContainer.removeAll();
 		
 		if (provider == null) {

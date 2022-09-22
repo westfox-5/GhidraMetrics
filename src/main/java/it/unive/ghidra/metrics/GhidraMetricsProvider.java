@@ -112,7 +112,7 @@ public class GhidraMetricsProvider extends ComponentProvider {
 			removeLocalActions();
 		}
 
-		wManager.showView(activeProvider.get()); // null will show main view
+		wManager.showView(activeProvider.get());
 		wManager.refresh();
 	}
 	

@@ -2,7 +2,6 @@ package it.unive.ghidra.metrics.impl.ncd;
 
 import java.io.File;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -16,7 +15,6 @@ import ghidra.util.exception.CancelledException;
 import ghidra.util.exception.VersionException;
 import ghidra.util.task.TaskMonitor;
 import it.unive.ghidra.metrics.base.GMBaseMetric;
-import it.unive.ghidra.metrics.base.GMMetricValue;
 import it.unive.ghidra.metrics.util.PathHelper;
 import it.unive.ghidra.metrics.util.ZipHelper;
 
@@ -70,8 +68,7 @@ public class GMNCD extends GMBaseMetric<GMNCD, GMNCDProvider, GMNCDWinManager> {
 			double ncd = ncd(path);
 			
 			GMNCDKey key = new GMNCDKey(path.getFileName().toString());
-			
-			addMetricValue(GMMetricValue.ofNumeric(key, BigDecimal.valueOf(ncd)));
+			createMetricValue(key, ncd);
 		}
 	}
 

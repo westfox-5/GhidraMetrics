@@ -4,8 +4,8 @@ import java.math.BigDecimal;
 import java.math.MathContext;
 
 public class NumberUtils {
-
-	public static final MathContext DEFAULT_CONTEXT = MathContext.DECIMAL64;
+	
+	private static final MathContext DEFAULT_CONTEXT = MathContext.DECIMAL64;
 
 	public static boolean notEqual(BigDecimal a, BigDecimal b) {
 		return !isEqual(a, b);
@@ -18,6 +18,17 @@ public class NumberUtils {
 	public static boolean isEqual(BigDecimal a, BigDecimal b) {
 		return a.compareTo(b) == 0;
 	}
+	
+	public static BigDecimal nullToZero(BigDecimal a) {
+		return a == null ? BigDecimal.ZERO : a; 
+	}
+	
+	public static BigDecimal nullToOne(BigDecimal a) {
+		return a == null ? BigDecimal.ONE : a; 
+	}
+	public static BigDecimal zeroToNull(BigDecimal a) {
+		return isEqual(a, BigDecimal.ZERO) ? null: a;
+	}
 
 	public static BigDecimal log2(BigDecimal n) {
 		return log2(n.doubleValue());
@@ -29,5 +40,21 @@ public class NumberUtils {
 
 	public static BigDecimal log2(Double n) {
 		return new BigDecimal(Math.log(n) / Math.log(2));
+	}
+	
+	public static BigDecimal add(BigDecimal a, BigDecimal b) {
+		return nullToZero(a).add(nullToZero(b), DEFAULT_CONTEXT);
+	}
+	
+	public static BigDecimal sub(BigDecimal a, BigDecimal b) {
+		return add(a, b.negate(DEFAULT_CONTEXT));
+	}
+	
+	public static BigDecimal mul(BigDecimal a, BigDecimal b) {
+		return nullToOne(a).multiply(nullToOne(b), DEFAULT_CONTEXT);
+	}
+	
+	public static BigDecimal div(BigDecimal a, BigDecimal b) {
+		return nullToOne(a).divide(zeroToNull(nullToOne(b)), DEFAULT_CONTEXT);
 	}
 }

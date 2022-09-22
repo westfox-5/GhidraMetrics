@@ -63,6 +63,7 @@ public class GMHalsteadWinManager extends GMBaseMetricWinManager<GMHalstead, GMH
 			
 			tableFunctionMetrics = new JTable();
 			tableFunctionMetrics.setVisible(false);
+			tableFunctionMetrics.setEnabled(false);
 			pnlFunctionMetrics.add(tableFunctionMetrics.getTableHeader(), BorderLayout.NORTH);
 			pnlFunctionMetrics.add(tableFunctionMetrics, BorderLayout.CENTER);
 			
@@ -115,10 +116,12 @@ public class GMHalsteadWinManager extends GMBaseMetricWinManager<GMHalstead, GMH
 	
 
 	private static void populateMetricTable(JTable table, GMHalstead metric) {
-		DefaultTableModel dtm = new DefaultTableModel(0, 4);
+		DefaultTableModel dtm = new NonEditableTableModel();
+		
+		dtm.setColumnCount(4);
 		dtm.setColumnIdentifiers(new String[]{"Name", "Value", "Description", "Formula"});
 		
-		GMHalsteadKey.ALL_KEYS.forEach(key -> {
+		metric.getMetricKeys().forEach(key -> {
 			GMiMetricValue<?> val = metric.getMetricValue(key);
 			dtm.addRow(new Object[] { 
 					key.getName(),

@@ -7,19 +7,22 @@ import java.util.Objects;
 
 import it.unive.ghidra.metrics.base.interfaces.GMiMetricKey;
 
-public class GMMetricKey implements GMiMetricKey {
+public abstract class GMBaseMetricKey implements GMiMetricKey, Comparable<GMBaseMetricKey> {
+
 	private final String name;
 	private final GMiMetricKey.Type type;
+	private final int sortingNumber;
 
 	private final Map<String, String> data = new HashMap<>();
 
-	public GMMetricKey(GMiMetricKey.Type type, String name) {
+	public GMBaseMetricKey(GMiMetricKey.Type type, String name, int sn) {
 		this.type = type;
 		this.name = name;
+		this.sortingNumber = sn;
 	}
 
-	public GMMetricKey(GMiMetricKey.Type type, String name, String description, String formula) {
-		this(type, name);
+	public GMBaseMetricKey(GMiMetricKey.Type type, String name, String description, String formula, int sn) {
+		this(type, name, sn);
 		if (description != null)
 			data.put(KEY_DESCRIPTION, description);
 		if (formula != null)
@@ -34,6 +37,11 @@ public class GMMetricKey implements GMiMetricKey {
 	@Override
 	public Type getType() {
 		return type;
+	}
+
+	@Override
+	public int getSortingNumber() {
+		return sortingNumber;
 	}
 
 	@Override
@@ -64,7 +72,15 @@ public class GMMetricKey implements GMiMetricKey {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		GMMetricKey other = (GMMetricKey) obj;
+		GMBaseMetricKey other = (GMBaseMetricKey) obj;
 		return Objects.equals(name, other.name);
 	}
+
+	@Override
+	public int compareTo(GMBaseMetricKey key) {
+		if (key == null)
+			return 1;
+		return getSortingNumber() - key.getSortingNumber();
+	}
+
 }

@@ -96,7 +96,7 @@ public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadProvider, GMH
 	 * @return n1 + n2
 	 */
 	public BigDecimal getVocabulary() {
-		return n1.add(n2, NumberUtils.DEFAULT_CONTEXT);
+		return NumberUtils.add(n1, n2);
 	}
 	
 	/** 
@@ -105,7 +105,7 @@ public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadProvider, GMH
 	 * @return N1 + N2
 	 */
 	public BigDecimal getProgramLength() {
-		return N1.add(N2, NumberUtils.DEFAULT_CONTEXT);
+		return NumberUtils.add(N1, N2);
 	}
 	
 	/** 
@@ -114,9 +114,9 @@ public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadProvider, GMH
 	 * @return n1*log2(n1) + n2*log2(n2)
 	 */
 	public BigDecimal getEstimatedLength() {
-		BigDecimal n1_log2 = n1.multiply(NumberUtils.log2(n1));
-		BigDecimal n2_log2 = n2.multiply(NumberUtils.log2(n2));
-		return n1_log2.add(n2_log2, NumberUtils.DEFAULT_CONTEXT);
+		BigDecimal n1_log2 = NumberUtils.mul(n1, NumberUtils.log2(n1));
+		BigDecimal n2_log2 = NumberUtils.mul(n2, NumberUtils.log2(n2));
+		return NumberUtils.add(n1_log2, n2_log2);
 	}
 	
 	/**
@@ -127,7 +127,7 @@ public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadProvider, GMH
 	public BigDecimal getVolume() {
 		BigDecimal N = getProgramLength();
 		BigDecimal n = getVocabulary();
-		return N.multiply(NumberUtils.log2(n), NumberUtils.DEFAULT_CONTEXT);
+		return NumberUtils.mul(N, NumberUtils.log2(n));
 	}
 	
 	/**
@@ -136,9 +136,9 @@ public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadProvider, GMH
 	 * @return (n1/2) * (N2/n2)
 	 */
 	public BigDecimal getDifficulty() {
-		BigDecimal a = n1.divide(new BigDecimal(2), NumberUtils.DEFAULT_CONTEXT);
-		BigDecimal b = N2.divide(n2, NumberUtils.DEFAULT_CONTEXT);
-		return a.multiply(b, NumberUtils.DEFAULT_CONTEXT);
+		BigDecimal a = NumberUtils.div(n1, new BigDecimal(2));
+		BigDecimal b = NumberUtils.div(N2, n2);
+		return NumberUtils.mul(a, b);
 	}
 	
 	/**
@@ -149,7 +149,7 @@ public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadProvider, GMH
 	public BigDecimal getEffort() {
 		BigDecimal D = getDifficulty();
 		BigDecimal V = getVolume();
-		return D.multiply(V, NumberUtils.DEFAULT_CONTEXT);
+		return NumberUtils.mul(D, V);
 	}
 	
 	/**
@@ -159,7 +159,7 @@ public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadProvider, GMH
 	 */
 	public BigDecimal getCodingTime() {
 		BigDecimal E = getEffort();
-		return E.divide(new BigDecimal(18), NumberUtils.DEFAULT_CONTEXT);
+		return NumberUtils.div(E, new BigDecimal(18));
 	}
 
 	/**
@@ -169,7 +169,7 @@ public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadProvider, GMH
 	 */
 	public BigDecimal getEstimatedErrors() {
 		BigDecimal V = getVolume();
-		return V.divide(new BigDecimal(3000), NumberUtils.DEFAULT_CONTEXT);
+		return NumberUtils.div(V, new BigDecimal(3000));
 	}
 
 }

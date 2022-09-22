@@ -69,11 +69,11 @@ public class GMExporterJSON extends GMExporter {
 			sb.append("{")
 				.append(format("name", next.getName())).append(JSON_SEP)
 				.append(format("type", next.getType().name())).append(JSON_SEP)
-				.append(format("info")).append("[");
-				next.getAllInfo().forEach((key) -> {
-					sb.append("{") .append(format(key, next.getInfo(key))).append("}").append(JSON_SEP);
-				}); sb.deleteCharAt(sb.length()-1) // remove last ','
-				.append("]");
+				.append(format("info")).append("{");			
+					next.getAllInfo().forEach((key) -> {
+						sb/*.append("{")*/.append(format(key, next.getInfo(key)))/*.append("}")*/.append(JSON_SEP);
+					}); sb.deleteCharAt(sb.length()-1) // remove last ','
+				.append("}");
 			sb.append("}");
 		});
 		

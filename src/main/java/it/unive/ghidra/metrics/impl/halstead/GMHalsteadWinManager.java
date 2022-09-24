@@ -88,11 +88,11 @@ public class GMHalsteadWinManager extends GMBaseMetricWinManager<GMHalstead, GMH
 		super.revalidate();
 	}
 
-	protected void populateProgramMetrics() {
+	private void populateProgramMetrics() {
 		populateMetricTable(tableProgramMetrics, getMetric());
 	}
 
-	protected void populateFunctionMetrics() {
+	private void populateFunctionMetrics() {
 		GMHalstead fnHalstead = getMetric().getHalsteadFunction();
 		if (fnHalstead != null) {
 			populateMetricTable(tableFunctionMetrics, fnHalstead);

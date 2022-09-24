@@ -5,7 +5,6 @@ import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.util.Collection;
 
-import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -49,9 +48,7 @@ public class GMWindowManager extends GMBaseWinManager {
 
 		JPanel pnlMetricHeader = new JPanel();
 		pnlMetricContainer.add(pnlMetricHeader, BorderLayout.NORTH);
-		pnlMetricHeader.setMaximumSize(new Dimension(32767, 30));
-		pnlMetricHeader.setLayout(new BoxLayout(pnlMetricHeader, BoxLayout.X_AXIS));
-
+		
 		JPanel pnlMetricFooter = new JPanel();
 		pnlMetricContainer.add(pnlMetricFooter, BorderLayout.SOUTH);
 

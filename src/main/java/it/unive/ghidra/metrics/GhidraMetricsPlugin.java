@@ -35,12 +35,14 @@ import it.unive.ghidra.metrics.base.interfaces.GMiMetric;
 	status = PluginStatus.UNSTABLE,
 	packageName = GhidraMetricsPlugin.PACKAGE_NAME,
 	category = PluginCategoryNames.MISC,
-	shortDescription = "Plugin short description goes here.",
-	description = "Plugin long description goes here."
+	shortDescription = GhidraMetricsPlugin.DESCR_SHORT,
+	description = GhidraMetricsPlugin.DESCR
 )
 //@formatter:on
 public class GhidraMetricsPlugin extends ProgramPlugin {
 	public static final String PACKAGE_NAME = "it.unive.ghidra.metrics";
+	public static final String DESCR_SHORT = "Ghidra Metrics Plugin";
+	public static final String DESCR = "Ghidra Metrics Plugin";
 
 	public static final boolean DEBUG = true;
 

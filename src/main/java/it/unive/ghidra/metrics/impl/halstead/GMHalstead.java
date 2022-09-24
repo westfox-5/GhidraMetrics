@@ -8,10 +8,10 @@ import it.unive.ghidra.metrics.impl.halstead.GMHalsteadParser.Result;
 import it.unive.ghidra.metrics.util.NumberUtils;
 
 public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadProvider, GMHalsteadWinManager> {
-	public static final String NAME = "HALSTEAD";
+	public static final String NAME = "Halstead";
 
 	public static final class GMHalsteadFunction extends GMHalstead {
-		public static final String NAME = "HALSTEAD FUNCTION";
+		public static final String NAME = "Halstead (function only)";
 
 		private final Function function;
 

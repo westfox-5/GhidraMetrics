@@ -14,19 +14,17 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableModel;
 
 import docking.widgets.filechooser.GhidraFileChooser;
 import docking.widgets.filechooser.GhidraFileChooserMode;
 import ghidra.util.filechooser.GhidraFileChooserModel;
 import ghidra.util.filechooser.GhidraFileFilter;
 import it.unive.ghidra.metrics.base.GMBaseMetricWinManager;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetricKey;
 
 public class GMNCDWinManager extends GMBaseMetricWinManager<GMNCD, GMNCDProvider, GMNCDWinManager> {
-	
+	private static final String[] COLUMNS = { "File", "NCD Similarity" };
 	private List<File> selectedFiles;
-	
+
 	private JPanel pnlSelection;
 	private JPanel pnlNcdContainer;
 	private JTable tblNcd;
@@ -37,7 +35,7 @@ public class GMNCDWinManager extends GMBaseMetricWinManager<GMNCD, GMNCDProvider
 
 	@Override
 	public void init() {
-		
+
 	}
 
 	/**
@@ -47,19 +45,19 @@ public class GMNCDWinManager extends GMBaseMetricWinManager<GMNCD, GMNCDProvider
 	protected JComponent createComponent() {
 		JComponent component = new JPanel();
 		component.setLayout(new BorderLayout(0, 0));
-		
+
 		pnlSelection = new JPanel();
 		pnlSelection.setVisible(true);
 		pnlSelection.setBorder(new EmptyBorder(10, 10, 10, 10));
 		component.add(pnlSelection, BorderLayout.NORTH);
 		pnlSelection.setLayout(new BorderLayout(0, 0));
-		
+
 		JLabel lblNewLabel = new JLabel("Select binary files");
 		pnlSelection.add(lblNewLabel, BorderLayout.WEST);
-		
+
 		JButton btnSelectFiles = new JButton("Select");
 		pnlSelection.add(btnSelectFiles, BorderLayout.EAST);
-		
+
 		{
 			final GhidraFileChooser fileChooser = new GhidraFileChooser(component);
 			fileChooser.setMultiSelectionEnabled(true);
@@ -69,28 +67,28 @@ public class GMNCDWinManager extends GMBaseMetricWinManager<GMNCD, GMNCDProvider
 				public String getDescription() {
 					return "Only binary files";
 				}
-				
+
 				@Override
 				public boolean accept(File arg0, GhidraFileChooserModel arg1) {
 					String type = null;
 					try {
 						type = Files.probeContentType(arg0.toPath());
-						
-					// TODO handle these exceptions more gracefully
+
+						// TODO handle these exceptions more gracefully
 					} catch (IOException x) {
 						x.printStackTrace();
-					}	
-			        
-					if (type == null) 
+					}
+
+					if (type == null)
 						return true; // assume binary
-					
-			        if (type.startsWith("text")) 
-			        	return false;
-			        
-			        return true; // assume binary 
+
+					if (type.startsWith("text"))
+						return false;
+
+					return true; // assume binary
 				}
 			});
-		
+
 			btnSelectFiles.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
@@ -99,51 +97,37 @@ public class GMNCDWinManager extends GMBaseMetricWinManager<GMNCD, GMNCDProvider
 				}
 			});
 		}
-		
+
 		pnlNcdContainer = new JPanel();
 		pnlNcdContainer.setLayout(new BorderLayout(0, 0));
 		component.add(pnlNcdContainer, BorderLayout.CENTER);
-		
+
 		tblNcd = new JTable();
 		pnlNcdContainer.add(tblNcd.getTableHeader(), BorderLayout.NORTH);
 		pnlNcdContainer.add(tblNcd, BorderLayout.CENTER);
 		pnlNcdContainer.setVisible(false);
-		
+
 		return component;
 	}
-	
+
 	public void setNcdVisible(boolean visible) {
 		this.pnlSelection.setVisible(!visible);
 		this.pnlNcdContainer.setVisible(visible);
-		
+
 		if (visible) {
-			populateMetricTable(tblNcd, getMetric());
+			populateMetricTable(tblNcd, COLUMNS, val -> {
+				return new Object[] { val.getKey().getName(), val.getValue() };
+			});
 		}
 		refresh();
 	}
-	
+
 	public List<File> getSelectedFiles() {
 		return selectedFiles;
 	}
-	
+
 	public boolean hasSelectedFiles() {
 		return selectedFiles != null && !selectedFiles.isEmpty();
-	}
-	
-	
-	private static void populateMetricTable(JTable table, GMNCD metric) {
-		DefaultTableModel dtm = new DefaultTableModel(0, 2);
-		dtm.setColumnIdentifiers(new String[]{"File", "Similarity"});
-		
-		metric.getMetrics().forEach(val -> {
-			GMiMetricKey key = val.getKey();
-			dtm.addRow(new Object[] { 
-					key.getName(),
-					val.getValue()
-			});			
-		});
-		
-		table.setModel(dtm);
 	}
 
 }

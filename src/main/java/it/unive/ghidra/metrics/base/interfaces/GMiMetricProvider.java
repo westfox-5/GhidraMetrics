@@ -1,8 +1,5 @@
 package it.unive.ghidra.metrics.base.interfaces;
 
-import java.util.Collection;
-import java.util.Collections;
-
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
@@ -19,9 +16,7 @@ public interface GMiMetricProvider<
 	W getWinManager();
 	Program getProgram();
 	
-	void locationChanged(ProgramLocation loc);
+	boolean isHeadlessMode();
 	
-	default Collection<? extends M> getMetricsToExport() {
-		return Collections.singletonList(getMetric());
-	}
+	void locationChanged(ProgramLocation loc);
 }

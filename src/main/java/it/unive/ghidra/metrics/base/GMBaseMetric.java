@@ -3,7 +3,6 @@ package it.unive.ghidra.metrics.base;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -12,8 +11,6 @@ import ghidra.program.model.listing.Program;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetric;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetricKey;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetricValue;
-import it.unive.ghidra.metrics.impl.halstead.GMHalstead;
-import it.unive.ghidra.metrics.impl.ncd.GMNCD;
 import it.unive.ghidra.metrics.util.StringUtils;
 
 public abstract class GMBaseMetric<
@@ -21,25 +18,7 @@ public abstract class GMBaseMetric<
 /* The provider */       P extends GMBaseMetricProvider<M, P, W>,
 /* The window manager */ W extends GMBaseMetricWinManager<M, P, W>
 > implements GMiMetric<M, P , W> {
-	
-	
-	
-	private static final Map<String, Class<? extends GMBaseMetric<?,?,?>>> metricLookup;
-	static {
-		metricLookup = new HashMap<>();
-		metricLookup.put(GMHalstead.NAME, GMHalstead.class);
-		metricLookup.put(GMNCD.NAME, GMNCD.class);
 
-	}
-	
-	public static Class<? extends GMBaseMetric<?,?,?>> metricByName(String name) {
-		return metricLookup.get(name);
-	}
-	public static Collection<Class<? extends GMBaseMetric<?,?,?>>> allMetrics() {
-		return metricLookup.values();
-	}
-
-	
 	private final Map<GMiMetricKey, GMiMetricValue<?>> metricsByKey = new TreeMap<>();
 	protected final String name;
 
@@ -72,11 +51,9 @@ public abstract class GMBaseMetric<
 		return metricsByKey.get(key);
 	}
 	
+	@Override
 	public Collection<GMiMetricValue<?>> getMetrics() {
 		return metricsByKey.values();
-	}
-	public Collection<GMiMetricKey> getMetricKeys() {
-		return metricsByKey.keySet();
 	}
 	
 	public boolean isHeadlessMode() {

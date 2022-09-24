@@ -15,6 +15,8 @@
  */
 package it.unive.ghidra.metrics;
 
+import java.util.Collection;
+
 import ghidra.app.plugin.PluginCategoryNames;
 import ghidra.app.plugin.ProgramPlugin;
 import ghidra.framework.plugintool.PluginInfo;
@@ -22,13 +24,15 @@ import ghidra.framework.plugintool.PluginTool;
 import ghidra.framework.plugintool.util.PluginStatus;
 import ghidra.program.util.ProgramLocation;
 import ghidra.util.HelpLocation;
+import it.unive.ghidra.metrics.base.GMMetricFactory;
+import it.unive.ghidra.metrics.base.interfaces.GMiMetric;
 
 /**
  * TODO: Provide class-level documentation that describes what this plugin does.
  */
 //@formatter:off
 @PluginInfo(
-	status = PluginStatus.STABLE,
+	status = PluginStatus.UNSTABLE,
 	packageName = GhidraMetricsPlugin.PACKAGE_NAME,
 	category = PluginCategoryNames.MISC,
 	shortDescription = "Plugin short description goes here.",
@@ -37,11 +41,11 @@ import ghidra.util.HelpLocation;
 //@formatter:on
 public class GhidraMetricsPlugin extends ProgramPlugin {
 	public static final String PACKAGE_NAME = "it.unive.ghidra.metrics";
-	
+
 	public static final boolean DEBUG = true;
 
 	private final GhidraMetricsProvider provider;
-	
+
 	/**
 	 * Plugin constructor.
 	 * 
@@ -49,21 +53,25 @@ public class GhidraMetricsPlugin extends ProgramPlugin {
 	 */
 	public GhidraMetricsPlugin(PluginTool tool) {
 		super(tool, true, true);
-		
+
 		String pluginName = getName();
 		provider = new GhidraMetricsProvider(this, pluginName);
-		
+
 		String topicName = this.getClass().getPackage().getName();
 		String anchorName = "HelpAnchor";
 		provider.setHelpLocation(new HelpLocation(topicName, anchorName));
 	}
-	
+
 	@Override
 	protected void locationChanged(ProgramLocation loc) {
 		provider.locationChanged(loc);
 	}
-	
+
 	public GhidraMetricsProvider getProvider() {
 		return provider;
+	}
+
+	public Collection<Class<? extends GMiMetric<?, ?, ?>>> getAvailableMetrics() {
+		return GMMetricFactory.allMetrics();
 	}
 }

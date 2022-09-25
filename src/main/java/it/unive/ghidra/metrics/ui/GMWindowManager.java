@@ -54,7 +54,7 @@ public class GMWindowManager extends GMBaseWinManager {
 
 		pnlMainContainer = new JPanel();
 		pnlMainContainer.setVisible(false);
-		component.add(pnlMainContainer, BorderLayout.NORTH);
+		component.add(pnlMainContainer, BorderLayout.CENTER);
 		pnlMainContainer.setLayout(new GridLayout(0, 1, 10, 10));
 
 		return component;

@@ -117,6 +117,12 @@ public abstract class GMExporter {
 			return this;
 		}
 		
+		public Builder addMetrics(Collection<? extends GMiMetric<?,?,?>> metrics) {
+			this.metrics.addAll(metrics);
+			return this;
+		}
+		
+		
 		public Builder withFileChooser() {
 			// TODO hide this method if plugin is null
 			this.withFileChooser = true;

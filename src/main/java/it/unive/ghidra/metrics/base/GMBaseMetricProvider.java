@@ -9,7 +9,6 @@ import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
-import it.unive.ghidra.metrics.base.interfaces.GMiExportable;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetricProvider;
 import it.unive.ghidra.metrics.export.GMExporter;
 import it.unive.ghidra.metrics.export.GMExporter.Type;
@@ -18,7 +17,7 @@ public class GMBaseMetricProvider
 	<M extends GMBaseMetric<M, P, W>,
 	P extends GMBaseMetricProvider<M, P, W>,
 	W extends GMBaseMetricWinManager<M, P, W>>
-		implements GMiMetricProvider<M, P, W>, GMiExportable {
+		implements GMiMetricProvider<M, P, W> {
 
 	private final boolean headlessMode;
 	protected final GhidraMetricsPlugin plugin;
@@ -95,8 +94,8 @@ public class GMBaseMetricProvider
 
 	@Override
 	public GMExporter.Builder makeExporter(Type exportType) {
-		GMExporter.Builder builder = GMExporter.of(exportType, plugin);
-		getMetricsToExport().forEach(m -> builder.addMetric(m));
+		GMExporter.Builder builder = GMExporter.of(exportType, plugin)
+				.addMetrics(getMetricsForExport());
 
 		if (!isHeadlessMode())
 			builder.withFileChooser();
@@ -104,8 +103,7 @@ public class GMBaseMetricProvider
 		return builder;
 	}
 
-	@Override
-	public Collection<? extends M> getMetricsToExport() {
+	public Collection<? extends M> getMetricsForExport() {
 		return Collections.singletonList(getMetric());
 	}
 

@@ -19,8 +19,8 @@ public class GMHalsteadProvider extends GMBaseMetricProvider<GMHalstead, GMHalst
 	}
 
 	@Override
-	public Collection<GMHalstead> getMetricsToExport() {
-		List<GMHalstead> list = new ArrayList<>(super.getMetricsToExport());
+	public Collection<GMHalstead> getMetricsForExport() {
+		List<GMHalstead> list = new ArrayList<>(super.getMetricsForExport());
 		
 		GMHalstead halsteadFn = getMetric().getHalsteadFunction();
 		if (halsteadFn != null) {

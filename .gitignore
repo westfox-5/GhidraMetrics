@@ -1,6 +1,8 @@
 exports/**
 projects/**
 
+all_obfuscations/**
+
 *target*
 *.jar
 *.war

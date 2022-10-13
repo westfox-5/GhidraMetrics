@@ -22,8 +22,6 @@ extends GMAbstractWindowManager implements GMiMetricWindowManager {
 		this.provider = provider;
 	}
 
-	protected abstract void onMetricCreated();
-
 	@Override
 	public M getMetric() {
 		return getProvider().getMetric();
@@ -32,6 +30,16 @@ extends GMAbstractWindowManager implements GMiMetricWindowManager {
 	@Override
 	public P getProvider() {
 		return provider;
+	}
+	
+	@Override
+	public void onInitializationCompleted() {
+		// default implementation
+	}
+
+	@Override
+	public void onMetricInitialized() {
+		// default implementation
 	}
 
 	protected void populateMetricTable(JTable table, String[] columns, Function<GMiMetricValue<?>, Object[]> rowFn) {

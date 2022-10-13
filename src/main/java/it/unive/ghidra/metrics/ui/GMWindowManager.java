@@ -26,7 +26,7 @@ public class GMWindowManager extends GMAbstractWindowManager {
 	}
 
 	@Override
-	public void init() {
+	public void onInitializationCompleted() {
 		populateMetrics(plugin.getAvailableMetrics());
 	}
 

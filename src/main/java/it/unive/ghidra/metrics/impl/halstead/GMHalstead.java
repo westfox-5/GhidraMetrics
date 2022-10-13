@@ -11,13 +11,17 @@ public class GMHalstead extends GMAbstractMetric<GMHalstead, GMHalsteadProvider,
 	public static final String NAME = "Halstead";
 
 	public static final class GMHalsteadFunction extends GMHalstead {
-		public static final String NAME = "Halstead (function only)";
 
 		private final Function function;
 
 		protected GMHalsteadFunction(GMHalsteadProvider provider, Function function) {
 			super(NAME, provider);
 			this.function = function;
+		}
+
+		@Override
+		public String getName() {
+			return super.getName() + function.getName();
 		}
 
 		@Override

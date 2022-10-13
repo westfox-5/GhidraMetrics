@@ -30,7 +30,7 @@ public class GMHalsteadWinManager extends GMAbstractMetricWindowManager<GMHalste
 	}
 
 	@Override
-	public void onMetricCreated() {
+	public void onMetricInitialized() {
 		populateProgramMetrics();
 		populateFunctionMetrics();
 	}

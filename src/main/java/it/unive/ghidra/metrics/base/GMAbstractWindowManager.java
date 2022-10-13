@@ -29,6 +29,7 @@ public abstract class GMAbstractWindowManager implements GMiWindowManager {
 		if (!initialized) {
 			component = createComponent();
 
+			onInitializationCompleted();
 			initialized = true;
 		}
 	}

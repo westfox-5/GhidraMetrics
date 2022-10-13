@@ -32,13 +32,14 @@ public class GhidraMetricsProvider extends ComponentProvider {
 		this.plugin = plugin;
 
 		this.windowManager = new GMWindowManager(plugin);
-		windowManager.init();
 
 		createActions();
 		buildPanel();
 	}
 
 	private void buildPanel() {
+		windowManager.init();
+
 		showWindowMain();
 
 		setVisible(true);
@@ -79,12 +80,16 @@ public class GhidraMetricsProvider extends ComponentProvider {
 			throw new RuntimeException("ERROR: No active provider is selected!");
 
 		GMExporter exporter = activeProvider.makeExporter(exportType).build();
+		if (exporter == null) {
+			return;
+		}
 
 		try {
 			Path exportPath = exporter.export();
 
-			if (exportPath == null)
+			if (exportPath == null) {
 				throw new RuntimeException("Could not export selected metric.");
+			}
 
 			Msg.info(this, "Export to file: " + exportPath.toAbsolutePath());
 			Msg.showInfo(this, getComponent(), "Export", "File exported: " + exportPath.toAbsolutePath());
@@ -92,6 +97,7 @@ public class GhidraMetricsProvider extends ComponentProvider {
 			// TODO handle these exceptions more gracefully
 		} catch (IOException x) {
 			x.printStackTrace();
+			Msg.showError(this, windowManager.getComponent(), "Could not export", x.getMessage());
 		}
 	}
 

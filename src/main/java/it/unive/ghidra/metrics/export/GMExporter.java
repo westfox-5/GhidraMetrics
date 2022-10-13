@@ -71,6 +71,9 @@ public abstract class GMExporter {
 
 	public Path export() throws IOException {
 
+		if (!accept(exportPath, exportType))
+			throw new IOException("Only " + exportType.name() + " Files ( *." + exportType.getExtension() + ")");
+
 		Files.deleteIfExists(exportPath);
 		Files.createDirectories(exportPath.getParent());
 		Files.createFile(exportPath);
@@ -138,13 +141,10 @@ public abstract class GMExporter {
 		}
 
 		private GhidraFileChooser createFileChooser() {
-			GhidraFileChooser fileChooser = new GhidraFileChooser(plugin.getProvider().getComponent());
-			fileChooser.setMultiSelectionEnabled(false);
-			fileChooser.setFileSelectionMode(GhidraFileChooserMode.FILES_ONLY);
-			fileChooser.setSelectedFileFilter(new GhidraFileFilter() {
+			GhidraFileFilter fileFilter = new GhidraFileFilter() {
 				@Override
 				public String getDescription() {
-					return "Only " + exportType.name() + " files";
+					return exportType.name() + " Files ( *." + exportType.getExtension() + ")";
 				}
 
 				@Override
@@ -152,7 +152,12 @@ public abstract class GMExporter {
 					String extension = StringUtils.getFileExtension(arg0);
 					return exportType.getExtension().equalsIgnoreCase(extension);
 				}
-			});
+			};
+
+			GhidraFileChooser fileChooser = new GhidraFileChooser(plugin.getProvider().getComponent());
+			fileChooser.setMultiSelectionEnabled(false);
+			fileChooser.setFileSelectionMode(GhidraFileChooserMode.FILES_ONLY);
+			fileChooser.setSelectedFileFilter(fileFilter); // doesn't seems to work..
 
 			return fileChooser;
 		}
@@ -188,5 +193,10 @@ public abstract class GMExporter {
 
 			return exporter;
 		}
+	}
+
+	private static boolean accept(Path path, GMExporter.Type exportType) {
+		String extension = StringUtils.getFileExtension(path.toFile());
+		return exportType.getExtension().equalsIgnoreCase(extension);
 	}
 }

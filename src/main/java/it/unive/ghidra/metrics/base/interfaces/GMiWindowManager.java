@@ -5,6 +5,8 @@ import javax.swing.JComponent;
 public interface GMiWindowManager {
 
 	JComponent getComponent();
+	
+	void onInitializationCompleted();
 
 	void refresh();
 

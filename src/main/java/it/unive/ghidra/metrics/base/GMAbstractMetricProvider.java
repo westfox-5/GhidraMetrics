@@ -136,7 +136,11 @@ implements GMiMetricProvider {
 			x.printStackTrace();
 		}
 
-		Swing.runNow(() -> wm.init());
+		Swing.runIfSwingOrRunLater(() -> wm.init());
+		
+		if (metric != null) {
+			wm.onMetricInitialized();
+		}
 	}
 
 	private final void _init(Class<M> metricClass, Class<W> winManagerClass) {

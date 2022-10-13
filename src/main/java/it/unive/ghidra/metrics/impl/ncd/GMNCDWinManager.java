@@ -33,10 +33,6 @@ public class GMNCDWinManager extends GMAbstractMetricWindowManager<GMNCD, GMNCDP
 		super(provider);
 	}
 
-	@Override
-	public void onMetricCreated() {
-	}
-
 	/**
 	 * @wbp.parser.entryPoint
 	 */

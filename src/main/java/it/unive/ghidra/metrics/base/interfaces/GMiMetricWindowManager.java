@@ -5,4 +5,6 @@ public interface GMiMetricWindowManager extends GMiWindowManager {
 	GMiMetric getMetric();
 
 	GMiMetricProvider getProvider();
+	
+	void onMetricInitialized();
 }

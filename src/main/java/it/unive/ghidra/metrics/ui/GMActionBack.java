@@ -16,7 +16,7 @@ public class GMActionBack extends DockingAction {
 
 		setToolBarData(new ToolBarData(ResourceManager.loadImage("images/left.png"), null));
 		setDescription("Go back to main view");
-		
+
 		markHelpUnnecessary();
 		setEnabled(true);
 	}
@@ -24,8 +24,8 @@ public class GMActionBack extends DockingAction {
 	@Override
 	public void actionPerformed(ActionContext arg0) {
 		GhidraMetricsProvider provider = plugin.getProvider();
-		
-		provider.showMainWindow();
+
+		provider.showWindowMain();
 	}
 
 }

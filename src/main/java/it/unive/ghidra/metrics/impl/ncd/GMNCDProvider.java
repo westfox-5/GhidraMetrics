@@ -6,9 +6,9 @@ import java.util.List;
 
 import ghidra.program.model.listing.Program;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
-import it.unive.ghidra.metrics.base.GMBaseMetricProvider;
+import it.unive.ghidra.metrics.base.GMAbstractMetricProvider;
 
-public class GMNCDProvider extends GMBaseMetricProvider<GMNCD, GMNCDProvider, GMNCDWinManager> {
+public class GMNCDProvider extends GMAbstractMetricProvider<GMNCD, GMNCDProvider, GMNCDWinManager> {
 
 	public GMNCDProvider(Program program) {
 		super(program, GMNCD.class);
@@ -17,25 +17,23 @@ public class GMNCDProvider extends GMBaseMetricProvider<GMNCD, GMNCDProvider, GM
 	public GMNCDProvider(GhidraMetricsPlugin plugin) {
 		super(plugin, GMNCD.class, GMNCDWinManager.class);
 	}
-	
-	
+
 	public void fileSelected() {
 		if (getWinManager().hasSelectedFiles()) {
 			List<File> selectedFiles = getWinManager().getSelectedFiles();
-			
+
 			try {
 				getMetric().compute(selectedFiles);
-			
-			// TODO handle these exceptions more gracefully
-			} catch(IOException x) {
+
+				// TODO handle these exceptions more gracefully
+			} catch (IOException x) {
 				x.printStackTrace();
 			}
-			
+
 			getWinManager().setNcdVisible(true);
 		} else {
 			getWinManager().setNcdVisible(false);
 		}
 	}
-	
 
 }

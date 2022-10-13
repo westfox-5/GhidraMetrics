@@ -12,7 +12,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class ZipHelper {
-	
+
 	@FunctionalInterface
 	public static interface Zipper {
 		Path zip(Path dir, Path path) throws IOException;
@@ -20,7 +20,7 @@ public class ZipHelper {
 
 	public static Path zip(Path dir, Path path) throws IOException {
 		Path zip = getZipPath(dir, path, ".zip");
-		
+
 		try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(zip.toFile()));
 				ZipOutputStream zos = new ZipOutputStream(bos)) {
 			try (FileInputStream fis = new FileInputStream(path.toFile())) {
@@ -35,13 +35,13 @@ public class ZipHelper {
 				}
 			}
 		}
-		
+
 		return zip;
 	}
 
 	public static Path gzip(Path dir, Path path) throws IOException {
 		Path zip = getZipPath(dir, path, ".gzip");
-		
+
 		try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(zip.toFile()));
 				GZIPOutputStream zos = new GZIPOutputStream(bos)) {
 			try (FileInputStream fis = new FileInputStream(path.toFile())) {
@@ -56,48 +56,47 @@ public class ZipHelper {
 
 			}
 		}
-		
+
 		return zip;
 	}
-	
+
 	public static Path rzip(Path dir, Path path) throws IOException {
 		Path zip = getZipPath(dir, path, ".rzip");
-		
-		String[] cmd = new String[]{
-				"rzip",
-				
-				"-9",  							// slowest but best compression
-				
-				"-k",  							// keep input file
-				
-				"-o",
-				zip.toAbsolutePath().toString(),    // OUTPUT
-				
-				path.toAbsolutePath().toString()  // INPUT
+
+		String[] cmd = new String[] { "rzip",
+
+				"-9", // slowest but best compression
+
+				"-k", // keep input file
+
+				"-o", zip.toAbsolutePath().toString(), // OUTPUT
+
+				path.toAbsolutePath().toString() // INPUT
 		};
-		
+
 		ProcessBuilder builder = new ProcessBuilder();
-		
+
 		builder.directory(dir.toFile());
 		builder.command(cmd);
-		
+
 		Process process = builder.start();
-		
+
 		try {
 			int exitCode = process.waitFor();
 			if (0 != exitCode) {
-				throw new RuntimeException("rzip terminated with code: "+exitCode+". Command: "+ Arrays.asList(cmd).toString());
+				throw new RuntimeException(
+						"rzip terminated with code: " + exitCode + ". Command: " + Arrays.asList(cmd).toString());
 			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
+
 		return zip;
 	}
-	
+
 	private static Path getZipPath(Path dir, Path path, String ext) {
 		String basename = PathHelper.getBasename(path);
 		long uuid = UUID.randomUUID().getMostSignificantBits();
-		return dir.resolve(Path.of(basename +"_"+ uuid + ext));
+		return dir.resolve(Path.of(basename + "_" + uuid + ext));
 	}
 }

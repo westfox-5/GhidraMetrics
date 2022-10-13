@@ -3,9 +3,7 @@ package it.unive.ghidra.metrics;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.JComponent;
 
@@ -13,10 +11,6 @@ import docking.ComponentProvider;
 import docking.action.DockingAction;
 import ghidra.program.util.ProgramLocation;
 import ghidra.util.Msg;
-import it.unive.ghidra.metrics.base.GMBaseMetric;
-import it.unive.ghidra.metrics.base.GMBaseMetricProvider;
-import it.unive.ghidra.metrics.base.GMBaseMetricWinManager;
-import it.unive.ghidra.metrics.base.GMMetricFactory;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetric;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetricProvider;
 import it.unive.ghidra.metrics.export.GMExporter;
@@ -27,8 +21,9 @@ import it.unive.ghidra.metrics.ui.GMWindowManager;
 public class GhidraMetricsProvider extends ComponentProvider {
 
 	private final GhidraMetricsPlugin plugin;
-	private final GMWindowManager wManager;
-	private final GMActiveProvider<?, ?, ?> activeProvider;
+	private final GMWindowManager windowManager;
+
+	private GMiMetricProvider activeProvider;
 
 	private List<DockingAction> actions;
 
@@ -36,16 +31,15 @@ public class GhidraMetricsProvider extends ComponentProvider {
 		super(plugin.getTool(), owner, owner);
 		this.plugin = plugin;
 
-		this.wManager = new GMWindowManager(plugin);
-
-		this.activeProvider = new GMActiveProvider<>();
+		this.windowManager = new GMWindowManager(plugin);
+		windowManager.init();
 
 		createActions();
 		buildPanel();
 	}
 
 	private void buildPanel() {
-		showMainWindow();
+		showWindowMain();
 
 		setVisible(true);
 	}
@@ -62,28 +56,29 @@ public class GhidraMetricsProvider extends ComponentProvider {
 
 	@Override
 	public JComponent getComponent() {
-		return wManager.getComponent();
+		return windowManager.getComponent();
 	}
 
 	public GhidraMetricsPlugin getPlugin() {
 		return plugin;
 	}
 
-	public void showMainWindow() {
-		activeProvider.reset();
+	public void showWindowMain() {
+		activeProvider = null;
 		refresh();
 	}
 
-	public void showMetric(Class<? extends GMiMetric<?, ?, ?>> metricClz) {
-		activeProvider.changeTo(metricClz);
+	public void showWindowMetric(Class<? extends GMiMetric> metricClz) {
+		activeProvider = GhidraMetricsFactory.create(getPlugin(), metricClz);
+
 		refresh();
 	}
 
 	public void doExport(GMExporter.Type exportType) {
-		if (!activeProvider.has())
+		if (activeProvider == null)
 			throw new RuntimeException("ERROR: No active provider is selected!");
 
-		GMExporter exporter = activeProvider.get().makeExporter(exportType).build();
+		GMExporter exporter = activeProvider.makeExporter(exportType).build();
 
 		try {
 			Path exportPath = exporter.export();
@@ -101,10 +96,9 @@ public class GhidraMetricsProvider extends ComponentProvider {
 	}
 
 	public final void refresh() {
-
-		if (activeProvider.has()) {
+		if (activeProvider != null) {
 			// metric view
-			setSubTitle(activeProvider.get().getMetric().getName());
+			setSubTitle(activeProvider.getMetric().getName());
 			addLocalActions();
 
 		} else {
@@ -113,8 +107,8 @@ public class GhidraMetricsProvider extends ComponentProvider {
 			removeLocalActions();
 		}
 
-		wManager.showView(activeProvider.get());
-		wManager.refresh();
+		windowManager.showWindow(activeProvider);
+		windowManager.refresh();
 	}
 
 	private final void addLocalActions() {
@@ -130,7 +124,7 @@ public class GhidraMetricsProvider extends ComponentProvider {
 	}
 
 	public void locationChanged(ProgramLocation loc) {
-		if (!activeProvider.has())
+		if (activeProvider == null)
 			return;
 
 		if (loc == null)
@@ -139,37 +133,6 @@ public class GhidraMetricsProvider extends ComponentProvider {
 		if (!isVisible())
 			return;
 
-		activeProvider.get().locationChanged(loc);
-	}
-
-
-	private final class GMActiveProvider
-		<M extends GMBaseMetric<M, P, W>, 
-		P extends GMBaseMetricProvider<M, P, W>, 
-		W extends GMBaseMetricWinManager<M, P, W>> {
-
-		private final Map<Class<? extends GMiMetric<?, ?, ?>>, GMiMetricProvider<?, ?, ?>> _cache = new HashMap<>();
-		private P provider;
-
-		@SuppressWarnings("unchecked")
-		public void changeTo(Class<? extends GMiMetric<?, ?, ?>> clz) {
-			provider = (P) _cache.get(clz);
-			if (provider == null) {
-				provider = GMMetricFactory.create(getPlugin(), (Class<M>) clz);
-				_cache.put(clz, provider);
-			}
-		}
-
-		public void reset() {
-			this.provider = null;
-		}
-
-		public boolean has() {
-			return provider != null;
-		}
-
-		public P get() {
-			return provider;
-		}
+		activeProvider.locationChanged(loc);
 	}
 }

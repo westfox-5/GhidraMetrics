@@ -5,21 +5,19 @@ import ghidra.program.util.ProgramLocation;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
 import it.unive.ghidra.metrics.export.GMExporter;
 
-public interface GMiMetricProvider<
-	M extends GMiMetric<M, P, W>,
-	P extends GMiMetricProvider<M, P, W>,
-	W extends GMiMetricWinManager<M, P ,W>
-> {
-	
+public interface GMiMetricProvider {
+
 	GhidraMetricsPlugin getPlugin();
 
-	M getMetric();
-	W getWinManager();
+	GMiMetric getMetric();
+
+	GMiWindowManager getWinManager();
+
 	Program getProgram();
-	
+
 	boolean isHeadlessMode();
-	
+
 	void locationChanged(ProgramLocation loc);
-	
+
 	GMExporter.Builder makeExporter(GMExporter.Type exportType);
 }

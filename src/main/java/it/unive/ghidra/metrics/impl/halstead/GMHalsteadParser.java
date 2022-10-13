@@ -139,8 +139,7 @@ public abstract class GMHalsteadParser {
 		
 		return new Result(n1, n2, N1, N2);
 	}
-	
-	
+
 	public static class Result {
 		protected final BigDecimal n1, n2, N1, N2;
 

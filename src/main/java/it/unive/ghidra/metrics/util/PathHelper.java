@@ -18,7 +18,7 @@ public class PathHelper {
 		String[] tokens = filename.split("\\.(?=[^\\.]+$)");
 		return tokens[0];
 	}
-	
+
 	public static Path concatPaths(Path dir, Path path1, Path path2) throws IOException {
 		Path out = dir.resolve(Path.of(getBasename(path1) + "_" + getBasename(path2)));
 
@@ -36,36 +36,34 @@ public class PathHelper {
 		}
 		return out;
 	}
-	
+
 	public static Path concatPaths2(Path dir, Path path1, Path path2) throws IOException {
 		Path out = dir.resolve(Path.of(getBasename(path1) + "_" + getBasename(path2)));
-		
-		try (
-			BufferedReader buffReader1 = new BufferedReader(new InputStreamReader(new FileInputStream(path1.toFile()),"utf-8")); //Files.newBufferedReader(path1);
-			BufferedReader buffReader2 = new BufferedReader(new InputStreamReader(new FileInputStream(path1.toFile()),"utf-8")); //Files.newBufferedReader(path2);
-			BufferedWriter buffWriter  = Files.newBufferedWriter(out, StandardOpenOption.CREATE, StandardOpenOption.APPEND)
-		) {
+
+		try (BufferedReader buffReader1 = new BufferedReader(
+				new InputStreamReader(new FileInputStream(path1.toFile()), "utf-8")); // Files.newBufferedReader(path1);
+				BufferedReader buffReader2 = new BufferedReader(
+						new InputStreamReader(new FileInputStream(path1.toFile()), "utf-8")); // Files.newBufferedReader(path2);
+				BufferedWriter buffWriter = Files.newBufferedWriter(out, StandardOpenOption.CREATE,
+						StandardOpenOption.APPEND)) {
 			char[] buffer = new char[1024];
 			int count;
 
 			while ((count = buffReader1.read(buffer)) > 0) {
 				buffWriter.write(buffer, 0, count);
 			}
-			
+
 			buffer = new char[1024];
 			while ((count = buffReader2.read(buffer)) > 0) {
 				buffWriter.write(buffer, 0, count);
 			}
 		}
-		
+
 		return out;
 	}
-	
-	public static void deleteDirectory(Path path) throws IOException {  
-		Files.walk(path)
-		    .sorted(Comparator.reverseOrder())
-		    .map(Path::toFile)
-		    .forEach(File::delete);
+
+	public static void deleteDirectory(Path path) throws IOException {
+		Files.walk(path).sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
 	}
 
 }

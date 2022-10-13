@@ -10,10 +10,13 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 
-import it.unive.ghidra.metrics.base.GMBaseMetricWinManager;
+import it.unive.ghidra.metrics.base.GMAbstractMetricWindowManager;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetricKey;
 
-public class GMHalsteadWinManager extends GMBaseMetricWinManager<GMHalstead, GMHalsteadProvider, GMHalsteadWinManager> {
+//@formatter:off
+public class GMHalsteadWinManager extends GMAbstractMetricWindowManager<GMHalstead, GMHalsteadProvider, GMHalsteadWinManager> {
+//@formatter:on
+
 	private static final String[] COLUMNS = { "Name", "Value", "Description", "Formula" };
 
 	private JTable tableProgramMetrics;
@@ -27,7 +30,7 @@ public class GMHalsteadWinManager extends GMBaseMetricWinManager<GMHalstead, GMH
 	}
 
 	@Override
-	public void init() {
+	public void onMetricCreated() {
 		populateProgramMetrics();
 		populateFunctionMetrics();
 	}

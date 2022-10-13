@@ -3,11 +3,11 @@ package it.unive.ghidra.metrics.impl.halstead;
 import java.math.BigDecimal;
 
 import ghidra.program.model.listing.Function;
-import it.unive.ghidra.metrics.base.GMBaseMetric;
+import it.unive.ghidra.metrics.base.GMAbstractMetric;
 import it.unive.ghidra.metrics.impl.halstead.GMHalsteadParser.Result;
 import it.unive.ghidra.metrics.util.NumberUtils;
 
-public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadProvider, GMHalsteadWinManager> {
+public class GMHalstead extends GMAbstractMetric<GMHalstead, GMHalsteadProvider, GMHalsteadWinManager> {
 	public static final String NAME = "Halstead";
 
 	public static final class GMHalsteadFunction extends GMHalstead {
@@ -19,7 +19,7 @@ public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadProvider, GMH
 			super(NAME, provider);
 			this.function = function;
 		}
-		
+
 		@Override
 		protected GMHalsteadParser getParser() {
 			return GMHalsteadParser.functionParser(function);
@@ -29,8 +29,8 @@ public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadProvider, GMH
 			return function;
 		}
 	}
-	
-	private GMHalsteadFunction halsteadFn; // specific function metric 
+
+	private GMHalsteadFunction halsteadFn; // specific function metric
 
 	private BigDecimal n1; // no. operators [distinct, total]
 	private BigDecimal N1;
@@ -49,12 +49,12 @@ public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadProvider, GMH
 	@Override
 	public void init() {
 		Result result = getParser().parse();
-		
+
 		this.n1 = result.n1;
 		this.n2 = result.n2;
 		this.N1 = result.N1;
 		this.N2 = result.N2;
-				
+
 		GMHalsteadKey.ALL_KEYS.forEach(k -> {
 			createMetricValue(k);
 		});
@@ -65,7 +65,7 @@ public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadProvider, GMH
 		halsteadFn = new GMHalsteadFunction(getProvider(), fn);
 		halsteadFn.init();
 	}
-	
+
 	protected GMHalsteadParser getParser() {
 		return GMHalsteadParser.programParser(getProvider().getProgram());
 	}
@@ -73,7 +73,7 @@ public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadProvider, GMH
 	public GMHalstead getHalsteadFunction() {
 		return halsteadFn;
 	}
-	
+
 	public BigDecimal getNumDistinctOperators() {
 		return n1;
 	}
@@ -90,7 +90,7 @@ public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadProvider, GMH
 		return N2;
 	}
 
-	/** 
+	/**
 	 * Program Vocabulary: <strong>n</strong>
 	 * 
 	 * @return n1 + n2
@@ -98,8 +98,8 @@ public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadProvider, GMH
 	public BigDecimal getVocabulary() {
 		return NumberUtils.add(n1, n2);
 	}
-	
-	/** 
+
+	/**
 	 * Program Length: <strong>N</strong>
 	 * 
 	 * @return N1 + N2
@@ -107,8 +107,8 @@ public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadProvider, GMH
 	public BigDecimal getProgramLength() {
 		return NumberUtils.add(N1, N2);
 	}
-	
-	/** 
+
+	/**
 	 * Calculated Estimated Program Length: <strong>N^</strong>
 	 * 
 	 * @return n1*log2(n1) + n2*log2(n2)
@@ -118,7 +118,7 @@ public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadProvider, GMH
 		BigDecimal n2_log2 = NumberUtils.mul(n2, NumberUtils.log2(n2));
 		return NumberUtils.add(n1_log2, n2_log2);
 	}
-	
+
 	/**
 	 * Program Volume: <strong>V</strong>
 	 * 
@@ -129,7 +129,7 @@ public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadProvider, GMH
 		BigDecimal n = getVocabulary();
 		return NumberUtils.mul(N, NumberUtils.log2(n));
 	}
-	
+
 	/**
 	 * Difficulty of the program to write/understand: <string>D</strong>
 	 * 
@@ -140,7 +140,7 @@ public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadProvider, GMH
 		BigDecimal b = NumberUtils.div(N2, n2);
 		return NumberUtils.mul(a, b);
 	}
-	
+
 	/**
 	 * Effort in coding the program: <strong>E</strong>
 	 * 
@@ -151,7 +151,7 @@ public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadProvider, GMH
 		BigDecimal V = getVolume();
 		return NumberUtils.mul(D, V);
 	}
-	
+
 	/**
 	 * Time to code the program: <strong>T</strong>
 	 * 

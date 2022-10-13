@@ -10,11 +10,11 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
-import it.unive.ghidra.metrics.base.GMBaseWinManager;
+import it.unive.ghidra.metrics.base.GMAbstractWindowManager;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetric;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetricProvider;
 
-public class GMWindowManager extends GMBaseWinManager {
+public class GMWindowManager extends GMAbstractWindowManager {
 
 	private final GhidraMetricsPlugin plugin;
 
@@ -48,7 +48,7 @@ public class GMWindowManager extends GMBaseWinManager {
 
 		JPanel pnlMetricHeader = new JPanel();
 		pnlMetricContainer.add(pnlMetricHeader, BorderLayout.NORTH);
-		
+
 		JPanel pnlMetricFooter = new JPanel();
 		pnlMetricContainer.add(pnlMetricFooter, BorderLayout.SOUTH);
 
@@ -60,7 +60,7 @@ public class GMWindowManager extends GMBaseWinManager {
 		return component;
 	}
 
-	public final void showView(GMiMetricProvider<?, ?, ?> provider) {
+	public final void showWindow(GMiMetricProvider provider) {
 		pnlMetricContainer.removeAll();
 
 		if (provider == null) {
@@ -78,7 +78,7 @@ public class GMWindowManager extends GMBaseWinManager {
 		revalidate();
 	}
 
-	private final void populateMetrics(Collection<Class<? extends GMiMetric<?, ?, ?>>> metrics) {
+	private final void populateMetrics(Collection<Class<? extends GMiMetric>> metrics) {
 		metrics.forEach(metricClz -> {
 			pnlMainContainer.add(new GMMetricButton(plugin, metricClz));
 		});

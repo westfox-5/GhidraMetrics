@@ -8,17 +8,19 @@ import java.util.Collections;
 import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
+import ghidra.util.Swing;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetricProvider;
 import it.unive.ghidra.metrics.export.GMExporter;
 import it.unive.ghidra.metrics.export.GMExporter.Type;
 
-public class GMBaseMetricProvider
-	<M extends GMBaseMetric<M, P, W>,
-	P extends GMBaseMetricProvider<M, P, W>,
-	W extends GMBaseMetricWinManager<M, P, W>>
-		implements GMiMetricProvider<M, P, W> {
-
+//@formatter:off
+public abstract class GMAbstractMetricProvider<
+	M extends GMAbstractMetric<M, P, W>, 
+	P extends GMAbstractMetricProvider<M, P, W>, 
+	W extends GMAbstractMetricWindowManager<M, P, W>>
+implements GMiMetricProvider {
+//@formatter:on
 	private final boolean headlessMode;
 	protected final GhidraMetricsPlugin plugin;
 	protected final Program program;
@@ -26,32 +28,25 @@ public class GMBaseMetricProvider
 	protected M metric;
 	protected W wm;
 
-	private Function prevFn; // avoid recomputing metrics on same function!
+	private Function prevFn;
 
-	public GMBaseMetricProvider(Program program, Class<M> metricClass) {
+	public GMAbstractMetricProvider(Program program, Class<M> metricClass) {
 		this.plugin = null;
 		this.program = program;
 		this.headlessMode = true;
 
-		init(metricClass, null);
+		_init(metricClass, null);
 	}
 
-	public GMBaseMetricProvider(GhidraMetricsPlugin plugin, Class<M> metricClass, Class<W> winManagerClass) {
+	public GMAbstractMetricProvider(GhidraMetricsPlugin plugin, Class<M> metricClass, Class<W> winManagerClass) {
 		this.plugin = plugin;
 		this.program = plugin.getCurrentProgram();
 		this.headlessMode = false;
 
-		init(metricClass, winManagerClass);
+		_init(metricClass, winManagerClass);
 	}
 
-	private final void init(Class<M> metricClass, Class<W> winManagerClass) {
-		initMetric(metricClass);
-
-		if (!isHeadlessMode()) {
-			initWinManager(winManagerClass);
-		}
-	}
-
+	@Override
 	public boolean isHeadlessMode() {
 		return headlessMode;
 	}
@@ -94,8 +89,7 @@ public class GMBaseMetricProvider
 
 	@Override
 	public GMExporter.Builder makeExporter(Type exportType) {
-		GMExporter.Builder builder = GMExporter.of(exportType, plugin)
-				.addMetrics(getMetricsForExport());
+		GMExporter.Builder builder = GMExporter.of(exportType, plugin).addMetrics(getMetricsForExport());
 
 		if (!isHeadlessMode())
 			builder.withFileChooser();
@@ -107,11 +101,10 @@ public class GMBaseMetricProvider
 		return Collections.singletonList(getMetric());
 	}
 
-	private final void initMetric(Class<M> metricClass) {
+	private final void _createMetric(Class<M> metricClass) {
 		try {
 			Constructor<M> declaredConstructor = metricClass.getDeclaredConstructor(getClass());
 			this.metric = declaredConstructor.newInstance(this);
-			this.metric.init();
 
 			// TODO handle these exceptions more gracefully
 		} catch (InstantiationException x) {
@@ -124,13 +117,13 @@ public class GMBaseMetricProvider
 			x.printStackTrace();
 		}
 
+		this.metric._init();
 	}
 
-	private final void initWinManager(Class<W> winManagerClass) {
+	private final void _createWindownManager(Class<W> winManagerClass) {
 		try {
 			Constructor<W> declaredConstructor = winManagerClass.getDeclaredConstructor(getClass());
 			this.wm = declaredConstructor.newInstance(this);
-			this.wm.init();
 
 			// TODO handle these exceptions more gracefully
 		} catch (InstantiationException x) {
@@ -143,6 +136,15 @@ public class GMBaseMetricProvider
 			x.printStackTrace();
 		}
 
+		Swing.runNow(() -> wm.init());
+	}
+
+	private final void _init(Class<M> metricClass, Class<W> winManagerClass) {
+		_createMetric(metricClass);
+
+		if (!isHeadlessMode()) {
+			_createWindownManager(winManagerClass);
+		}
 	}
 
 	private static boolean equals(Function f1, Function f2) {

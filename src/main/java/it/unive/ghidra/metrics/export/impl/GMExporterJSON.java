@@ -10,7 +10,7 @@ import it.unive.ghidra.metrics.export.GMExporter;
 import it.unive.ghidra.metrics.util.StringUtils;
 
 public class GMExporterJSON extends GMExporter {
-	
+
 	private static final String JSON_SEP = ",";
 	private static final String JSON_KEY_VALUE_SEP = ":";
 
@@ -19,8 +19,7 @@ public class GMExporterJSON extends GMExporter {
 	}
 
 	@Override
-	protected <V> StringBuilder serialize(Collection<GMiMetric<?,?,?>> metrics) {
-	
+	protected <V> StringBuilder serialize(Collection<GMiMetric> metrics) {
 		StringBuilder sb = new StringBuilder();
 		
 		sb.append("{");
@@ -35,7 +34,7 @@ public class GMExporterJSON extends GMExporter {
 			
 		return sb;
 	}
-	
+
 	/**
 	 * A metric object is formatted as:
 	 * {
@@ -47,7 +46,7 @@ public class GMExporterJSON extends GMExporter {
 	 *  info: [{name, value}]
 	 * }
 	 */
-	private <M extends GMiMetric<?,?,?>> StringBuilder serializeMetric(M metric) {
+	private StringBuilder serializeMetric(GMiMetric metric) {
 		StringBuilder sb = new StringBuilder();
 		
 		Stream<GMiMetricValue<?>> values = metric.getMetrics().stream();
@@ -113,11 +112,11 @@ public class GMExporterJSON extends GMExporter {
 		
 		return sb;
 	}
-	
+
 	private static final String format(Object key) {
 		return StringUtils.quotate(key) + JSON_KEY_VALUE_SEP;
 	}
-	
+
 	private static final String format(Object key, Object value) {
 		return StringUtils.quotate(key) + JSON_KEY_VALUE_SEP + StringUtils.quotate(value);
 	}

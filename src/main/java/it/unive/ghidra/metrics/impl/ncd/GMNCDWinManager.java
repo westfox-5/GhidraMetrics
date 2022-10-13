@@ -19,9 +19,9 @@ import docking.widgets.filechooser.GhidraFileChooser;
 import docking.widgets.filechooser.GhidraFileChooserMode;
 import ghidra.util.filechooser.GhidraFileChooserModel;
 import ghidra.util.filechooser.GhidraFileFilter;
-import it.unive.ghidra.metrics.base.GMBaseMetricWinManager;
+import it.unive.ghidra.metrics.base.GMAbstractMetricWindowManager;
 
-public class GMNCDWinManager extends GMBaseMetricWinManager<GMNCD, GMNCDProvider, GMNCDWinManager> {
+public class GMNCDWinManager extends GMAbstractMetricWindowManager<GMNCD, GMNCDProvider, GMNCDWinManager> {
 	private static final String[] COLUMNS = { "File", "NCD Similarity" };
 	private List<File> selectedFiles;
 
@@ -34,8 +34,7 @@ public class GMNCDWinManager extends GMBaseMetricWinManager<GMNCD, GMNCDProvider
 	}
 
 	@Override
-	public void init() {
-
+	public void onMetricCreated() {
 	}
 
 	/**

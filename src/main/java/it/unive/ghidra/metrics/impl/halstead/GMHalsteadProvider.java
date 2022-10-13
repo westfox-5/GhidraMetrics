@@ -6,9 +6,9 @@ import java.util.List;
 
 import ghidra.program.model.listing.Program;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
-import it.unive.ghidra.metrics.base.GMBaseMetricProvider;
+import it.unive.ghidra.metrics.base.GMAbstractMetricProvider;
 
-public class GMHalsteadProvider extends GMBaseMetricProvider<GMHalstead, GMHalsteadProvider, GMHalsteadWinManager> {
+public class GMHalsteadProvider extends GMAbstractMetricProvider<GMHalstead, GMHalsteadProvider, GMHalsteadWinManager> {
 
 	public GMHalsteadProvider(Program program) {
 		super(program, GMHalstead.class);
@@ -21,26 +21,28 @@ public class GMHalsteadProvider extends GMBaseMetricProvider<GMHalstead, GMHalst
 	@Override
 	public Collection<GMHalstead> getMetricsForExport() {
 		List<GMHalstead> list = new ArrayList<>(super.getMetricsForExport());
-		
+
 		GMHalstead halsteadFn = getMetric().getHalsteadFunction();
 		if (halsteadFn != null) {
-			
+
 			// in headless mode, always add halsteadFunction
-			// since halsteadFunction != null IFF user has provided FUNCTION parameter for analysis
+			// since halsteadFunction != null IFF user has provided FUNCTION parameter for
+			// analysis
 			if (isHeadlessMode()) {
 				list.add(halsteadFn);
 			}
-			
+
 			// in non headless mode, add halsteadFunction IFF
-			// halsteadFunction != null AND windowManager is currently showing function analysis (function tab)
+			// halsteadFunction != null AND windowManager is currently showing function
+			// analysis (function tab)
 			else {
 				if (getWinManager().isFunctionTabVisible()) {
 					list.add(halsteadFn);
 				}
 			}
 		}
-		
+
 		return list;
 	}
-	
+
 }

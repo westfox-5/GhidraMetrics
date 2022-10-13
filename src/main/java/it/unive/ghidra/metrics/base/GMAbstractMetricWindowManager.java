@@ -6,20 +6,23 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 import it.unive.ghidra.metrics.base.interfaces.GMiMetricValue;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetricWinManager;
+import it.unive.ghidra.metrics.base.interfaces.GMiMetricWindowManager;
 
-public abstract class GMBaseMetricWinManager <
-	M extends GMBaseMetric<M, P, W>,
-	P extends GMBaseMetricProvider<M, P, W>,
-	W extends GMBaseMetricWinManager<M, P, W>>
-extends GMBaseWinManager implements GMiMetricWinManager<M, P, W> {
-	
+//@formatter:off
+public abstract class GMAbstractMetricWindowManager<
+	M extends GMAbstractMetric<M, P, W>, 
+	P extends GMAbstractMetricProvider<M, P, W>, 
+	W extends GMAbstractMetricWindowManager<M, P, W>>
+extends GMAbstractWindowManager implements GMiMetricWindowManager {
+//@formatter:on
 	private final P provider;
-	
-	public GMBaseMetricWinManager(P provider) {
+
+	public GMAbstractMetricWindowManager(P provider) {
 		super();
 		this.provider = provider;
 	}
+
+	protected abstract void onMetricCreated();
 
 	@Override
 	public M getMetric() {
@@ -30,23 +33,21 @@ extends GMBaseWinManager implements GMiMetricWinManager<M, P, W> {
 	public P getProvider() {
 		return provider;
 	}
-	
 
 	protected void populateMetricTable(JTable table, String[] columns, Function<GMiMetricValue<?>, Object[]> rowFn) {
 		populateMetricTable(table, getMetric(), columns, rowFn);
 	}
-	
-	protected static <M extends GMBaseMetric<?,?,?>> void populateMetricTable(JTable table, M metric, String[] columns, Function<GMiMetricValue<?>, Object[]> rowFn) {
+
+	protected static <M extends GMAbstractMetric<?, ?, ?>> void populateMetricTable(JTable table, M metric,
+			String[] columns, Function<GMiMetricValue<?>, Object[]> rowFn) {
 		DefaultTableModel dtm = new NonEditableTableModel();
 		dtm.setColumnCount(columns.length);
 		dtm.setColumnIdentifiers(columns);
-		
+
 		metric.getMetrics().forEach(val -> {
-			dtm.addRow(rowFn.apply(val));			
+			dtm.addRow(rowFn.apply(val));
 		});
-		
+
 		table.setModel(dtm);
 	}
-
-
 }

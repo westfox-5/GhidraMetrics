@@ -18,12 +18,14 @@ import ghidra.util.filechooser.GhidraFileFilter;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetric;
 import it.unive.ghidra.metrics.export.impl.GMExporterJSON;
+import it.unive.ghidra.metrics.export.impl.GMExporterTXT;
 import it.unive.ghidra.metrics.util.StringUtils;
 
 public abstract class GMExporter {
 
 	public static enum Type {
-		JSON("json", "application/json");
+		JSON("json", "application/json"),
+		TXT("txt", "text/plain");
 
 		private String ext;
 		private String contentType;
@@ -54,8 +56,10 @@ public abstract class GMExporter {
 		switch (exportType) {
 		case JSON:
 			return new GMExporterJSON();
+		case TXT:
+			return new GMExporterTXT();
 		default:
-			return null;
+			throw new IllegalArgumentException("Export type " + exportType.name() + " is not implemented");
 		}
 	}
 

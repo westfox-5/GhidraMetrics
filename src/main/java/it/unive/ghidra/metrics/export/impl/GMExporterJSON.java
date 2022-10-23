@@ -27,7 +27,7 @@ public class GMExporterJSON extends GMExporter {
 			
 			metrics.forEach(m ->  {
 				sb.append(serializeMetric(m)).append(JSON_SEP);
-			});
+			});sb.deleteCharAt(sb.length()-1);
 			
 			sb.append("]")
 		.append("}");
@@ -39,11 +39,10 @@ public class GMExporterJSON extends GMExporter {
 	 * A metric object is formatted as:
 	 * {
 	 * 	name, 
-	 * 	metric: { 
+	 * 	metrics: { 
 	 * 		keys: [ metricKey ],
 	 * 		values: [ metricValue ]
-	 *  },
-	 *  info: [{name, value}]
+	 *  }
 	 * }
 	 */
 	private StringBuilder serializeMetric(GMiMetric metric) {
@@ -59,13 +58,13 @@ public class GMExporterJSON extends GMExporter {
 			.append(format("keys")).append("[");
 				keys.forEach(k -> {
 					sb.append(dumpMetricKey(k)).append(JSON_SEP);
-				});
+				});sb.deleteCharAt(sb.length()-1);
 				sb.append("]").append(JSON_SEP)
 				
 			.append(format("values")).append("[");
 				values.forEach(v -> {
 					sb.append(dumpMetricValue(v)).append(JSON_SEP);
-				});
+				});sb.deleteCharAt(sb.length()-1);
 				sb.append("]")
 				
 			.append("}")
@@ -87,11 +86,14 @@ public class GMExporterJSON extends GMExporter {
 			.append(format("type", key.getType().name())).append(JSON_SEP)
 			.append(format("info"))
 			.append("{");
+		if (key.getAllInfo().isEmpty()) {
+				sb.append("");
+		} else {
 				key.getAllInfo().forEach((info) -> {
 					sb.append(format(info, key.getInfo(info))).append(JSON_SEP);
-				});
-			sb.deleteCharAt(sb.length()-1)
-			.append("}")
+				}); sb.deleteCharAt(sb.length()-1);
+		}
+		sb.append("}")
 		.append("}");
 		
 		return sb;

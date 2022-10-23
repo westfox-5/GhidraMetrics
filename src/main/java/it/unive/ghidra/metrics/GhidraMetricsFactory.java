@@ -10,6 +10,8 @@ import it.unive.ghidra.metrics.base.interfaces.GMiMetric;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetricProvider;
 import it.unive.ghidra.metrics.impl.halstead.GMHalstead;
 import it.unive.ghidra.metrics.impl.halstead.GMHalsteadProvider;
+import it.unive.ghidra.metrics.impl.mccabe.GMMcCabe;
+import it.unive.ghidra.metrics.impl.mccabe.GMMcCabeProvider;
 import it.unive.ghidra.metrics.impl.ncd.GMNCD;
 import it.unive.ghidra.metrics.impl.ncd.GMNCDProvider;
 
@@ -22,6 +24,7 @@ public class GhidraMetricsFactory {
 		metricLookup = new HashMap<>();
 		metricLookup.put(GMHalstead.NAME, GMHalstead.class);
 		metricLookup.put(GMNCD.NAME, GMNCD.class);
+		metricLookup.put(GMMcCabe.NAME, GMMcCabe.class);
 
 		inverseMetricLookup = metricLookup.entrySet().stream()
 				.collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
@@ -49,6 +52,10 @@ public class GhidraMetricsFactory {
 			return new GMNCDProvider(plugin);
 		}
 
+		if (GMMcCabe.class.isAssignableFrom(metricClass)) {
+			return new GMMcCabeProvider(plugin);
+		}
+
 		throw new RuntimeException("ERROR: no mapping defined for metric '" + metricClass.getCanonicalName() + "'.");
 	}
 
@@ -60,6 +67,10 @@ public class GhidraMetricsFactory {
 
 		if (GMNCD.NAME.equals(metricName)) {
 			return new GMNCDProvider(program);
+		}
+
+		if (GMMcCabe.NAME.equals(metricName)) {
+			return new GMMcCabeProvider(program);
 		}
 
 		throw new RuntimeException("ERROR: no mapping defined for metric '" + metricName + "'.");

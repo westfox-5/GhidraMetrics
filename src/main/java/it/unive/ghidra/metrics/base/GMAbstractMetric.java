@@ -64,6 +64,10 @@ implements GMiMetric {
 	public Collection<GMiMetricValue<?>> getMetrics() {
 		return metricsByKey.values();
 	}
+	
+	protected void clearMetrics() {
+		this.metricsByKey.clear();
+	}
 
 	protected <T> void createMetricValue(GMiMetricKey key) {
 		try {

@@ -2,6 +2,7 @@ package it.unive.ghidra.metrics.impl.halstead;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.util.function.Function;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -12,12 +13,16 @@ import javax.swing.SwingConstants;
 
 import it.unive.ghidra.metrics.base.GMAbstractMetricWindowManager;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetricKey;
+import it.unive.ghidra.metrics.base.interfaces.GMiMetricValue;
 
 //@formatter:off
 public class GMHalsteadWinManager extends GMAbstractMetricWindowManager<GMHalstead, GMHalsteadProvider, GMHalsteadWinManager> {
 //@formatter:on
 
-	private static final String[] COLUMNS = { "Name", "Value", "Description", "Formula" };
+	private static final String[] TABLE_COLUMNS_DEFINITION = { "Name", "Value", "Description", "Formula" };
+	private static final Function<GMiMetricValue<?>, Object[]> TABLE_ROWS_FUNCTION = metric -> new Object[] {
+			metric.getKey().getName(), metric.getValue(), metric.getKey().getInfo(GMiMetricKey.KEY_DESCRIPTION),
+			metric.getKey().getInfo(GMiMetricKey.KEY_FORMULA) };
 
 	private JTable tableProgramMetrics;
 	private JTable tableFunctionMetrics;
@@ -117,10 +122,6 @@ public class GMHalsteadWinManager extends GMAbstractMetricWindowManager<GMHalste
 	}
 
 	private void populateMetricTable(JTable table, GMHalstead metric) {
-		populateMetricTable(table, metric, COLUMNS, val -> {
-			GMiMetricKey key = val.getKey();
-			return new Object[] { key.getName(), val.getValue(), key.getInfo(GMiMetricKey.KEY_DESCRIPTION),
-					key.getInfo(GMiMetricKey.KEY_FORMULA) };
-		});
+		populateMetricTable(table, metric, TABLE_COLUMNS_DEFINITION, TABLE_ROWS_FUNCTION);
 	}
 }

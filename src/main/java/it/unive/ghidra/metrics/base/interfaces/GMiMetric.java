@@ -3,7 +3,7 @@ package it.unive.ghidra.metrics.base.interfaces;
 import java.util.Collection;
 
 public interface GMiMetric {
-	void init();
+	boolean init();
 
 	String getName();
 

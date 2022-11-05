@@ -2,6 +2,7 @@ package it.unive.ghidra.metrics.impl.mccabe;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
+import java.util.function.Function;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -12,9 +13,12 @@ import javax.swing.border.EmptyBorder;
 
 import it.unive.ghidra.metrics.base.GMAbstractMetricWindowManager;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetricKey;
+import it.unive.ghidra.metrics.base.interfaces.GMiMetricValue;
 
 public class GMMcCabeWinManager extends GMAbstractMetricWindowManager<GMMcCabe, GMMcCabeProvider, GMMcCabeWinManager> {
-	private static final String[] COLUMNS = { "Name", "Value" };
+	private static final String[] TABLE_COLUMNS_DEFINITION = { "Name", "Value", "Formula" };
+	private static final Function<GMiMetricValue<?>, Object[]> TABLE_ROWS_FUNCTION = metric -> new Object[] {
+			metric.getKey().getName(), metric.getValue(), metric.getKey().getInfo(GMiMetricKey.KEY_FORMULA) };
 
 	private JPanel pnlSelection;
 	private JPanel pnlContainer;
@@ -74,9 +78,6 @@ public class GMMcCabeWinManager extends GMAbstractMetricWindowManager<GMMcCabe, 
 	}
 
 	private void populateMetricTable(JTable table, GMMcCabe metric) {
-		populateMetricTable(table, metric, COLUMNS, val -> {
-			GMiMetricKey key = val.getKey();
-			return new Object[] { key.getName(), val.getValue() };
-		});
+		populateMetricTable(table, metric, TABLE_COLUMNS_DEFINITION, TABLE_ROWS_FUNCTION);
 	}
 }

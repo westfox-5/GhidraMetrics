@@ -51,7 +51,7 @@ public class GMHalstead extends GMAbstractMetric<GMHalstead, GMHalsteadProvider,
 	}
 
 	@Override
-	public void init() {
+	public boolean init() {
 		Result result = getParser().parse();
 
 		this.n1 = result.n1;
@@ -59,9 +59,11 @@ public class GMHalstead extends GMAbstractMetric<GMHalstead, GMHalsteadProvider,
 		this.N1 = result.N1;
 		this.N2 = result.N2;
 
-		GMHalsteadKey.ALL_KEYS.forEach(k -> {
-			createMetricValue(k);
+		GMHalsteadKey.ALL_KEYS.forEach(key -> {
+			createMetricValue(key);
 		});
+		
+		return true;
 	}
 
 	@Override

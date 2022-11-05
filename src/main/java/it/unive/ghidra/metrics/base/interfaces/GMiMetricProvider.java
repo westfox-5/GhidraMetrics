@@ -6,6 +6,8 @@ import it.unive.ghidra.metrics.GhidraMetricsPlugin;
 import it.unive.ghidra.metrics.export.GMExporter;
 
 public interface GMiMetricProvider {
+	
+	boolean isInitialized();
 
 	GhidraMetricsPlugin getPlugin();
 

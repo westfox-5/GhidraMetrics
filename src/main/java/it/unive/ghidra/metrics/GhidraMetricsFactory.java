@@ -43,36 +43,42 @@ public class GhidraMetricsFactory {
 	}
 
 	public static GMiMetricProvider create(GhidraMetricsPlugin plugin, Class<? extends GMiMetric> metricClass) {
-
+		GMiMetricProvider provider = null;
+		
 		if (GMHalstead.class.isAssignableFrom(metricClass)) {
-			return new GMHalsteadProvider(plugin);
+			provider = new GMHalsteadProvider(plugin);
+		} else if (GMNCD.class.isAssignableFrom(metricClass)) {
+			provider = new GMNCDProvider(plugin);
+		} else if (GMMcCabe.class.isAssignableFrom(metricClass)) {
+			provider = new GMMcCabeProvider(plugin);
 		}
-
-		if (GMNCD.class.isAssignableFrom(metricClass)) {
-			return new GMNCDProvider(plugin);
-		}
-
-		if (GMMcCabe.class.isAssignableFrom(metricClass)) {
-			return new GMMcCabeProvider(plugin);
-		}
-
-		throw new RuntimeException("ERROR: no mapping defined for metric '" + metricClass.getCanonicalName() + "'.");
+		
+		if (provider == null)	
+			throw new RuntimeException("ERROR: no mapping defined for metric '" + metricClass.getCanonicalName() + "'.");
+		
+		if (!provider.isInitialized())
+			return null;
+		
+		return provider;
 	}
 
 	public static GMiMetricProvider createHeadless(String metricName, Program program) {
+		GMiMetricProvider provider = null;
 
 		if (GMHalstead.NAME.equals(metricName)) {
-			return new GMHalsteadProvider(program);
+			provider = new GMHalsteadProvider(program);
+		} else if (GMNCD.NAME.equals(metricName)) {
+			provider = new GMNCDProvider(program);
+		} else if (GMMcCabe.NAME.equals(metricName)) {
+			provider = new GMMcCabeProvider(program);
 		}
 
-		if (GMNCD.NAME.equals(metricName)) {
-			return new GMNCDProvider(program);
-		}
-
-		if (GMMcCabe.NAME.equals(metricName)) {
-			return new GMMcCabeProvider(program);
-		}
-
-		throw new RuntimeException("ERROR: no mapping defined for metric '" + metricName + "'.");
+		if (provider == null)	
+			throw new RuntimeException("ERROR: no mapping defined for metric '" + metricName + "'.");
+		
+		if (!provider.isInitialized())
+			return null;
+		
+		return provider;
 	}
 }

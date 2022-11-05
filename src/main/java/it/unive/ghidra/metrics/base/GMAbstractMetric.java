@@ -35,13 +35,15 @@ implements GMiMetric {
 		this.program = provider.getProgram();
 	}
 
-	protected abstract void functionChanged(Function fn);
+	protected abstract void functionChanged(Function function);
 
-	protected void _init() {
+	protected boolean _init() {
 		if (!initialized) {
-			init();
-			initialized = true;
+			boolean ok = init();
+			initialized = ok;
+			return ok;
 		}
+		return true;
 	}
 
 	@Override
@@ -71,7 +73,7 @@ implements GMiMetric {
 
 	protected <T> void createMetricValue(GMiMetricKey key) {
 		try {
-			var value = getValue(key, this);
+			var value = getMetricValueByKeyName(key, this);
 			createMetricValue(key, value);
 
 			// TODO handle these exceptions more gracefully
@@ -94,10 +96,21 @@ implements GMiMetric {
 			metricsByKey.put(value.getKey(), value);
 	}
 
-	private static final Object getValue(GMiMetricKey key, GMiMetric metric)
+	/**
+	 * Executes the getter method in the GMiMetric object for the GMiMetricKey.name object,
+	 * 
+	 * @param key
+	 * @param metric
+	 * @return
+	 * @throws NoSuchMethodException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
+	 * @throws InvocationTargetException
+	 */
+	private static final Object getMetricValueByKeyName(GMiMetricKey key, GMiMetric metric)
 			throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		String getterMethodName = StringUtils.getterMethodName(key.getName());
 		Method getterMethod = metric.getClass().getMethod(getterMethodName);
-		return getterMethod.invoke(metric);
+		return getterMethod != null ? getterMethod.invoke(metric): null;
 	}
 }

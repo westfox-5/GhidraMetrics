@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
+import java.util.function.Function;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -20,9 +21,13 @@ import docking.widgets.filechooser.GhidraFileChooserMode;
 import ghidra.util.filechooser.GhidraFileChooserModel;
 import ghidra.util.filechooser.GhidraFileFilter;
 import it.unive.ghidra.metrics.base.GMAbstractMetricWindowManager;
+import it.unive.ghidra.metrics.base.interfaces.GMiMetricValue;
 
 public class GMNCDWinManager extends GMAbstractMetricWindowManager<GMNCD, GMNCDProvider, GMNCDWinManager> {
-	private static final String[] COLUMNS = { "File", "NCD Similarity" };
+	private static final String[] TABLE_COLUMNS_DEFINITION = { "File", "NCD Similarity" };
+	private static final Function<GMiMetricValue<?>, Object[]> TABLE_ROWS_FUNCTION = metric -> new Object[] {
+			metric.getKey().getName(), metric.getValue() };
+
 	private List<File> selectedFiles;
 
 	private JPanel pnlSelection;
@@ -110,9 +115,7 @@ public class GMNCDWinManager extends GMAbstractMetricWindowManager<GMNCD, GMNCDP
 		this.pnlNcdContainer.setVisible(visible);
 
 		if (visible) {
-			populateMetricTable(tblNcd, COLUMNS, val -> {
-				return new Object[] { val.getKey().getName(), val.getValue() };
-			});
+			populateMetricTable(tblNcd, TABLE_COLUMNS_DEFINITION, TABLE_ROWS_FUNCTION);
 		}
 		refresh();
 	}

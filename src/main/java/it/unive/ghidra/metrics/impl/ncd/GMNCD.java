@@ -11,17 +11,18 @@ import ghidra.app.util.exporter.ExporterException;
 import ghidra.framework.model.DomainFile;
 import ghidra.framework.model.DomainObject;
 import ghidra.program.model.listing.Function;
+import ghidra.util.Msg;
 import ghidra.util.exception.CancelledException;
 import ghidra.util.exception.VersionException;
-import ghidra.util.task.TaskMonitor;
 import it.unive.ghidra.metrics.base.GMAbstractMetric;
+import it.unive.ghidra.metrics.util.GMTaskMonitor;
 import it.unive.ghidra.metrics.util.PathHelper;
 import it.unive.ghidra.metrics.util.ZipHelper;
 
 public class GMNCD extends GMAbstractMetric<GMNCD, GMNCDProvider, GMNCDWinManager> {
 	public static final String NAME = "NCD Similarity";
 
-	private static final String DEFAULT_DIR = "ghidra_metrics";
+	private static final String DEFAULT_DIR = "ghidra_metrics_";
 	private static final String DEFUALT_PREFIX = "ghidra_ncd_";
 
 	private Path tmpDir;
@@ -37,13 +38,15 @@ public class GMNCD extends GMAbstractMetric<GMNCD, GMNCDProvider, GMNCDWinManage
 	}
 
 	@Override
-	public void init() {
+	public boolean init() {
 		try {
 			this.tmpDir = Files.createTempDirectory(DEFAULT_DIR);
 			this.exportPath = Files.createTempFile(tmpDir, DEFUALT_PREFIX, null);
 
+			GMTaskMonitor monitor = new GMTaskMonitor();
+			
 			DomainObject immutableDomainObject = getProvider().getProgram().getDomainFile()
-					.getImmutableDomainObject(this, DomainFile.DEFAULT_VERSION, TaskMonitor.DUMMY);
+					.getImmutableDomainObject(this, DomainFile.DEFAULT_VERSION, monitor);
 
 			BinaryExporter binaryExporter = new BinaryExporter();
 			binaryExporter.export(exportPath.toFile(), immutableDomainObject, null, null);
@@ -53,14 +56,33 @@ public class GMNCD extends GMAbstractMetric<GMNCD, GMNCDProvider, GMNCDWinManage
 
 		} catch (IOException x) {
 			x.printStackTrace();
+			
+			if (!provider.isHeadlessMode()) {
+				Msg.showError(this, provider.getPlugin().getProvider().getComponent(), "Error", "If you see this error, it is very likely that you do not have 'rzip' installed in your system. Please procede to installation in order to continue using this plugin.");
+			}
+			
+			return false;
 		} catch (VersionException x) {
 			x.printStackTrace();
+			return false;
 		} catch (CancelledException x) {
 			x.printStackTrace();
+			return false;
 		} catch (ExporterException x) {
 			x.printStackTrace();
+			return false;
+		} finally {
+			
+			try {
+				if (exportPath!=null) Files.deleteIfExists(exportPath);
+				if (zipPath!=null) Files.deleteIfExists(zipPath);
+				if (tmpDir!=null) Files.deleteIfExists(tmpDir);
+			} catch (IOException e) {
+				// do nothing
+			}
 		}
 
+		return true;
 	}
 
 	protected void compute(List<File> files) throws IOException {

@@ -24,6 +24,8 @@ implements GMiMetricProvider {
 	private final boolean headlessMode;
 	protected final GhidraMetricsPlugin plugin;
 	protected final Program program;
+	
+	private final boolean initialized;
 
 	protected M metric;
 	protected W wm;
@@ -35,7 +37,7 @@ implements GMiMetricProvider {
 		this.program = program;
 		this.headlessMode = true;
 
-		_init(metricClass, null);
+		this.initialized = _init(metricClass, null);
 	}
 
 	public GMAbstractMetricProvider(GhidraMetricsPlugin plugin, Class<M> metricClass, Class<W> winManagerClass) {
@@ -43,7 +45,12 @@ implements GMiMetricProvider {
 		this.program = plugin.getCurrentProgram();
 		this.headlessMode = false;
 
-		_init(metricClass, winManagerClass);
+		this.initialized = _init(metricClass, winManagerClass);
+	}
+
+	@Override
+	public boolean isInitialized() {
+		return initialized;
 	}
 
 	@Override
@@ -96,12 +103,12 @@ implements GMiMetricProvider {
 
 		return builder;
 	}
-
+	
 	public Collection<? extends M> getMetricsForExport() {
 		return Collections.singletonList(getMetric());
 	}
 
-	private final void _createMetric(Class<M> metricClass) {
+	private final boolean _createMetric(Class<M> metricClass) {
 		try {
 			Constructor<M> declaredConstructor = metricClass.getDeclaredConstructor(getClass());
 			this.metric = declaredConstructor.newInstance(this);
@@ -109,18 +116,22 @@ implements GMiMetricProvider {
 			// TODO handle these exceptions more gracefully
 		} catch (InstantiationException x) {
 			x.printStackTrace();
+			return false;
 		} catch (IllegalAccessException x) {
 			x.printStackTrace();
+			return false;
 		} catch (InvocationTargetException x) {
 			x.printStackTrace();
+			return false;
 		} catch (NoSuchMethodException x) {
 			x.printStackTrace();
+			return false;
 		}
 
-		this.metric._init();
+		return this.metric._init();
 	}
 
-	private final void _createWindownManager(Class<W> winManagerClass) {
+	private final boolean _createWindownManager(Class<W> winManagerClass) {
 		try {
 			Constructor<W> declaredConstructor = winManagerClass.getDeclaredConstructor(getClass());
 			this.wm = declaredConstructor.newInstance(this);
@@ -128,12 +139,16 @@ implements GMiMetricProvider {
 			// TODO handle these exceptions more gracefully
 		} catch (InstantiationException x) {
 			x.printStackTrace();
+			return false;
 		} catch (IllegalAccessException x) {
 			x.printStackTrace();
+			return false;
 		} catch (InvocationTargetException x) {
 			x.printStackTrace();
+			return false;
 		} catch (NoSuchMethodException x) {
 			x.printStackTrace();
+			return false;
 		}
 
 		Swing.runIfSwingOrRunLater(() -> wm.init());
@@ -141,14 +156,18 @@ implements GMiMetricProvider {
 		if (metric != null) {
 			wm.onMetricInitialized();
 		}
+		
+		return true;
 	}
 
-	private final void _init(Class<M> metricClass, Class<W> winManagerClass) {
-		_createMetric(metricClass);
-
-		if (!isHeadlessMode()) {
+	private final boolean _init(Class<M> metricClass, Class<W> winManagerClass) {
+		boolean initialized = _createMetric(metricClass);
+		
+		if (initialized && !isHeadlessMode()) {
 			_createWindownManager(winManagerClass);
 		}
+		
+		return initialized;
 	}
 
 	private static boolean equals(Function f1, Function f2) {

@@ -1,8 +1,6 @@
 package it.unive.ghidra.metrics.impl.halstead;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import it.unive.ghidra.metrics.base.GMAbstractMetricKey;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetricKey;
@@ -21,26 +19,23 @@ public final class GMHalsteadKey extends GMAbstractMetricKey {
 	private static final GMHalsteadKey EFFORT;
 	private static final GMHalsteadKey CODING_TIME;
 	private static final GMHalsteadKey ESTIMATED_ERRORS;
-
-	private static final Map<String, GMAbstractMetricKey> lookupByName;
+	
 	private static int sn = 0;
 
 	static {
-		lookupByName = new HashMap<>();
-
 		//@formatter:off
-		NUM_DISTINCT_OPERATORS	= new GMHalsteadKey(GMiMetricKey.Type.NUMERIC, "Num Distinct Operators", "Number of distinct operators.", null);		
-		NUM_DISTINCT_OPERANDS	= new GMHalsteadKey(GMiMetricKey.Type.NUMERIC, "Num Distinct Operands", "Number of distinct operands.", null);
-		NUM_OPERATORS			= new GMHalsteadKey(GMiMetricKey.Type.NUMERIC, "Num Operators", "Number of operators.", null);
-		NUM_OPERANDS			= new GMHalsteadKey(GMiMetricKey.Type.NUMERIC, "Num Operands", "Number of operands.", null);
-		VOCABULARY			= new GMHalsteadKey(GMiMetricKey.Type.NUMERIC, "Vocabulary", "Program vocabulary.", "n = n1 + n2");
-		PROGRAM_LENGTH		= new GMHalsteadKey(GMiMetricKey.Type.NUMERIC, "Program Length", "Program length.", "N = N1 + N2");
-		ESTIMATED_LENGTH	= new GMHalsteadKey(GMiMetricKey.Type.NUMERIC, "Estimated Length", "Program estimated length.", "N^ = n1*log2(n1) + n2*log2(n2)");
-		VOLUME				= new GMHalsteadKey(GMiMetricKey.Type.NUMERIC, "Volume", "Program volume.", "V = N*log2(n)");
-		DIFFICULTY			= new GMHalsteadKey(GMiMetricKey.Type.NUMERIC, "Difficulty", "Program difficulty.", "D = (n1/2) * (N2/n2)");
-		EFFORT				= new GMHalsteadKey(GMiMetricKey.Type.NUMERIC, "Effort", "Program effort of programming.", "E = D * V");
-		CODING_TIME			= new GMHalsteadKey(GMiMetricKey.Type.NUMERIC, "Coding Time", "Time taken to code the program.", "T = E / 18");
-		ESTIMATED_ERRORS	= new GMHalsteadKey(GMiMetricKey.Type.NUMERIC, "Estimated Errors", "Number of estimated errors.", "B = V / 3000");
+		NUM_DISTINCT_OPERATORS	= new GMHalsteadKey("Num Distinct Operators", "Number of distinct operators.", null);		
+		NUM_DISTINCT_OPERANDS	= new GMHalsteadKey("Num Distinct Operands", "Number of distinct operands.", null);
+		NUM_OPERATORS			= new GMHalsteadKey("Num Operators", "Number of operators.", null);
+		NUM_OPERANDS			= new GMHalsteadKey("Num Operands", "Number of operands.", null);
+		VOCABULARY			= new GMHalsteadKey("Vocabulary", "Program vocabulary.", "n = n1 + n2");
+		PROGRAM_LENGTH		= new GMHalsteadKey("Program Length", "Program length.", "N = N1 + N2");
+		ESTIMATED_LENGTH	= new GMHalsteadKey("Estimated Length", "Program estimated length.", "N^ = n1*log2(n1) + n2*log2(n2)");
+		VOLUME				= new GMHalsteadKey("Volume", "Program volume.", "V = N*log2(n)");
+		DIFFICULTY			= new GMHalsteadKey("Difficulty", "Program difficulty.", "D = (n1/2) * (N2/n2)");
+		EFFORT				= new GMHalsteadKey("Effort", "Program effort of programming.", "E = D * V");
+		CODING_TIME			= new GMHalsteadKey("Coding Time", "Time taken to code the program.", "T = E / 18");
+		ESTIMATED_ERRORS	= new GMHalsteadKey("Estimated Errors", "Number of estimated errors.", "B = V / 3000");
 		//@formatter:on
 	}
 	
@@ -48,15 +43,9 @@ public final class GMHalsteadKey extends GMAbstractMetricKey {
 	public static final List<GMAbstractMetricKey> ALL_KEYS = List.of(NUM_DISTINCT_OPERATORS, NUM_DISTINCT_OPERANDS, NUM_OPERATORS, NUM_OPERANDS,
 			VOCABULARY, PROGRAM_LENGTH, ESTIMATED_LENGTH, VOLUME, DIFFICULTY, EFFORT, CODING_TIME, ESTIMATED_ERRORS);
 	//@formatter:on
-
-	public static final GMAbstractMetricKey byName(String name) {
-		return lookupByName.get(name);
-	}
-
-	private GMHalsteadKey(GMiMetricKey.Type type, String name, String description, String formula) {
-		super(type, name, description, formula, sn++);
-
-		lookupByName.put(name, this);
+	
+	private GMHalsteadKey(String name, String description, String formula) {
+		super(GMiMetricKey.Type.NUMERIC, name, description, formula, sn++);
 	}
 
 }

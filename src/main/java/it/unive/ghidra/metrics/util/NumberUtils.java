@@ -58,4 +58,21 @@ public class NumberUtils {
 	public static BigDecimal div(BigDecimal a, BigDecimal b) {
 		return nullToOne(a).divide(zeroToNull(nullToOne(b)), DEFAULT_CONTEXT);
 	}
+	
+	public static boolean gt0(BigDecimal a) {
+		return nullToZero(a).compareTo(BigDecimal.ZERO) > 0;
+	}
+	
+	public static boolean lte0(BigDecimal a) {
+		return !gt0(a);
+	}
+	
+	public static boolean gte0(BigDecimal a) {
+		return nullToZero(a).compareTo(BigDecimal.ZERO) >= 0;
+	}
+	
+	public static boolean lt0(BigDecimal a) {
+		return !gte0(a);
+	}
+	
 }

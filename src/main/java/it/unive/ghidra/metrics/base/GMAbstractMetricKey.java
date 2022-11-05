@@ -8,6 +8,8 @@ import java.util.Objects;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetricKey;
 
 public abstract class GMAbstractMetricKey implements GMiMetricKey, Comparable<GMAbstractMetricKey> {
+	protected static final Map<String, GMAbstractMetricKey> lookupByName = new HashMap<>();
+	
 	private final String name;
 	private final GMiMetricKey.Type type;
 	private final int sortingNumber;
@@ -18,6 +20,8 @@ public abstract class GMAbstractMetricKey implements GMiMetricKey, Comparable<GM
 		this.type = type;
 		this.name = name;
 		this.sortingNumber = sn;
+		
+		lookupByName.put(this.getClass().getSimpleName() + "_" + this.getName(), this);
 	}
 
 	public GMAbstractMetricKey(GMiMetricKey.Type type, String name, String description, String formula, int sn) {
@@ -27,6 +31,11 @@ public abstract class GMAbstractMetricKey implements GMiMetricKey, Comparable<GM
 		if (formula != null)
 			data.put(KEY_FORMULA, formula);
 	}
+
+	public static GMAbstractMetricKey byName(Class<? extends GMAbstractMetricKey> clz, String name) {
+		return lookupByName.get(clz.getSimpleName() + "_" + name);
+	}
+	
 
 	@Override
 	public String getName() {

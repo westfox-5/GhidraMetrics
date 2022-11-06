@@ -37,24 +37,23 @@ public class GhidraMetricsScript extends GMBaseScript {
 				final GMExporter.Type exportType = getArgValue(GMScriptArgumentOption.EXPORT_TYPE);
 				final Path exportPath = getArgValue(GMScriptArgumentOption.EXPORT_PATH);
 
-				doExport(provider, exportType, exportPath);
+				Path result = doExport(provider, exportType, exportPath);
+				Msg.info(this, "'" + provider.getMetric().getName() + "' exported to: " + result.toAbsolutePath());
 			}
 
-			Msg.error(this, "Script terminated successfully.");
+			Msg.info(this, "Script terminated successfully.");
 
 		} catch (Exception e) {
-			// e.printStackTrace();
+			 e.printStackTrace();
 			Msg.error(this, e.getMessage());
 		}
 	}
 
-	private final void doExport(GMiMetricProvider provider, GMExporter.Type exportType, Path exportPath)
+	private final Path doExport(GMiMetricProvider provider, GMExporter.Type exportType, Path exportPath)
 			throws IOException {
 		GMExporter exporter = provider.makeExporter(exportType).toPath(exportPath).build();
 
-		exportPath = exporter.export();
-
-		Msg.info(this, "'" + provider.getMetric().getName() + "' exported to: " + exportPath.toAbsolutePath());
+		return exporter.export();
 	}
 
 	private final Function findFunctionByName(Program program, String functionName) {

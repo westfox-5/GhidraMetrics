@@ -144,11 +144,11 @@ public abstract class GMScriptArgument<T> {
 	// -- Name: FUNCTION_NAME
 	// -- Type: String
 	//@formatter:off
-	public static final GMScriptArgument<Path> ARG_FUNCTION_NAME = new GMScriptArgument<>(GMScriptArgumentOption.FUNCTION_NAME) {
+	public static final GMScriptArgument<String> ARG_FUNCTION_NAME = new GMScriptArgument<>(GMScriptArgumentOption.FUNCTION_NAME) {
 	//@formatter:on
 		@Override
-		protected Path getTypedValue(String str) {
-			return Paths.get(str);
+		protected String getTypedValue(String str) {
+			return str;
 		}
 	};
 

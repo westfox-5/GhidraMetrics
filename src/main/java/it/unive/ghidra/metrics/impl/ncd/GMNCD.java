@@ -72,18 +72,6 @@ public class GMNCD extends GMAbstractMetric<GMNCD, GMNCDProvider, GMNCDWinManage
 		} catch (ExporterException x) {
 			x.printStackTrace();
 			return false;
-		} finally {
-
-			try {
-				if (exportPath != null)
-					Files.deleteIfExists(exportPath);
-				if (zipPath != null)
-					Files.deleteIfExists(zipPath);
-				if (tmpDir != null)
-					Files.deleteIfExists(tmpDir);
-			} catch (IOException e) {
-				// do nothing
-			}
 		}
 
 		return true;

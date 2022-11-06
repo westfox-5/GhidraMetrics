@@ -21,7 +21,7 @@ public class GMHalstead extends GMAbstractMetric<GMHalstead, GMHalsteadProvider,
 
 		@Override
 		public String getName() {
-			return super.getName() + function.getName();
+			return super.getName() + "." + function.getName();
 		}
 
 		@Override

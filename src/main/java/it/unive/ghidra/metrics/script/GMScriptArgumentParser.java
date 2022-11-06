@@ -65,7 +65,7 @@ public final class GMScriptArgumentParser {
 	}
 
 	private static void validateAllCoupledArgs(Map<GMScriptArgumentOption, GMScriptArgument<?>> args)
-			throws ScriptException.MissingRequiredCoupleScriptArgumentException {
+			throws ScriptException.MissingRequiredScriptArgumentPairException {
 
 		// find options that are required but not defined when the parent option is
 		// defined
@@ -76,7 +76,7 @@ public final class GMScriptArgumentParser {
 
 		if (missingCoupledOpts != null) {
 			for (GMScriptArgumentOption opt : missingCoupledOpts) {
-				throw new ScriptException.MissingRequiredCoupleScriptArgumentException(opt);
+				throw new ScriptException.MissingRequiredScriptArgumentPairException(opt);
 			}
 		}
 	}
@@ -88,7 +88,8 @@ public final class GMScriptArgumentParser {
 		GMScriptArgument<?> metricNameArg = args.get(GMScriptArgumentOption.METRIC_NAME);
 		if (metricNameArg.getValue().equals(GMMcCabe.NAME)) {
 			if (!args.containsKey(GMScriptArgumentOption.FUNCTION_NAME)) {
-				throw new ScriptException.MissingRequiredCoupleScriptArgumentException(GMScriptArgumentOption.FUNCTION_NAME);
+				throw new ScriptException("Missing parameter '" + GMScriptArgumentOption.FUNCTION_NAME.getOption()
+						+ "' required for metric '" + metricNameArg.getValue() + "'");
 			}
 		}
 

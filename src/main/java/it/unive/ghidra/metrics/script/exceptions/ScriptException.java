@@ -13,10 +13,10 @@ public class ScriptException extends Exception {
 		}
 	}
 
-	public static class MissingRequiredCoupleScriptArgumentException extends ScriptException {
+	public static class MissingRequiredScriptArgumentPairException extends ScriptException {
 		private static final long serialVersionUID = 1L;
 
-		public MissingRequiredCoupleScriptArgumentException(GMScriptArgumentOption opt) {
+		public MissingRequiredScriptArgumentPairException(GMScriptArgumentOption opt) {
 			super("Missing parameter '" + opt.getParent().getOption() + "' required by parameter '" + opt.getOption() + "'");
 		}
 	}

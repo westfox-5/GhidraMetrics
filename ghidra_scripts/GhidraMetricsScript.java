@@ -43,7 +43,7 @@ public class GhidraMetricsScript extends GMBaseScript {
 			Msg.error(this, "Script terminated successfully.");
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			// e.printStackTrace();
 			Msg.error(this, e.getMessage());
 		}
 	}

@@ -22,9 +22,9 @@ public class GhidraMetricsFactory {
 
 	static {
 		metricLookup = new HashMap<>();
-		metricLookup.put(GMHalstead.NAME, GMHalstead.class);
-		metricLookup.put(GMNCD.NAME, GMNCD.class);
-		metricLookup.put(GMMcCabe.NAME, GMMcCabe.class);
+		metricLookup.put(GMHalstead.NAME, GMHalstead.class); // Halstead
+		metricLookup.put(GMNCD.NAME, GMNCD.class); // NCD Similarity
+		metricLookup.put(GMMcCabe.NAME, GMMcCabe.class); // McCabe
 
 		inverseMetricLookup = metricLookup.entrySet().stream()
 				.collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
@@ -44,7 +44,7 @@ public class GhidraMetricsFactory {
 
 	public static GMiMetricProvider create(GhidraMetricsPlugin plugin, Class<? extends GMiMetric> metricClass) {
 		GMiMetricProvider provider = null;
-		
+
 		if (GMHalstead.class.isAssignableFrom(metricClass)) {
 			provider = new GMHalsteadProvider(plugin);
 		} else if (GMNCD.class.isAssignableFrom(metricClass)) {
@@ -52,13 +52,13 @@ public class GhidraMetricsFactory {
 		} else if (GMMcCabe.class.isAssignableFrom(metricClass)) {
 			provider = new GMMcCabeProvider(plugin);
 		}
-		
-		if (provider == null)	
+
+		if (provider == null)
 			throw new RuntimeException("ERROR: no mapping defined for metric '" + metricClass.getCanonicalName() + "'.");
-		
+
 		if (!provider.isInitialized())
 			return null;
-		
+
 		return provider;
 	}
 
@@ -73,12 +73,12 @@ public class GhidraMetricsFactory {
 			provider = new GMMcCabeProvider(program);
 		}
 
-		if (provider == null)	
+		if (provider == null)
 			throw new RuntimeException("ERROR: no mapping defined for metric '" + metricName + "'.");
-		
+
 		if (!provider.isInitialized())
 			return null;
-		
+
 		return provider;
 	}
 }

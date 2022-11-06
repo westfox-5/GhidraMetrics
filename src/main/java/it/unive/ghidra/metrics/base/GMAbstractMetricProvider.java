@@ -24,7 +24,7 @@ implements GMiMetricProvider {
 	private final boolean headlessMode;
 	protected final GhidraMetricsPlugin plugin;
 	protected final Program program;
-	
+
 	private final boolean initialized;
 
 	protected M metric;
@@ -103,7 +103,7 @@ implements GMiMetricProvider {
 
 		return builder;
 	}
-	
+
 	public Collection<? extends M> getMetricsForExport() {
 		return Collections.singletonList(getMetric());
 	}
@@ -152,21 +152,21 @@ implements GMiMetricProvider {
 		}
 
 		Swing.runIfSwingOrRunLater(() -> wm.init());
-		
+
 		if (metric != null) {
 			wm.onMetricInitialized();
 		}
-		
+
 		return true;
 	}
 
 	private final boolean _init(Class<M> metricClass, Class<W> winManagerClass) {
 		boolean initialized = _createMetric(metricClass);
-		
+
 		if (initialized && !isHeadlessMode()) {
 			_createWindownManager(winManagerClass);
 		}
-		
+
 		return initialized;
 	}
 

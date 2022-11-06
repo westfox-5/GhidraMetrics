@@ -5,5 +5,5 @@ import ghidra.util.task.TaskMonitorAdapter;
 public class GMTaskMonitor extends TaskMonitorAdapter {
 
 	// DEFAULT IMPLEMENTATION
-	
+
 }

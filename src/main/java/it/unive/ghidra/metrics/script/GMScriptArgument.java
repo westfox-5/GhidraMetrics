@@ -4,9 +4,12 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import it.unive.ghidra.metrics.export.GMExporter;
 import it.unive.ghidra.metrics.export.GMExporter.Type;
+import it.unive.ghidra.metrics.script.exceptions.ScriptException;
 
 /**
  * 
@@ -21,7 +24,9 @@ public abstract class GMScriptArgument<T> {
 	public static enum GMScriptArgumentOption {
 		//@formatter:off
 		METRIC_NAME("metricName", true), 
-		EXPORT_TYPE("exportType"), EXPORT_PATH("exportPath", true, GMScriptArgumentOption.EXPORT_TYPE);
+		FUNCTION_NAME("functionName", false, GMScriptArgumentOption.METRIC_NAME),
+		EXPORT_TYPE("exportType"), 
+		EXPORT_PATH("exportPath", true, GMScriptArgumentOption.EXPORT_TYPE);
 		//@formatter:on		
 		private final String option;
 		private final boolean required;
@@ -89,8 +94,9 @@ public abstract class GMScriptArgument<T> {
 	// -----------------------
 	// -- Name: METRIC_NAME
 	// -- Type: String
-	public static final GMScriptArgument<String> ARG_METRIC_NAME = new GMScriptArgument<>(
-			GMScriptArgumentOption.METRIC_NAME) {
+	//@formatter:off
+	public static final GMScriptArgument<String> ARG_METRIC_NAME = new GMScriptArgument<>(GMScriptArgumentOption.METRIC_NAME) {
+	//@formatter:on
 		@Override
 		protected String getTypedValue(String str) {
 			return str;
@@ -102,11 +108,19 @@ public abstract class GMScriptArgument<T> {
 	// -----------------------
 	// -- Name: EXPORT_TYPE
 	// -- Type: GMExporter.Type
-	public static final GMScriptArgument<GMExporter.Type> ARG_EXPORT_TYPE = new GMScriptArgument<>(
-			GMScriptArgumentOption.EXPORT_TYPE) {
+	//@formatter:off
+	public static final GMScriptArgument<GMExporter.Type> ARG_EXPORT_TYPE = new GMScriptArgument<>(GMScriptArgumentOption.EXPORT_TYPE) {
+	//@formatter:on
 		@Override
-		protected Type getTypedValue(String str) {
-			return GMExporter.Type.valueOf(str);
+		protected Type getTypedValue(String str) throws ScriptException {
+			try {
+				return GMExporter.Type.valueOf(str.toUpperCase());
+			} catch (IllegalArgumentException e) {
+				String allowedTypes = Stream.of(GMExporter.Type.values())
+						.map(type -> type.name().toLowerCase())
+						.collect(Collectors.joining(","));
+				throw new ScriptException("No export defined for value '" + str + "'. Please use one of: " + allowedTypes);
+			}
 		}
 	};
 
@@ -115,13 +129,27 @@ public abstract class GMScriptArgument<T> {
 	// -----------------------
 	// -- Name: EXPORT_PATH
 	// -- Type: Path
-	public static final GMScriptArgument<Path> ARG_EXPORT_PATH = new GMScriptArgument<>(
-			GMScriptArgumentOption.EXPORT_PATH) {
+	//@formatter:off
+	public static final GMScriptArgument<Path> ARG_EXPORT_PATH = new GMScriptArgument<>(GMScriptArgumentOption.EXPORT_PATH) {
+	//@formatter:on
 		@Override
 		protected Path getTypedValue(String str) {
 			return Paths.get(str);
 		}
+	};
 
+	// -----------------------
+	// ARG_FUNCTION_NAME
+	// -----------------------
+	// -- Name: FUNCTION_NAME
+	// -- Type: String
+	//@formatter:off
+	public static final GMScriptArgument<Path> ARG_FUNCTION_NAME = new GMScriptArgument<>(GMScriptArgumentOption.FUNCTION_NAME) {
+	//@formatter:on
+		@Override
+		protected Path getTypedValue(String str) {
+			return Paths.get(str);
+		}
 	};
 
 	public static final GMScriptArgument<?> byName(String name) {
@@ -137,9 +165,9 @@ public abstract class GMScriptArgument<T> {
 		lookupByOption.put(option, this);
 	}
 
-	protected abstract T getTypedValue(String str);
+	protected abstract T getTypedValue(String str) throws ScriptException;
 
-	protected void setTypedValue(String str) {
+	protected void setTypedValue(String str) throws ScriptException {
 		this.value = getTypedValue(str);
 	}
 

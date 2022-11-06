@@ -19,7 +19,7 @@ public final class GMHalsteadKey extends GMAbstractMetricKey {
 	private static final GMHalsteadKey EFFORT;
 	private static final GMHalsteadKey CODING_TIME;
 	private static final GMHalsteadKey ESTIMATED_ERRORS;
-	
+
 	private static int sn = 0;
 
 	static {
@@ -38,12 +38,12 @@ public final class GMHalsteadKey extends GMAbstractMetricKey {
 		ESTIMATED_ERRORS	= new GMHalsteadKey("Estimated Errors", "Number of estimated errors.", "B = V / 3000");
 		//@formatter:on
 	}
-	
+
 	//@formatter:off
 	public static final List<GMAbstractMetricKey> ALL_KEYS = List.of(NUM_DISTINCT_OPERATORS, NUM_DISTINCT_OPERANDS, NUM_OPERATORS, NUM_OPERANDS,
 			VOCABULARY, PROGRAM_LENGTH, ESTIMATED_LENGTH, VOLUME, DIFFICULTY, EFFORT, CODING_TIME, ESTIMATED_ERRORS);
 	//@formatter:on
-	
+
 	private GMHalsteadKey(String name, String description, String formula) {
 		super(GMiMetricKey.Type.NUMERIC, name, description, formula, sn++);
 	}

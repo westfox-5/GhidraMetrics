@@ -57,7 +57,6 @@ public class GMMcCabeParser {
 			}
 		}
 
-		
 		Result result = new Result(edges, nodes, exits);
 		return result;
 	}

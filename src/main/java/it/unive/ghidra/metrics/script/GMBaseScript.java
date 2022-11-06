@@ -5,13 +5,15 @@ import java.util.Map;
 
 import ghidra.app.script.GhidraScript;
 import it.unive.ghidra.metrics.script.GMScriptArgument.GMScriptArgumentOption;
+import it.unive.ghidra.metrics.script.exceptions.ScriptException;
 
 public abstract class GMBaseScript extends GhidraScript {
 
 	private final Map<GMScriptArgumentOption, GMScriptArgument<?>> _args = new HashMap<>();
 
-	protected void parseArgs() {
-		_args.putAll(GMScriptArgumentParser.parse(getScriptArgs()));
+	protected void parseArgs() throws ScriptException {
+		Map<GMScriptArgumentOption, GMScriptArgument<?>> parsed = GMScriptArgumentParser.parse(getScriptArgs());
+		_args.putAll(parsed);
 	}
 
 	@SuppressWarnings("unchecked")

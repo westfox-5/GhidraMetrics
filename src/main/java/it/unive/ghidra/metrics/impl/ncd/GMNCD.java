@@ -44,7 +44,7 @@ public class GMNCD extends GMAbstractMetric<GMNCD, GMNCDProvider, GMNCDWinManage
 			this.exportPath = Files.createTempFile(tmpDir, DEFUALT_PREFIX, null);
 
 			GMTaskMonitor monitor = new GMTaskMonitor();
-			
+
 			DomainObject immutableDomainObject = getProvider().getProgram().getDomainFile()
 					.getImmutableDomainObject(this, DomainFile.DEFAULT_VERSION, monitor);
 
@@ -56,11 +56,12 @@ public class GMNCD extends GMAbstractMetric<GMNCD, GMNCDProvider, GMNCDWinManage
 
 		} catch (IOException x) {
 			x.printStackTrace();
-			
+
 			if (!provider.isHeadlessMode()) {
-				Msg.showError(this, provider.getPlugin().getProvider().getComponent(), "Error", "If you see this error, it is very likely that you do not have 'rzip' installed in your system. Please procede to installation in order to continue using this plugin.");
+				Msg.showError(this, provider.getPlugin().getProvider().getComponent(), "Error",
+						"If you see this error, it is very likely that you do not have 'rzip' installed in your system. Please procede to installation in order to continue using this plugin.");
 			}
-			
+
 			return false;
 		} catch (VersionException x) {
 			x.printStackTrace();
@@ -72,11 +73,14 @@ public class GMNCD extends GMAbstractMetric<GMNCD, GMNCDProvider, GMNCDWinManage
 			x.printStackTrace();
 			return false;
 		} finally {
-			
+
 			try {
-				if (exportPath!=null) Files.deleteIfExists(exportPath);
-				if (zipPath!=null) Files.deleteIfExists(zipPath);
-				if (tmpDir!=null) Files.deleteIfExists(tmpDir);
+				if (exportPath != null)
+					Files.deleteIfExists(exportPath);
+				if (zipPath != null)
+					Files.deleteIfExists(zipPath);
+				if (tmpDir != null)
+					Files.deleteIfExists(tmpDir);
 			} catch (IOException e) {
 				// do nothing
 			}

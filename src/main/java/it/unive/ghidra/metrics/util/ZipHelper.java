@@ -15,7 +15,7 @@ public class ZipHelper {
 
 	@FunctionalInterface
 	public static interface Zipper {
-		
+
 		/**
 		 * Create a compressed archived of the file argument in the dir argument.
 		 * 
@@ -75,7 +75,7 @@ public class ZipHelper {
 	 * @param dir
 	 * @param file
 	 * @return
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public static Path rzip(Path dir, Path file) throws IOException {
 		Path zip = getZipPath(dir, file, ".rzip");
@@ -99,19 +99,19 @@ public class ZipHelper {
 		try {
 			Process process = builder.start();
 			int exitCode = process.waitFor();
-			
+
 			if (0 != exitCode) {
 				throw new RuntimeException(
 						"rzip terminated with code: " + exitCode + ". Command: " + Arrays.asList(cmd).toString());
 			}
-			
-		} catch(IOException e) {
+
+		} catch (IOException e) {
 			e.printStackTrace();
 			throw e;
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		
+
 		return zip;
 	}
 

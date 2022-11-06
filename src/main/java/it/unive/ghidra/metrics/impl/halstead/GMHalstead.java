@@ -62,7 +62,7 @@ public class GMHalstead extends GMAbstractMetric<GMHalstead, GMHalsteadProvider,
 		GMHalsteadKey.ALL_KEYS.forEach(key -> {
 			createMetricValue(key);
 		});
-		
+
 		return true;
 	}
 

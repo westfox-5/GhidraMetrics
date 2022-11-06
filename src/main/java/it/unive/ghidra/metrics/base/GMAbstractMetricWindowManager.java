@@ -31,7 +31,7 @@ extends GMAbstractWindowManager implements GMiMetricWindowManager {
 	public P getProvider() {
 		return provider;
 	}
-	
+
 	@Override
 	public void onInitializationCompleted() {
 		// default implementation

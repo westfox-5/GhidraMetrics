@@ -22,7 +22,7 @@ import it.unive.ghidra.metrics.export.impl.GMExporterTXT;
 import it.unive.ghidra.metrics.util.StringUtils;
 
 public abstract class GMExporter {
-	
+
 	public static enum Type {
 		JSON("json", "application/json"),
 		TXT("txt", "text/plain");

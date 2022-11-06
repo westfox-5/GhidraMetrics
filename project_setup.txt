@@ -1,6 +1,7 @@
 Java version: 11 or later
 Ghidra version: 10.1.5
 GhidraDev version: 2.1.5
+Gradle version: 6.8 or later
 
 1. Download release from [https://github.com/NationalSecurityAgency/ghidra/releases/tag/Ghidra_<ghidra version>_build]
 2. sudo unzip <download-folder>/ghidra_<ghidra version>_PUBLIC_<date>.zip -d /opt/

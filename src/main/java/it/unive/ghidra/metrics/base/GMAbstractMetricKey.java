@@ -35,7 +35,6 @@ public abstract class GMAbstractMetricKey implements GMiMetricKey, Comparable<GM
 	public static GMAbstractMetricKey byName(Class<? extends GMAbstractMetricKey> clz, String name) {
 		return lookupByName.get(clz.getSimpleName() + "_" + name);
 	}
-	
 
 	@Override
 	public String getName() {

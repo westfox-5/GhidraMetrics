@@ -66,7 +66,7 @@ implements GMiMetric {
 	public Collection<GMiMetricValue<?>> getMetrics() {
 		return metricsByKey.values();
 	}
-	
+
 	protected void clearMetrics() {
 		this.metricsByKey.clear();
 	}
@@ -97,7 +97,8 @@ implements GMiMetric {
 	}
 
 	/**
-	 * Executes the getter method in the GMiMetric object for the GMiMetricKey.name object,
+	 * Executes the getter method in the GMiMetric object for the GMiMetricKey.name
+	 * object,
 	 * 
 	 * @param key
 	 * @param metric
@@ -111,6 +112,6 @@ implements GMiMetric {
 			throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		String getterMethodName = StringUtils.getterMethodName(key.getName());
 		Method getterMethod = metric.getClass().getMethod(getterMethodName);
-		return getterMethod != null ? getterMethod.invoke(metric): null;
+		return getterMethod != null ? getterMethod.invoke(metric) : null;
 	}
 }

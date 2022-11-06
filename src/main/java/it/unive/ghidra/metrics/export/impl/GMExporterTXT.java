@@ -11,7 +11,7 @@ import it.unive.ghidra.metrics.util.StringUtils;
 public class GMExporterTXT extends GMExporter {
 	private final static String METRIC_BEGIN_SEPARATOR = "--- BEGIN METRIC";
 	private final static String METRIC_END_SEPARATOR = "--- END METRIC";
-	private static final String TXT_KEY_VALUE_SEP = ":";
+	private static final String TXT_KEY_VALUE_SEP = ": ";
 
 	public GMExporterTXT() {
 		super(GMExporter.Type.TXT);
@@ -20,22 +20,21 @@ public class GMExporterTXT extends GMExporter {
 	@Override
 	protected <V> StringBuilder serialize(Collection<GMiMetric> metrics) {
 		StringBuilder sb = new StringBuilder();
-		
-		metrics.forEach(metric ->  {
+
+		metrics.forEach(metric -> {
 			sb.append(serializeMetric(metric));
 			sb.append(System.lineSeparator());
 		});
-		
+
 		return sb;
 	}
-	
+
 	/**
 	 * A metric object is formatted as:
 	 * 
-	 * 	name: metricName
-	 * 	metrics:
-	 * 	metricKey: metricValue
-	 * }
+	 * name: metricName
+	 * 
+	 * metricKey: metricValue
 	 */
 	private StringBuilder serializeMetric(GMiMetric metric) {
 		StringBuilder sb = new StringBuilder();
@@ -43,16 +42,11 @@ public class GMExporterTXT extends GMExporter {
 
 		sb.append(METRIC_BEGIN_SEPARATOR + System.lineSeparator());
 		sb.append(format("name", metric.getName()));
-		sb.append(format("metrics"));
 		values.forEach(v -> {
 			sb.append(format(v.getKey().getName(), v.getValue()));
 		});
 		sb.append(METRIC_END_SEPARATOR + System.lineSeparator());
 		return sb;
-	}
-
-	private static final String format(Object key) {
-		return key + TXT_KEY_VALUE_SEP + System.lineSeparator();
 	}
 
 	private static final String format(Object key, Object value) {

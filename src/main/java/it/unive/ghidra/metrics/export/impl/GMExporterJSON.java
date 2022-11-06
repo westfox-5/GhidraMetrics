@@ -21,97 +21,92 @@ public class GMExporterJSON extends GMExporter {
 	@Override
 	protected <V> StringBuilder serialize(Collection<GMiMetric> metrics) {
 		StringBuilder sb = new StringBuilder();
-		
+
 		sb.append("{");
-			sb.append(format("metrics")).append("[");
-			
-			metrics.forEach(m ->  {
-				sb.append(serializeMetric(m)).append(JSON_SEP);
-			});sb.deleteCharAt(sb.length()-1);
-			
-			sb.append("]")
-		.append("}");
-			
+		sb.append(format("metrics")).append("[");
+
+		metrics.forEach(m -> {
+			sb.append(serializeMetric(m)).append(JSON_SEP);
+		});
+		sb.deleteCharAt(sb.length() - 1);
+
+		sb.append("]").append("}");
+
 		return sb;
 	}
 
 	/**
-	 * A metric object is formatted as:
-	 * {
-	 * 	name, 
-	 * 	metrics: { 
-	 * 		keys: [ metricKey ],
-	 * 		values: [ metricValue ]
-	 *  }
-	 * }
+	 * A metric object is formatted as: { name, metrics: { keys: [ metricKey ],
+	 * values: [ metricValue ] } }
 	 */
 	private StringBuilder serializeMetric(GMiMetric metric) {
 		StringBuilder sb = new StringBuilder();
-		
+
 		Stream<GMiMetricValue<?>> values = metric.getMetrics().stream();
 		Stream<GMiMetricKey> keys = metric.getMetrics().stream().map(val -> val.getKey());
-		
-		sb.append("{") 
-			.append(format("name", metric.getName())).append(JSON_SEP)
-			.append(format("metrics")).append("{")
-				
-			.append(format("keys")).append("[");
-				keys.forEach(k -> {
-					sb.append(dumpMetricKey(k)).append(JSON_SEP);
-				});sb.deleteCharAt(sb.length()-1);
-				sb.append("]").append(JSON_SEP)
-				
-			.append(format("values")).append("[");
-				values.forEach(v -> {
-					sb.append(dumpMetricValue(v)).append(JSON_SEP);
-				});sb.deleteCharAt(sb.length()-1);
-				sb.append("]")
-				
-			.append("}")
-		.append("}");
-		
+
+		sb.append("{")
+				.append(format("name", metric.getName())).append(JSON_SEP)
+				.append(format("metrics")).append("{")
+
+				.append(format("keys")).append("[");
+		keys.forEach(k -> {
+			sb.append(dumpMetricKey(k)).append(JSON_SEP);
+		});
+		sb.deleteCharAt(sb.length() - 1);
+		sb.append("]").append(JSON_SEP)
+
+				.append(format("values")).append("[");
+		values.forEach(v -> {
+			sb.append(dumpMetricValue(v)).append(JSON_SEP);
+		});
+		sb.deleteCharAt(sb.length() - 1);
+		sb.append("]")
+
+				.append("}")
+				.append("}");
+
 		return sb;
 	}
 
 	/**
-	 * A metric key is formatted as:
-	 * { name, type, info: [{name, value}] }
+	 * A metric key is formatted as: { name, type, info: [{name, value}] }
 	 */
 	private StringBuilder dumpMetricKey(GMiMetricKey key) {
-		
+
 		StringBuilder sb = new StringBuilder();
-		
+
 		sb.append("{")
-			.append(format("name", key.getName())).append(JSON_SEP)
-			.append(format("type", key.getType().name())).append(JSON_SEP)
-			.append(format("info"))
-			.append("{");
+				.append(format("name", key.getName())).append(JSON_SEP)
+				.append(format("type", key.getType().name())).append(JSON_SEP)
+				.append(format("info"))
+				.append("{");
 		if (key.getAllInfo().isEmpty()) {
-				sb.append("");
+			sb.append("");
 		} else {
-				key.getAllInfo().forEach((info) -> {
-					sb.append(format(info, key.getInfo(info))).append(JSON_SEP);
-				}); sb.deleteCharAt(sb.length()-1);
+			key.getAllInfo().forEach((info) -> {
+				sb.append(format(info, key.getInfo(info))).append(JSON_SEP);
+			});
+			sb.deleteCharAt(sb.length() - 1);
 		}
 		sb.append("}")
-		.append("}");
-		
+				.append("}");
+
 		return sb;
 	}
 
 	/**
-	 * A metric value is formatted as:
-	 * { keyName, value } 
+	 * A metric value is formatted as: { keyName, value }
 	 */
 	private StringBuilder dumpMetricValue(GMiMetricValue<?> value) {
-		
+
 		StringBuilder sb = new StringBuilder();
-		
+
 		sb.append("{")
-			.append(format("keyName", value.getKey().getName())).append(JSON_SEP)
-			.append(format("value", value.getValue()))
-		.append("}");
-		
+				.append(format("keyName", value.getKey().getName())).append(JSON_SEP)
+				.append(format("value", value.getValue()))
+				.append("}");
+
 		return sb;
 	}
 

@@ -4,6 +4,7 @@ import java.nio.file.Path;
 import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.FunctionIterator;
 import ghidra.program.model.listing.Program;
+import ghidra.program.util.ProgramLocation;
 import ghidra.util.Msg;
 import it.unive.ghidra.metrics.GhidraMetricsFactory;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetricProvider;
@@ -31,6 +32,7 @@ public class GhidraMetricsScript extends GMBaseScript {
 				}
 
 				goTo(function);
+				provider.locationChanged(new ProgramLocation(getCurrentProgram(), function.getEntryPoint()));
 			}
 
 			if (hasArg(GMScriptArgumentOption.EXPORT_TYPE)) {

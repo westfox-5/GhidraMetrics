@@ -89,6 +89,9 @@ implements GMiMetricProvider {
 			prevFn = fn;
 
 			metric.functionChanged(fn);
+		}
+		
+		if (!isHeadlessMode()) {
 			wm.revalidate();
 			wm.refresh();
 		}

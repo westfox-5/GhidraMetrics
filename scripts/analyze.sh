@@ -21,10 +21,13 @@ CUSTFLAGS="-deleteProject -analysisTimeoutPerFile 10"
 
 ## -----------------------------------------------------
 ## Execution
-echo ">>> Deleting old project"
+echo ">>> rm -r $PRJLOC/$PRJNAME.*"
 rm -r $PRJLOC/$PRJNAME.*
 
-echo ">>> Executing headless analyzer"
+echo ">>> /opt/ghidra_10.1.5_PUBLIC/support/analyzeHeadless $PRJLOC $PRJNAME \
+-import $INPUT_DIR/$INPUT_FILE \
+-postScript $SCRIPT_NAME $SCRIPT_ARGS \
+$CUSTFLAGS"
 /opt/ghidra_10.1.5_PUBLIC/support/analyzeHeadless $PRJLOC $PRJNAME \
 -import $INPUT_DIR/$INPUT_FILE \
 -postScript $SCRIPT_NAME $SCRIPT_ARGS \

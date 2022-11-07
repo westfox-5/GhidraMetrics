@@ -1,5 +1,3 @@
-HOME=/home/davide
-
 ## Inputs
 INPUT_DIR="$HOME/all_obfuscations/des1/SplitSplitKindstop"
 INPUT_FILE="des_SplitSplitKindstop"
@@ -26,11 +24,13 @@ rm -r $PRJLOC/$PRJNAME.*
 echo ">>> gcc -o $INPUT_DIR/$INPUT_FILE $INPUT_DIR/$INPUT_FILE.c"
 gcc -o $INPUT_DIR/$INPUT_FILE $INPUT_DIR/$INPUT_FILE.c
 
-echo ">>> /opt/ghidra_10.1.5_PUBLIC/support/analyzeHeadless $PRJLOC $PRJNAME \
+echo ">>> $GHIDRA_HOME/support/analyzeHeadless $PRJLOC $PRJNAME \
 -import $INPUT_DIR/$INPUT_FILE \
 -postScript $SCRIPT_NAME $SCRIPT_ARGS \
 $CUSTFLAGS"
-/opt/ghidra_10.1.5_PUBLIC/support/analyzeHeadless $PRJLOC $PRJNAME \
+
+$GHIDRA_HOME/support/analyzeHeadless $PRJLOC $PRJNAME \
 -import $INPUT_DIR/$INPUT_FILE \
 -postScript $SCRIPT_NAME $SCRIPT_ARGS \
 $CUSTFLAGS
+

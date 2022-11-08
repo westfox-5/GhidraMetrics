@@ -1,5 +1,6 @@
 package it.unive.ghidra.metrics.base.interfaces;
 
+import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
@@ -20,6 +21,7 @@ public interface GMiMetricProvider {
 	boolean isHeadlessMode();
 
 	void locationChanged(ProgramLocation loc);
+	void functionChanged(Function fn);
 
 	GMExporter.Builder makeExporter(GMExporter.Type exportType);
 }

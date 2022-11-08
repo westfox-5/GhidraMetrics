@@ -87,14 +87,20 @@ implements GMiMetricProvider {
 
 		if (prevFn == null || (prevFn != null && !equals(prevFn, fn))) {
 			prevFn = fn;
-
-			metric.functionChanged(fn);
+			
+			functionChanged(fn);
+			
 		}
 		
 		if (!isHeadlessMode()) {
 			wm.revalidate();
 			wm.refresh();
 		}
+	}
+	
+	@Override
+	public void functionChanged(Function fn) {
+		metric.functionChanged(fn);		
 	}
 
 	@Override

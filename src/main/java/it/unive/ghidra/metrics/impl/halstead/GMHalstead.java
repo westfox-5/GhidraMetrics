@@ -68,8 +68,8 @@ public class GMHalstead extends GMAbstractMetric<GMHalstead, GMHalsteadProvider,
 
 	@Override
 	protected void functionChanged(Function fn) {
-		halsteadFn = new GMHalsteadFunction(getProvider(), fn);
-		halsteadFn.init();
+//		halsteadFn = new GMHalsteadFunction(getProvider(), fn);
+//		halsteadFn.init();
 	}
 
 	protected GMHalsteadParser getParser() {

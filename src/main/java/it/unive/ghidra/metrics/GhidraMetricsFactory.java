@@ -64,8 +64,12 @@ public class GhidraMetricsFactory {
 
 	public static GMiMetricProvider createHeadless(String metricName, Program program) {
 		GMiMetricProvider provider = null;
+		
+		if (metricName == null)
+			throw new RuntimeException("ERROR: metric name is required.");
 
-		if (GMHalstead.NAME.equals(metricName)) {
+
+		if (GMHalstead.NAME.toLowerCase().equals(metricName.toLowerCase())) {
 			provider = new GMHalsteadProvider(program);
 		} else if (GMNCD.NAME.equals(metricName)) {
 			provider = new GMNCDProvider(program);

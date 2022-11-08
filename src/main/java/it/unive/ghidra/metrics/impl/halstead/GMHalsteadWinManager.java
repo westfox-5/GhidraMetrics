@@ -101,7 +101,7 @@ public class GMHalsteadWinManager extends GMAbstractMetricWindowManager<GMHalste
 	}
 
 	private void populateFunctionMetrics() {
-		GMHalstead fnHalstead = getMetric().getHalsteadFunction();
+		GMHalstead fnHalstead = getProvider().getMetricFn();
 		if (fnHalstead != null) {
 			populateMetricTable(tableFunctionMetrics, fnHalstead);
 

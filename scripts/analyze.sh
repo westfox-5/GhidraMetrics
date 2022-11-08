@@ -1,3 +1,5 @@
+#!/usr/bin/bash
+
 ## Inputs
 INPUT_DIR="$HOME/all_obfuscations/des1/SplitSplitKindstop"
 INPUT_FILE="des_SplitSplitKindstop"

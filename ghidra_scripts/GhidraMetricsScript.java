@@ -1,5 +1,10 @@
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.FunctionIterator;
@@ -14,6 +19,31 @@ import it.unive.ghidra.metrics.script.GMScriptArgument.GMScriptArgumentOption;
 import it.unive.ghidra.metrics.script.exceptions.ScriptException;
 
 public class GhidraMetricsScript extends GMBaseScript {
+
+	private final static List<GMScriptArgumentOption> SCRIPT_ARGS;
+	private final static String SCRIPT_HELP;
+
+	static {
+		List<GMScriptArgumentOption> scriptArgs = Arrays.asList(
+				GMScriptArgumentOption.METRIC_NAME, GMScriptArgumentOption.FUNCTION_NAME, 
+				GMScriptArgumentOption.EXPORT_TYPE, GMScriptArgumentOption.EXPORT_PATH);
+		SCRIPT_ARGS = Collections.unmodifiableList(scriptArgs);
+		
+		
+		List<String> metricNames = GhidraMetricsFactory.allMetrics().stream()
+				.map( clz -> GhidraMetricsFactory.metricNameByClass(clz) )
+				.collect(Collectors.toList());
+		
+		List<String> exportTypes = Stream.of(GMExporter.Type.values())
+			.map( type -> type.name() )
+			.collect(Collectors.toList());
+		
+		SCRIPT_HELP = "GhidraMetricsScript Usage:\n"
+				+ GMScriptArgumentOption.METRIC_NAME.getOption() +": " + metricNames + "\n"
+				+ GMScriptArgumentOption.FUNCTION_NAME.getOption()  + ": Name of the function to analyze\n"
+				+ GMScriptArgumentOption.EXPORT_TYPE.getOption() + ": " + exportTypes + "\n"
+				+ GMScriptArgumentOption.EXPORT_TYPE.getOption() + ": path of directory in which save the export";
+	}
 
 	@Override
 	protected void run() {
@@ -46,8 +76,10 @@ public class GhidraMetricsScript extends GMBaseScript {
 			Msg.info(this, "Script terminated successfully.");
 
 		} catch (Exception e) {
-			 e.printStackTrace();
+			printHelp();
 			Msg.error(this, e.getMessage());
+
+			e.printStackTrace();
 		}
 	}
 
@@ -68,4 +100,16 @@ public class GhidraMetricsScript extends GMBaseScript {
 		}
 		return null;
 	}
+
+	@Override
+	protected String getScriptHelp() {
+		return SCRIPT_HELP;
+	}
+
+	@Override
+	protected List<GMScriptArgumentOption> getScriptOptions() {
+		return SCRIPT_ARGS;
+	}
+	
+	
 }

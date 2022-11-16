@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import it.unive.ghidra.metrics.impl.mccabe.GMMcCabe;
 import it.unive.ghidra.metrics.script.GMScriptArgument.GMScriptArgumentOption;
@@ -13,10 +12,10 @@ import it.unive.ghidra.metrics.script.exceptions.ScriptException;
 public final class GMScriptArgumentParser {
 	private static final String ARG_VALUE_SEPARATOR = "=";
 
-	protected static Map<GMScriptArgumentOption, GMScriptArgument<?>> parse(String... args) throws ScriptException {
+	protected static Map<GMScriptArgumentOption, GMScriptArgument<?>> parse(List<GMScriptArgumentOption> options, List<String> args) throws ScriptException {
 		Map<GMScriptArgumentOption, GMScriptArgument<?>> map = new HashMap<>();
 
-		if (args != null && args.length > 0) {
+		if (args != null && !args.isEmpty()) {
 			for (String token : args) {
 				GMScriptArgument<?> arg = parseToken(token);
 				map.put(arg.getOption(), arg);
@@ -24,9 +23,9 @@ public final class GMScriptArgumentParser {
 		}
 
 		/// validation
-		validateAllRequiredArgs(map);
+		validateAllRequiredArgs(options, map);
 
-		validateAllCoupledArgs(map);
+		validateAllCoupledArgs(options, map);
 
 		validateCustomArgs(map);
 
@@ -49,11 +48,11 @@ public final class GMScriptArgumentParser {
 		return arg;
 	}
 
-	private static void validateAllRequiredArgs(Map<GMScriptArgumentOption, GMScriptArgument<?>> args)
+	private static void validateAllRequiredArgs(List<GMScriptArgumentOption> options, Map<GMScriptArgumentOption, GMScriptArgument<?>> args)
 			throws ScriptException.MissingRequiredScriptArgumentException {
 
 		// find options that are required but not defined
-		List<GMScriptArgumentOption> missingOpts = Stream.of(GMScriptArgumentOption.values()).parallel()
+		List<GMScriptArgumentOption> missingOpts = options.parallelStream()
 				.filter(opt -> opt.isRequired() && opt.getParent() == null && !args.containsKey(opt))
 				.collect(Collectors.toUnmodifiableList());
 
@@ -64,12 +63,12 @@ public final class GMScriptArgumentParser {
 		}
 	}
 
-	private static void validateAllCoupledArgs(Map<GMScriptArgumentOption, GMScriptArgument<?>> args)
+	private static void validateAllCoupledArgs(List<GMScriptArgumentOption> options, Map<GMScriptArgumentOption, GMScriptArgument<?>> args)
 			throws ScriptException.MissingRequiredScriptArgumentPairException {
 
 		// find options that are required but not defined when the parent option is
 		// defined
-		List<GMScriptArgumentOption> missingCoupledOpts = Stream.of(GMScriptArgumentOption.values()).parallel()
+		List<GMScriptArgumentOption> missingCoupledOpts = options.parallelStream()
 				.filter(opt -> opt.isRequired() && !args.containsKey(opt))
 				.filter(opt -> opt.getParent() != null && args.containsKey(opt.getParent()))
 				.collect(Collectors.toUnmodifiableList());
@@ -86,7 +85,7 @@ public final class GMScriptArgumentParser {
 
 		/// McCabe metric needs a function name
 		GMScriptArgument<?> metricNameArg = args.get(GMScriptArgumentOption.METRIC_NAME);
-		if (metricNameArg.getValue().equals(GMMcCabe.NAME)) {
+		if (metricNameArg != null && metricNameArg.getValue().equals(GMMcCabe.NAME)) {
 			if (!args.containsKey(GMScriptArgumentOption.FUNCTION_NAME)) {
 				throw new ScriptException("Missing parameter '" + GMScriptArgumentOption.FUNCTION_NAME.getOption()
 						+ "' required for metric '" + metricNameArg.getValue() + "'");

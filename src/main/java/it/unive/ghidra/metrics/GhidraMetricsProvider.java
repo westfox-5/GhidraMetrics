@@ -79,12 +79,9 @@ public class GhidraMetricsProvider extends ComponentProvider {
 		if (activeProvider == null)
 			throw new RuntimeException("ERROR: No active provider is selected!");
 
-		GMExporter exporter = activeProvider.makeExporter(exportType).build();
-		if (exporter == null) {
-			return;
-		}
 
 		try {
+			GMExporter exporter = activeProvider.makeExporter(exportType).build();	
 			Path exportPath = exporter.export();
 
 			if (exportPath == null) {

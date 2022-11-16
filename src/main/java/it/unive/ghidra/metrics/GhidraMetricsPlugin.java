@@ -34,13 +34,13 @@ import it.unive.ghidra.metrics.base.interfaces.GMiMetric;
 	status = PluginStatus.UNSTABLE,
 	packageName = GhidraMetricsPlugin.PACKAGE_NAME,
 	category = PluginCategoryNames.MISC,
-	shortDescription = GhidraMetricsPlugin.DESCR_SHORT,
+	shortDescription = GhidraMetricsPlugin.PLUGIN_NAME,
 	description = GhidraMetricsPlugin.DESCR
 )
 //@formatter:on
 public class GhidraMetricsPlugin extends ProgramPlugin {
 	public static final String PACKAGE_NAME = "it.unive.ghidra.metrics";
-	public static final String DESCR_SHORT = "Ghidra Metrics Plugin";
+	public static final String PLUGIN_NAME = "Ghidra Metrics";
 	public static final String DESCR = "Ghidra Metrics Plugin";
 
 	public static final boolean DEBUG = true;
@@ -55,7 +55,7 @@ public class GhidraMetricsPlugin extends ProgramPlugin {
 	public GhidraMetricsPlugin(PluginTool tool) {
 		super(tool, true, true);
 
-		String pluginName = getName();
+		String pluginName = PLUGIN_NAME;
 		provider = new GhidraMetricsProvider(this, pluginName);
 
 		String topicName = this.getClass().getPackage().getName();

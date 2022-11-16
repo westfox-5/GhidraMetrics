@@ -27,7 +27,8 @@ public abstract class GMScriptArgument<T> {
 		FUNCTION_NAME("functionName", false, GMScriptArgumentOption.METRIC_NAME),
 		EXPORT_TYPE("exportType"), 
 		EXPORT_PATH("exportPath", true, GMScriptArgumentOption.EXPORT_TYPE);
-		//@formatter:on		
+		//@formatter:on
+
 		private final String option;
 		private final boolean required;
 		private final GMScriptArgumentOption parent;

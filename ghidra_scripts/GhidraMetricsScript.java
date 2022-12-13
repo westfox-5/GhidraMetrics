@@ -1,4 +1,3 @@
-import java.io.IOException;
 import java.nio.file.Path;
 
 import ghidra.program.model.listing.Function;
@@ -10,7 +9,7 @@ import it.unive.ghidra.metrics.GhidraMetricsFactory;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetricProvider;
 import it.unive.ghidra.metrics.export.GMExporter;
 import it.unive.ghidra.metrics.script.GMBaseScript;
-import it.unive.ghidra.metrics.script.GMScriptArgument.GMScriptArgumentOption;
+import it.unive.ghidra.metrics.script.GMScriptArgumentContainer.GMScriptArgumentKey;
 import it.unive.ghidra.metrics.script.exceptions.ScriptException;
 
 public class GhidraMetricsScript extends GMBaseScript {
@@ -19,28 +18,32 @@ public class GhidraMetricsScript extends GMBaseScript {
 	protected void run() {
 		try {
 			parseArgs();
+			
+			final String metric = getArgValue(GMScriptArgumentKey.METRIC);
+			GMiMetricProvider provider = GhidraMetricsFactory.createHeadless(metric, getCurrentProgram());	 
 
-			final String metricName = getArgValue(GMScriptArgumentOption.METRIC_NAME);
-			GMiMetricProvider provider = GhidraMetricsFactory.createHeadless(metricName, getCurrentProgram());
+			if (hasArg(GMScriptArgumentKey.FUNCTION)) {
+				final String fnName = getArgValue(GMScriptArgumentKey.FUNCTION);
 
-			if (hasArg(GMScriptArgumentOption.FUNCTION_NAME)) {
-				final String functionName = getArgValue(GMScriptArgumentOption.FUNCTION_NAME);
-
-				Function function = findFunctionByName(provider.getProgram(), functionName);
+				Function function = findFunctionByName(provider.getProgram(), fnName);
 				if (function == null) {
-					throw new ScriptException("Could not find function with name '" + functionName + "'");
+					throw new ScriptException("Could not find function with name '" + fnName + "'");
 				}
 
 				goTo(function);
 				provider.locationChanged(new ProgramLocation(getCurrentProgram(), function.getEntryPoint()));
+				Msg.info(this, "Program location changed to address: function.getEntryPoint()");
 			}
 
-			if (hasArg(GMScriptArgumentOption.EXPORT_TYPE)) {
-				final GMExporter.Type exportType = getArgValue(GMScriptArgumentOption.EXPORT_TYPE);
-				final Path exportPath = getArgValue(GMScriptArgumentOption.EXPORT_PATH);
+			if (hasArg(GMScriptArgumentKey.EXPORT)) {
+				final GMExporter.Type exportType = getArgValue(GMScriptArgumentKey.EXPORT);
+				final Path exportPath = Path.of(
+						getProgramFile().getParentFile().getAbsolutePath(), 
+						provider.getMetric().getName() +"_"+ getProgramFile().getName() +"."+ exportType.getExtension());
 
-				Path result = doExport(provider, exportType, exportPath);
-				Msg.info(this, "'" + provider.getMetric().getName() + "' exported to: " + result.toAbsolutePath());
+				GMExporter exporter = provider.makeExporter(exportType).toPath(exportPath).build();
+				Path export = exporter.export();
+				Msg.info(this, provider.getMetric().getName() + " metric exported to: " + export.toAbsolutePath());
 			}
 
 			Msg.info(this, "Script terminated successfully.");
@@ -49,13 +52,6 @@ public class GhidraMetricsScript extends GMBaseScript {
 			 e.printStackTrace();
 			Msg.error(this, e.getMessage());
 		}
-	}
-
-	private final Path doExport(GMiMetricProvider provider, GMExporter.Type exportType, Path exportPath)
-			throws IOException {
-		GMExporter exporter = provider.makeExporter(exportType).toPath(exportPath).build();
-
-		return exporter.export();
 	}
 
 	private final Function findFunctionByName(Program program, String functionName) {

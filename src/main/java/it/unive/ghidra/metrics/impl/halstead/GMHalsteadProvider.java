@@ -53,7 +53,9 @@ public class GMHalsteadProvider extends GMAbstractMetricProvider<GMHalstead, GMH
 		this.metricFn = new GMHalsteadFunction(this, fn);
 		metricFn.init();
 		
-		getWinManager().revalidate();
+		if (!isHeadlessMode()) {
+			getWinManager().revalidate();
+		}
 	}
 
 	public GMHalstead getMetricFn() {

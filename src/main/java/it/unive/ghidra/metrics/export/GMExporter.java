@@ -13,8 +13,6 @@ import java.util.stream.Stream;
 
 import docking.widgets.filechooser.GhidraFileChooser;
 import docking.widgets.filechooser.GhidraFileChooserMode;
-import ghidra.util.filechooser.GhidraFileChooserModel;
-import ghidra.util.filechooser.GhidraFileFilter;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetric;
 import it.unive.ghidra.metrics.export.impl.GMExporterJSON;
@@ -52,7 +50,7 @@ public abstract class GMExporter {
 		return new Builder(exportType, plugin);
 	}
 
-	private static final GMExporter newInstance(GMExporter.Type exportType) {
+	private static final GMExporter createExporter(GMExporter.Type exportType) {
 		switch (exportType) {
 		case JSON:
 			return new GMExporterJSON();
@@ -145,53 +143,24 @@ public abstract class GMExporter {
 		}
 
 		private GhidraFileChooser createFileChooser() {
-			GhidraFileFilter fileFilter = new GhidraFileFilter() {
-				@Override
-				public String getDescription() {
-					return exportType.name() + " Files ( *." + exportType.getExtension() + ")";
-				}
-
-				@Override
-				public boolean accept(File arg0, GhidraFileChooserModel arg1) {
-					String extension = StringUtils.getFileExtension(arg0);
-					return exportType.getExtension().equalsIgnoreCase(extension);
-				}
-			};
-
 			GhidraFileChooser fileChooser = new GhidraFileChooser(plugin.getProvider().getComponent());
 			fileChooser.setMultiSelectionEnabled(false);
-			fileChooser.setFileSelectionMode(GhidraFileChooserMode.FILES_ONLY);
-			fileChooser.setSelectedFileFilter(fileFilter); // doesn't seems to work..
-
+			fileChooser.setFileSelectionMode(GhidraFileChooserMode.DIRECTORIES_ONLY);
+			
 			return fileChooser;
 		}
 
-		private Path getExportPath() {
+		public GMExporter build() throws IOException {
+			Path exportPath = null;
 			if (withFileChooser) {
 				final GhidraFileChooser fileChooser = createFileChooser();
 				File selectedFile = fileChooser.getSelectedFile();
-
-				if (selectedFile == null)
-					return null;
-
-				return selectedFile.toPath();
+				exportPath = Files.createTempFile(selectedFile.toPath(), "gm-", "." + exportType.getExtension());
+			} else {
+				exportPath = choosenPath;
 			}
-
-			return choosenPath;
-		}
-
-		public GMExporter build() {
-			if (metrics.isEmpty())
-				return null;
-
-			if (exportType == null)
-				return null;
-
-			Path exportPath = getExportPath();
-			if (exportPath == null)
-				return null;
-
-			GMExporter exporter = newInstance(exportType);
+			
+			GMExporter exporter = createExporter(exportType);
 			exporter.exportPath = exportPath;
 			exporter.metrics = metrics;
 

@@ -7,6 +7,7 @@ import java.util.function.Function;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
@@ -54,25 +55,35 @@ public class GMHalsteadWinManager extends GMAbstractMetricWindowManager<GMHalste
 		// tab 0 - Program metrics
 		{
 			JPanel pnlProgramMetrics = new JPanel();
-			tabbedPane.addTab("Program metrics", null, pnlProgramMetrics, null);
+			tabbedPane.addTab("Program metrics", null, new JScrollPane(pnlProgramMetrics), null);
 			pnlProgramMetrics.setLayout(new BorderLayout(0, 0));
-
+			
 			tableProgramMetrics = new JTable();
+			
+			JScrollPane scrollPane = new JScrollPane(tableProgramMetrics);  
+			scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+			scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+			
 			pnlProgramMetrics.add(tableProgramMetrics.getTableHeader(), BorderLayout.NORTH);
-			pnlProgramMetrics.add(tableProgramMetrics, BorderLayout.CENTER);
+			pnlProgramMetrics.add(scrollPane, BorderLayout.CENTER);
 		}
 
 		// tab 1 - Function metrics
 		{
 			JPanel pnlFunctionMetrics = new JPanel();
-			tabbedPane.addTab("Function metrics", null, pnlFunctionMetrics, null);
+			tabbedPane.addTab("Function metrics", null, new JScrollPane(pnlFunctionMetrics), null);
 			pnlFunctionMetrics.setLayout(new BorderLayout(0, 0));
 
 			tableFunctionMetrics = new JTable();
 			tableFunctionMetrics.setVisible(false);
 			tableFunctionMetrics.setEnabled(false);
+			
+			JScrollPane scrollPane = new JScrollPane(tableFunctionMetrics);  
+			scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+			scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+			
 			pnlFunctionMetrics.add(tableFunctionMetrics.getTableHeader(), BorderLayout.NORTH);
-			pnlFunctionMetrics.add(tableFunctionMetrics, BorderLayout.CENTER);
+			pnlFunctionMetrics.add(scrollPane, BorderLayout.CENTER);
 
 			pnlNoFunctionSelected = new JPanel();
 			pnlNoFunctionSelected.setVisible(true);
@@ -123,5 +134,6 @@ public class GMHalsteadWinManager extends GMAbstractMetricWindowManager<GMHalste
 
 	private void populateMetricTable(JTable table, GMHalstead metric) {
 		populateMetricTable(table, metric, TABLE_COLUMNS_DEFINITION, TABLE_ROWS_FUNCTION);
+		table.getParent().getParent().setPreferredSize(table.getPreferredSize());
 	}
 }

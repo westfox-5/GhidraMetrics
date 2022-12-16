@@ -11,16 +11,17 @@ import ghidra.app.util.exporter.ExporterException;
 import ghidra.framework.model.DomainFile;
 import ghidra.framework.model.DomainObject;
 import ghidra.program.model.listing.Function;
-import ghidra.util.Msg;
 import ghidra.util.exception.CancelledException;
 import ghidra.util.exception.VersionException;
 import it.unive.ghidra.metrics.base.GMAbstractMetric;
 import it.unive.ghidra.metrics.util.GMTaskMonitor;
 import it.unive.ghidra.metrics.util.PathHelper;
 import it.unive.ghidra.metrics.util.ZipHelper;
+import it.unive.ghidra.metrics.util.ZipHelper.ZipException;
 
-public class GMNCD extends GMAbstractMetric<GMNCD, GMNCDProvider, GMNCDWinManager> {
+public class GMNCD extends GMAbstractMetric<GMNCD, GMNCDManager, GMNCDWinManager> {
 	public static final String NAME = "NCD Similarity";
+	public static final String LOOKUP_NAME = "ncd";
 
 	private static final String DEFAULT_DIR = "ghidra_metrics_";
 	private static final String DEFUALT_PREFIX = "ghidra_ncd_";
@@ -33,8 +34,8 @@ public class GMNCD extends GMAbstractMetric<GMNCD, GMNCDProvider, GMNCDWinManage
 
 	private final ZipHelper.Zipper zipper = ZipHelper::rzip;
 
-	public GMNCD(GMNCDProvider provider) {
-		super(NAME, provider);
+	public GMNCD(GMNCDManager manager) {
+		super(NAME, manager);
 	}
 
 	@Override
@@ -45,7 +46,7 @@ public class GMNCD extends GMAbstractMetric<GMNCD, GMNCDProvider, GMNCDWinManage
 
 			GMTaskMonitor monitor = new GMTaskMonitor();
 
-			DomainObject immutableDomainObject = getProvider().getProgram().getDomainFile()
+			DomainObject immutableDomainObject = getManager().getProgram().getDomainFile()
 					.getImmutableDomainObject(this, DomainFile.DEFAULT_VERSION, monitor);
 
 			BinaryExporter binaryExporter = new BinaryExporter();
@@ -54,30 +55,19 @@ public class GMNCD extends GMAbstractMetric<GMNCD, GMNCDProvider, GMNCDWinManage
 			this.zipPath = zipper.zip(tmpDir, exportPath);
 			this.zipSize = Files.size(zipPath);
 
-		} catch (IOException x) {
-			x.printStackTrace();
-
-			if (!provider.isHeadlessMode()) {
-				Msg.showError(this, provider.getPlugin().getProvider().getComponent(), "Error",
-						"If you see this error, it is very likely that you do not have 'rzip' installed in your system. Please procede to installation in order to continue using this plugin.");
-			}
-
+		} catch (ZipException x) {
+			manager.printException(new Exception("If you see this error, it is very likely that you do not have 'rzip' installed in your system. Please procede to installation in order to continue using this plugin.", x));
 			return false;
-		} catch (VersionException x) {
-			x.printStackTrace();
-			return false;
-		} catch (CancelledException x) {
-			x.printStackTrace();
-			return false;
-		} catch (ExporterException x) {
-			x.printStackTrace();
+			
+		} catch (IOException | VersionException | CancelledException | ExporterException x) {
+			manager.printException(x);
 			return false;
 		}
 
 		return true;
 	}
 
-	protected void compute(List<File> files) throws IOException {
+	protected void compute(List<File> files) throws ZipException {
 		for (File file : files) {
 			Path path = file.toPath();
 			double ncd = ncd(path);
@@ -92,25 +82,23 @@ public class GMNCD extends GMAbstractMetric<GMNCD, GMNCDProvider, GMNCDWinManage
 
 	}
 
-	private double ncd(Path path) throws IOException {
+	private double ncd(Path path) throws ZipException {
 		Double similarity = null;
 
 		try {
 			Path zipPath2 = zipper.zip(tmpDir, path);
 			Long zipSize2 = Files.size(zipPath2);
-
+	
 			Path concatPath = PathHelper.concatPaths2(tmpDir, exportPath, path);
 			Path zipConcat = zipper.zip(tmpDir, concatPath);
 			Long zipSizeConcat = Files.size(zipConcat);
-
+	
 			Double ncd = (1.00 * zipSizeConcat - Math.min(zipSize, zipSize2)) / (1.00 * Math.max(zipSize, zipSize2));
 			similarity = 1.00 - ncd;
-
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw new RuntimeException(e);
+		} catch(IOException e) {
+			throw new ZipException(e);
 		}
-
+		
 		return similarity;
 	}
 }

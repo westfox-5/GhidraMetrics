@@ -15,17 +15,17 @@ import it.unive.ghidra.metrics.base.GMAbstractMetricWindowManager;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetricKey;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetricValue;
 
-public class GMMcCabeWinManager extends GMAbstractMetricWindowManager<GMMcCabe, GMMcCabeProvider, GMMcCabeWinManager> {
+public class GMMcCabeWinManager extends GMAbstractMetricWindowManager<GMMcCabe, GMMcCabeManager, GMMcCabeWinManager> {
 	private static final String[] TABLE_COLUMNS_DEFINITION = { "Name", "Value", "Formula" };
 	private static final Function<GMiMetricValue<?>, Object[]> TABLE_ROWS_FUNCTION = metric -> new Object[] {
-			metric.getKey().getName(), metric.getValue(), metric.getKey().getInfo(GMiMetricKey.KEY_FORMULA) };
+			metric.getKey().getName(), metric.getValue(), metric.getKey().getInfo(GMiMetricKey.KEY_INFO_FORMULA) };
 
 	private JPanel pnlSelection;
 	private JPanel pnlContainer;
 	private JTable tbl;
 
-	public GMMcCabeWinManager(GMMcCabeProvider provider) {
-		super(provider);
+	public GMMcCabeWinManager(GMMcCabeManager manager) {
+		super(manager);
 	}
 
 	@Override

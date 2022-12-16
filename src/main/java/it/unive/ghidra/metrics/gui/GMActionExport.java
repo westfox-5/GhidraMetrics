@@ -1,19 +1,19 @@
-package it.unive.ghidra.metrics.ui;
+package it.unive.ghidra.metrics.gui;
 
 import docking.ActionContext;
 import docking.action.MenuData;
 import docking.menu.MultiActionDockingAction;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
 import it.unive.ghidra.metrics.GhidraMetricsProvider;
-import it.unive.ghidra.metrics.export.GMExporter;
+import it.unive.ghidra.metrics.base.GMAbstractMetricExporter;
 
 public final class GMActionExport extends MultiActionDockingAction {
 
 	private final GhidraMetricsPlugin plugin;
 
-	private final GMExporter.Type type;
+	private final GMAbstractMetricExporter.Type type;
 
-	public GMActionExport(GhidraMetricsPlugin plugin, GMExporter.Type type) {
+	public GMActionExport(GhidraMetricsPlugin plugin, GMAbstractMetricExporter.Type type) {
 		super("Export", plugin.getName());
 		this.plugin = plugin;
 		this.type = type;

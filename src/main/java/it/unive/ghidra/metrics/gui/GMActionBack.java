@@ -1,4 +1,4 @@
-package it.unive.ghidra.metrics.ui;
+package it.unive.ghidra.metrics.gui;
 
 import docking.ActionContext;
 import docking.action.DockingAction;
@@ -25,7 +25,7 @@ public class GMActionBack extends DockingAction {
 	public void actionPerformed(ActionContext arg0) {
 		GhidraMetricsProvider provider = plugin.getProvider();
 
-		provider.showWindowMain();
+		provider.showMainWindow();
 	}
 
 }

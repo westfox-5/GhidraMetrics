@@ -13,21 +13,32 @@ import java.util.zip.ZipOutputStream;
 
 public class ZipHelper {
 
+	public static class ZipException extends Exception {
+		private static final long serialVersionUID = 1L;
+
+		public ZipException() {
+			super();
+		}
+
+		public ZipException(String message, Throwable cause) {
+			super(message, cause);
+		}
+
+		public ZipException(String message) {
+			super(message);
+		}
+
+		public ZipException(Throwable cause) {
+			super(cause);
+		}
+	}
+	
 	@FunctionalInterface
 	public static interface Zipper {
-
-		/**
-		 * Create a compressed archived of the file argument in the dir argument.
-		 * 
-		 * @param dir
-		 * @param file
-		 * @return the path to the generated archive
-		 * @throws IOException
-		 */
-		Path zip(Path dir, Path file) throws IOException;
+		Path zip(Path dir, Path file) throws ZipException;
 	}
 
-	public static Path zip(Path dir, Path file) throws IOException {
+	public static Path zip(Path dir, Path file) throws ZipException {
 		Path zip = getZipPath(dir, file, ".zip");
 
 		try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(zip.toFile()));
@@ -42,13 +53,17 @@ public class ZipHelper {
 				while ((count = fis.read(buffer)) > 0) {
 					zos.write(buffer, 0, count);
 				}
+			} catch(IOException e) {
+				throw new ZipException(e);
 			}
+		} catch(IOException e) {
+			throw new ZipException(e);
 		}
 
 		return zip;
 	}
 
-	public static Path gzip(Path dir, Path file) throws IOException {
+	public static Path gzip(Path dir, Path file) throws ZipException {
 		Path zip = getZipPath(dir, file, ".gzip");
 
 		try (BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(zip.toFile()));
@@ -62,8 +77,11 @@ public class ZipHelper {
 				}
 
 				zos.finish();
-
+			} catch(IOException e) {
+				throw new ZipException(e);
 			}
+		} catch(IOException e) {
+			throw new ZipException(e);
 		}
 
 		return zip;
@@ -77,18 +95,14 @@ public class ZipHelper {
 	 * @return
 	 * @throws IOException
 	 */
-	public static Path rzip(Path dir, Path file) throws IOException {
+	public static Path rzip(Path dir, Path file) throws ZipException {
 		Path zip = getZipPath(dir, file, ".rzip");
 
 		String[] cmd = new String[] { "rzip",
-
-				"-9", // slowest but best compression
-
-				"-k", // keep input file
-
-				"-o", zip.toAbsolutePath().toString(), // OUTPUT
-
-				file.toAbsolutePath().toString() // INPUT
+				"-9", 	// slowest but best compression
+				"-k", 	// keep input file
+				"-o", zip.toAbsolutePath().toString(),	 // OUTPUT
+				file.toAbsolutePath().toString() 		// INPUT
 		};
 
 		ProcessBuilder builder = new ProcessBuilder();
@@ -101,15 +115,11 @@ public class ZipHelper {
 			int exitCode = process.waitFor();
 
 			if (0 != exitCode) {
-				throw new RuntimeException(
-						"rzip terminated with code: " + exitCode + ". Command: " + Arrays.asList(cmd).toString());
+				throw new ZipException("rzip terminated with code: " + exitCode + ". Command: " + Arrays.asList(cmd).toString());
 			}
 
-		} catch (IOException e) {
-			e.printStackTrace();
-			throw e;
-		} catch (InterruptedException e) {
-			e.printStackTrace();
+		} catch (InterruptedException | IOException e) {
+			throw new ZipException(e);
 		}
 
 		return zip;

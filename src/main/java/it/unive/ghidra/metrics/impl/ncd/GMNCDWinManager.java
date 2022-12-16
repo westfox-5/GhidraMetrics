@@ -23,7 +23,7 @@ import ghidra.util.filechooser.GhidraFileFilter;
 import it.unive.ghidra.metrics.base.GMAbstractMetricWindowManager;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetricValue;
 
-public class GMNCDWinManager extends GMAbstractMetricWindowManager<GMNCD, GMNCDProvider, GMNCDWinManager> {
+public class GMNCDWinManager extends GMAbstractMetricWindowManager<GMNCD, GMNCDManager, GMNCDWinManager> {
 	private static final String[] TABLE_COLUMNS_DEFINITION = { "File", "NCD Similarity" };
 	private static final Function<GMiMetricValue<?>, Object[]> TABLE_ROWS_FUNCTION = metric -> new Object[] {
 			metric.getKey().getName(), metric.getValue() };
@@ -34,8 +34,8 @@ public class GMNCDWinManager extends GMAbstractMetricWindowManager<GMNCD, GMNCDP
 	private JPanel pnlNcdContainer;
 	private JTable tblNcd;
 
-	public GMNCDWinManager(GMNCDProvider provider) {
-		super(provider);
+	public GMNCDWinManager(GMNCDManager manager) {
+		super(manager);
 	}
 
 	/**
@@ -74,9 +74,8 @@ public class GMNCDWinManager extends GMAbstractMetricWindowManager<GMNCD, GMNCDP
 					try {
 						type = Files.probeContentType(arg0.toPath());
 
-						// TODO handle these exceptions more gracefully
-					} catch (IOException x) {
-						x.printStackTrace();
+					} catch (IOException e) {
+						getManager().printException(e);
 					}
 
 					if (type == null)
@@ -93,7 +92,7 @@ public class GMNCDWinManager extends GMAbstractMetricWindowManager<GMNCD, GMNCDP
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
 					selectedFiles = fileChooser.getSelectedFiles();
-					getProvider().fileSelected();
+					getManager().fileSelected();
 				}
 			});
 		}

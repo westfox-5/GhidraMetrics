@@ -1,25 +1,37 @@
-package it.unive.ghidra.metrics.export;
+package it.unive.ghidra.metrics.base;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import docking.widgets.filechooser.GhidraFileChooser;
 import docking.widgets.filechooser.GhidraFileChooserMode;
-import it.unive.ghidra.metrics.GhidraMetricsPlugin;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetric;
-import it.unive.ghidra.metrics.export.impl.GMExporterJSON;
-import it.unive.ghidra.metrics.export.impl.GMExporterTXT;
+import it.unive.ghidra.metrics.base.interfaces.GMiMetricGUIManager;
+import it.unive.ghidra.metrics.base.interfaces.GMiMetricManager;
+import it.unive.ghidra.metrics.export.GMExporterJSON;
+import it.unive.ghidra.metrics.export.GMExporterTXT;
 import it.unive.ghidra.metrics.util.StringUtils;
 
-public abstract class GMExporter {
+public abstract class GMAbstractMetricExporter {
+	
+	private static final String USER_HOME;
+	static {
+		String userHome = null;
+		if (System.getenv().containsKey("HOME")) {
+			userHome = System.getenv("HOME");
+		}
+		USER_HOME = userHome;
+	}
 
 	public static enum Type {
 		JSON("json", "application/json"),
@@ -41,31 +53,25 @@ public abstract class GMExporter {
 			return contentType;
 		}
 	}
-
-	public static final GMExporter.Builder of(GMExporter.Type exportType) {
-		return of(exportType, null);
-	}
-
-	public static final GMExporter.Builder of(GMExporter.Type exportType, GhidraMetricsPlugin plugin) {
-		return new Builder(exportType, plugin);
-	}
-
-	private static final GMExporter createExporter(GMExporter.Type exportType) {
+	
+	private static final GMAbstractMetricExporter create(GMiMetricManager manager, GMAbstractMetricExporter.Type exportType) {
 		switch (exportType) {
 		case JSON:
-			return new GMExporterJSON();
+			return new GMExporterJSON(manager);
 		case TXT:
-			return new GMExporterTXT();
+			return new GMExporterTXT(manager);
 		default:
 			throw new IllegalArgumentException("Export type " + exportType.name() + " is not implemented");
 		}
 	}
 
-	private final GMExporter.Type exportType;
-	private List<GMiMetric> metrics;
+	
+	private final GMAbstractMetricExporter.Type exportType;
+	private final GMiMetricManager manager;
 	private Path exportPath;
 
-	protected GMExporter(GMExporter.Type exportType) {
+	protected GMAbstractMetricExporter(GMiMetricManager manager, GMAbstractMetricExporter.Type exportType) {
+		this.manager = manager;
 		this.exportType = exportType;
 	}
 
@@ -80,6 +86,7 @@ public abstract class GMExporter {
 		Files.createDirectories(exportPath.getParent());
 		Files.createFile(exportPath);
 
+		Collection<GMiMetric> metrics = manager.getExportableMetrics();
 		StringBuilder sb = serialize(metrics);
 		Stream<String> lines = Pattern.compile(System.lineSeparator()).splitAsStream(sb);
 
@@ -94,28 +101,31 @@ public abstract class GMExporter {
 		try {
 			Files.writeString(path, line, StandardOpenOption.APPEND);
 
-			// TODO handle these exceptions more gracefully
-		} catch (IOException x) {
-			x.printStackTrace();
+		} catch (IOException e) {
+			manager.printException(e);
 		}
 	}
 
-	public GMExporter.Type getExportType() {
+	public GMAbstractMetricExporter.Type getExportType() {
 		return exportType;
+	}
+	
+	public static final GMAbstractMetricExporter.Builder make(GMAbstractMetricExporter.Type exportType, GMiMetricManager manager) {
+		return new Builder(exportType, manager);
 	}
 
 	public final static class Builder {
-		private final GMExporter.Type exportType;
-		private final GhidraMetricsPlugin plugin;
+		private final GMAbstractMetricExporter.Type exportType;
+		private final GMiMetricManager manager;
 
 		private List<GMiMetric> metrics;
 
 		private boolean withFileChooser;
 		private Path choosenPath;
 
-		private Builder(GMExporter.Type exportType, GhidraMetricsPlugin plugin) {
+		private Builder(GMAbstractMetricExporter.Type exportType, GMiMetricManager manager) {
 			this.exportType = exportType;
-			this.plugin = plugin;
+			this.manager = manager;
 			metrics = new ArrayList<>();
 		}
 
@@ -130,45 +140,55 @@ public abstract class GMExporter {
 		}
 
 		public Builder withFileChooser() {
-			// TODO hide this method if plugin is null
 			this.withFileChooser = true;
 			this.choosenPath = null;
 			return this;
 		}
 
-		public Builder toPath(Path destinationPath) {
-			this.choosenPath = destinationPath;
+		public Builder toFile(Path path) {
+			this.choosenPath = path;
 			this.withFileChooser = false;
 			return this;
 		}
 
 		private GhidraFileChooser createFileChooser() {
-			GhidraFileChooser fileChooser = new GhidraFileChooser(plugin.getProvider().getComponent());
-			fileChooser.setMultiSelectionEnabled(false);
-			fileChooser.setFileSelectionMode(GhidraFileChooserMode.DIRECTORIES_ONLY);
+			if ( manager instanceof GMiMetricGUIManager ) {
+				GhidraFileChooser fileChooser = new GhidraFileChooser(((GMiMetricGUIManager) manager).getPlugin().getProvider().getComponent());
+				fileChooser.setMultiSelectionEnabled(false);
+				fileChooser.setFileSelectionMode(GhidraFileChooserMode.FILES_ONLY);
+				File newFile = new File(USER_HOME, "gm-export-"+(new SimpleDateFormat("ddMMyyy-HHmmsss").format(new Date()))+"."+exportType.getExtension());
+				
+				fileChooser.setSelectedFile(newFile);
+				return fileChooser;
+			} 
 			
-			return fileChooser;
+			return null;
 		}
 
-		public GMExporter build() throws IOException {
+		public GMAbstractMetricExporter build() {
 			Path exportPath = null;
 			if (withFileChooser) {
 				final GhidraFileChooser fileChooser = createFileChooser();
 				File selectedFile = fileChooser.getSelectedFile();
-				exportPath = Files.createTempFile(selectedFile.toPath(), "gm-", "." + exportType.getExtension());
+				if (selectedFile != null) {
+					exportPath = selectedFile.toPath();
+				}
 			} else {
 				exportPath = choosenPath;
 			}
 			
-			GMExporter exporter = createExporter(exportType);
+			if ( exportPath == null ) { 
+				return null;
+			}
+			
+			GMAbstractMetricExporter exporter = GMAbstractMetricExporter.create(manager, exportType);
 			exporter.exportPath = exportPath;
-			exporter.metrics = metrics;
 
 			return exporter;
 		}
 	}
 
-	private static boolean accept(Path path, GMExporter.Type exportType) {
+	private static boolean accept(Path path, GMAbstractMetricExporter.Type exportType) {
 		String extension = StringUtils.getFileExtension(path.toFile());
 		return exportType.getExtension().equalsIgnoreCase(extension);
 	}

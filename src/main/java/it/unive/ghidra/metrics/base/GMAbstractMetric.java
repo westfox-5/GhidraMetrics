@@ -16,7 +16,7 @@ import it.unive.ghidra.metrics.util.StringUtils;
 //@formatter:off
 public abstract class GMAbstractMetric<
 	M extends GMAbstractMetric<M, P, W>, 
-	P extends GMAbstractMetricProvider<M, P, W>, 
+	P extends GMAbstractMetricManager<M, P, W>, 
 	W extends GMAbstractMetricWindowManager<M, P, W>>
 implements GMiMetric {
 //@formatter:on
@@ -25,16 +25,17 @@ implements GMiMetric {
 	private final Map<GMiMetricKey, GMiMetricValue<?>> metricsByKey = new TreeMap<>();
 	protected final String name;
 
-	protected final P provider;
+	protected final P manager;
 	protected final Program program;
 
-	public GMAbstractMetric(String name, P provider) {
+	public GMAbstractMetric(String name, P manager) {
 		this.name = name;
 
-		this.provider = provider;
-		this.program = provider.getProgram();
+		this.manager = manager;
+		this.program = manager.getProgram();
 	}
 
+	protected abstract boolean init();
 	protected abstract void functionChanged(Function function);
 
 	protected boolean _init() {
@@ -51,12 +52,13 @@ implements GMiMetric {
 		return name;
 	}
 
-	public P getProvider() {
-		return provider;
+	@Override
+	public P getManager() {
+		return manager;
 	}
 
 	@Override
-	public GMiMetricValue<?> getMetricValue(GMiMetricKey key) {
+	public GMiMetricValue<?> getValue(GMiMetricKey key) {
 		if (key == null)
 			return null;
 		return metricsByKey.get(key);
@@ -76,13 +78,8 @@ implements GMiMetric {
 			var value = getMetricValueByKeyName(key, this);
 			createMetricValue(key, value);
 
-			// TODO handle these exceptions more gracefully
-		} catch (IllegalAccessException x) {
-			x.printStackTrace();
-		} catch (InvocationTargetException x) {
-			x.printStackTrace();
-		} catch (NoSuchMethodException x) {
-			x.printStackTrace();
+		} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+			manager.printException(e);
 		}
 	}
 
@@ -99,14 +96,6 @@ implements GMiMetric {
 	/**
 	 * Executes the getter method in the GMiMetric object for the GMiMetricKey.name
 	 * object,
-	 * 
-	 * @param key
-	 * @param metric
-	 * @return
-	 * @throws NoSuchMethodException
-	 * @throws IllegalAccessException
-	 * @throws IllegalArgumentException
-	 * @throws InvocationTargetException
 	 */
 	private static final Object getMetricValueByKeyName(GMiMetricKey key, GMiMetric metric)
 			throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {

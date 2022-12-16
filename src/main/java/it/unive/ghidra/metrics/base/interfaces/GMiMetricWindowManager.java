@@ -2,9 +2,9 @@ package it.unive.ghidra.metrics.base.interfaces;
 
 public interface GMiMetricWindowManager extends GMiWindowManager {
 
-	GMiMetric getMetric();
+	GMiMetricManager getManager();
 
-	GMiMetricProvider getProvider();
+	GMiMetric getMetric();
 
 	void onMetricInitialized();
 }

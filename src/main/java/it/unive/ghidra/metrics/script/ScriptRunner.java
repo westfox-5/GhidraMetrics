@@ -1,5 +1,8 @@
+package it.unive.ghidra.metrics.script;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.lang.ProcessBuilder.Redirect;
 import java.nio.file.Files;
@@ -33,10 +36,13 @@ public class ScriptRunner {
 		
 		ScriptRunner sr = new ScriptRunner();
 		
-		String input = args[2];
-		
 		sr.addArg(GMScriptArgumentKey.METRIC, args[0]);
 		sr.addArg(GMScriptArgumentKey.EXPORT, args[1]);
+		String input = args[2];
+
+		if (args.length > 3) {
+			sr.addArg(GMScriptArgumentKey.EXPORT_DIR, args[3]);
+		}
 		
 		Path inPath = Path.of(input);
 		List<Path> pathsToProcess = null;
@@ -54,10 +60,11 @@ public class ScriptRunner {
 			}
 		}
 		
-		
-		sr.runGhidraHeadlessAnalyzer(pathsToProcess);
-		
-		System.out.println("Terminated.");
+		if ( sr.runGhidraHeadlessAnalyzer(pathsToProcess) ) {
+			System.out.println("All executions terminated successfully.");
+		} else {
+			System.out.println("Some executions failed.");
+		}
 	}
 
 	
@@ -94,34 +101,46 @@ public class ScriptRunner {
 		scriptArgs.put(key, value);
 	}
 	
-	private final void runGhidraHeadlessAnalyzer(List<Path> pathsToProcess) throws IOException, InterruptedException {
+	private final boolean runGhidraHeadlessAnalyzer(List<Path> pathsToProcess) throws IOException, InterruptedException {
 		File logFile = generateLogFile();
 		
-		System.out.println("Log generated in: " + logFile.getAbsolutePath());
+		boolean ok = true;
+		
+		System.out.println("Log generated in: " + absolute(logFile));
+		System.out.println();
 		
 		for (Path executable: pathsToProcess) {
-			ProcessBuilder pb = new ProcessBuilder();
+			File errTempFile = Files.createTempFile("gm_scriptrunner_err_", null).toFile();
+			List<String> commands = generateCommands(executable);
+
+			ProcessBuilder pb = new ProcessBuilder();			
+			pb.command(commands);
 			
-			pb.command( generateCommands(executable) );
-			Redirect redirect = Redirect.appendTo(logFile);
-			pb.redirectOutput(redirect);
-			pb.redirectError(redirect);
+			pb.redirectOutput(Redirect.appendTo(logFile));
+			pb.redirectError(Redirect.appendTo(errTempFile));
 
 			System.out.println("> Processing file: " + absolute(executable));
 			System.out.println(pb.command().stream().collect(Collectors.joining(" ")));
 			
 			Process process = pb.start();
+			boolean success = process.waitFor(20, TimeUnit.SECONDS);
+			System.out.println("Checking errors...");
+			boolean hasErrors = checkErrors(errTempFile);
 			
-			if (process.waitFor(20, TimeUnit.SECONDS)) {
+			if (success && !hasErrors) {
 				System.out.println("OK");
+				errTempFile.deleteOnExit();
 			} else {
-				System.out.println("KO");
+				System.out.println("KO: log generated in: " + absolute(errTempFile));
+				ok = false;
 			}
 		}
+		
+		return ok;
 	}
 
 	private File generateLogFile() {
-		File logFile = new File(projectPath.toFile(), "ScriptRunner-"+(new SimpleDateFormat("ddMMyyy-HHmmsss").format(new Date()))+".log");
+		File logFile = new File(projectPath.toFile(), "ScriptRunner-"+(new SimpleDateFormat("ddMMyyyHHmmsss").format(new Date()))+".log");
 		return logFile;
 	}
 	
@@ -149,6 +168,10 @@ public class ScriptRunner {
 		return commands;
 	}
 	
+	private String absolute(File file) {
+		return file.getAbsolutePath();
+	}
+	
 	private String absolute(Path path) {
 		return path.toAbsolutePath().toString();
 	}
@@ -164,4 +187,18 @@ public class ScriptRunner {
 		}
 		return key.getKey();
 	}
+	
+	private boolean checkErrors(File tempFile) throws IOException {
+		try (BufferedReader br = new BufferedReader(new FileReader(tempFile))) {
+	        String line;
+	        while ((line = br.readLine()) != null) {
+	            if (line.startsWith("ERROR")) 
+	            	return true;
+	            if (line.contains("exception") || line.contains("Exception"))
+	            	return true;
+	        }
+		}
+		return false;
+	}
+
 }

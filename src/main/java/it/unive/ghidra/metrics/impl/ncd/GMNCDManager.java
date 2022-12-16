@@ -1,20 +1,20 @@
 package it.unive.ghidra.metrics.impl.ncd;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
 
 import ghidra.program.model.listing.Program;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
-import it.unive.ghidra.metrics.base.GMAbstractMetricProvider;
+import it.unive.ghidra.metrics.base.GMAbstractMetricManager;
+import it.unive.ghidra.metrics.util.ZipHelper.ZipException;
 
-public class GMNCDProvider extends GMAbstractMetricProvider<GMNCD, GMNCDProvider, GMNCDWinManager> {
+public class GMNCDManager extends GMAbstractMetricManager<GMNCD, GMNCDManager, GMNCDWinManager> {
 
-	public GMNCDProvider(Program program) {
+	public GMNCDManager(Program program) {
 		super(program, GMNCD.class);
 	}
 
-	public GMNCDProvider(GhidraMetricsPlugin plugin) {
+	public GMNCDManager(GhidraMetricsPlugin plugin) {
 		super(plugin, GMNCD.class, GMNCDWinManager.class);
 	}
 
@@ -24,10 +24,8 @@ public class GMNCDProvider extends GMAbstractMetricProvider<GMNCD, GMNCDProvider
 
 			try {
 				getMetric().compute(selectedFiles);
-
-				// TODO handle these exceptions more gracefully
-			} catch (IOException x) {
-				x.printStackTrace();
+			} catch (ZipException e) {
+				printException(e);
 			}
 
 			getWinManager().setNcdVisible(true);

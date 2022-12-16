@@ -1,6 +1,5 @@
 package it.unive.ghidra.metrics.base;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -27,9 +26,9 @@ public abstract class GMAbstractMetricKey implements GMiMetricKey, Comparable<GM
 	public GMAbstractMetricKey(GMiMetricKey.Type type, String name, String description, String formula, int sn) {
 		this(type, name, sn);
 		if (description != null)
-			data.put(KEY_DESCRIPTION, description);
+			data.put(KEY_INFO_DESCRIPTION, description);
 		if (formula != null)
-			data.put(KEY_FORMULA, formula);
+			data.put(KEY_INFO_FORMULA, formula);
 	}
 
 	public static GMAbstractMetricKey byName(Class<? extends GMAbstractMetricKey> clz, String name) {
@@ -50,20 +49,10 @@ public abstract class GMAbstractMetricKey implements GMiMetricKey, Comparable<GM
 	public int getSortingNumber() {
 		return sortingNumber;
 	}
-
+	
 	@Override
-	public void addInfo(String key, String value) {
-		data.put(key, value);
-	}
-
-	@Override
-	public String getInfo(String key) {
-		return data.get(key);
-	}
-
-	@Override
-	public Collection<String> getAllInfo() {
-		return data.keySet();
+	public String getInfo(String infoKey) {
+		return data.get(infoKey);
 	}
 
 	@Override

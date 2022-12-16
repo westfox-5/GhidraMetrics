@@ -9,21 +9,21 @@ import javax.swing.JComponent;
 
 import docking.ComponentProvider;
 import docking.action.DockingAction;
+import ghidra.program.model.listing.Function;
 import ghidra.program.util.ProgramLocation;
 import ghidra.util.Msg;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetric;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetricProvider;
-import it.unive.ghidra.metrics.export.GMExporter;
-import it.unive.ghidra.metrics.ui.GMActionBack;
-import it.unive.ghidra.metrics.ui.GMActionExport;
-import it.unive.ghidra.metrics.ui.GMWindowManager;
+import it.unive.ghidra.metrics.base.GMAbstractMetricExporter;
+import it.unive.ghidra.metrics.base.interfaces.GMiMetricGUIManager;
+import it.unive.ghidra.metrics.gui.GMActionBack;
+import it.unive.ghidra.metrics.gui.GMActionExport;
+import it.unive.ghidra.metrics.gui.GMWindowManager;
 
 public class GhidraMetricsProvider extends ComponentProvider {
 
 	private final GhidraMetricsPlugin plugin;
 	private final GMWindowManager windowManager;
 
-	private GMiMetricProvider activeProvider;
+	private GMiMetricGUIManager metricManager;
 
 	private List<DockingAction> actions;
 
@@ -40,7 +40,7 @@ public class GhidraMetricsProvider extends ComponentProvider {
 	private void buildPanel() {
 		windowManager.init();
 
-		showWindowMain();
+		showMainWindow();
 
 		setVisible(true);
 	}
@@ -50,7 +50,7 @@ public class GhidraMetricsProvider extends ComponentProvider {
 
 		actions.add(new GMActionBack(plugin));
 
-		for (GMExporter.Type type : GMExporter.Type.values()) {
+		for (GMAbstractMetricExporter.Type type : GMAbstractMetricExporter.Type.values()) {
 			actions.add(new GMActionExport(plugin, type));
 		}
 	}
@@ -64,26 +64,28 @@ public class GhidraMetricsProvider extends ComponentProvider {
 		return plugin;
 	}
 
-	public void showWindowMain() {
-		activeProvider = null;
+	public void showMainWindow() {
+		metricManager = null;
 		refresh();
 	}
 
-	public void showWindowMetric(Class<? extends GMiMetric> metricClz) {
-		activeProvider = GhidraMetricsFactory.create(getPlugin(), metricClz);
+	public void showMetricWindow(String metricName) {
+		metricManager = GhidraMetricsFactory.create(metricName, getPlugin());
 
 		refresh();
 	}
 
-	public void doExport(GMExporter.Type exportType) {
-		if (activeProvider == null)
-			throw new RuntimeException("ERROR: No active provider is selected!");
-
+	public void doExport(GMAbstractMetricExporter.Type exportType) {
+		if (metricManager == null)
+			throw new RuntimeException("ERROR: no metric is selected!");
 
 		try {
-			GMExporter exporter = activeProvider.makeExporter(exportType).build();	
+			GMAbstractMetricExporter exporter = metricManager.makeExporter(exportType).withFileChooser().build();
+			if ( exporter == null ) {
+				return; // no error
+			}
+			
 			Path exportPath = exporter.export();
-
 			if (exportPath == null) {
 				throw new RuntimeException("Could not export selected metric.");
 			}
@@ -91,17 +93,15 @@ public class GhidraMetricsProvider extends ComponentProvider {
 			Msg.info(this, "Export to file: " + exportPath.toAbsolutePath());
 			Msg.showInfo(this, getComponent(), "Export", "File exported: " + exportPath.toAbsolutePath());
 
-			// TODO handle these exceptions more gracefully
-		} catch (IOException x) {
-			x.printStackTrace();
-			Msg.showError(this, windowManager.getComponent(), "Could not export", x.getMessage());
+		} catch (IOException e) {
+			metricManager.printException(e);
 		}
 	}
 
 	public final void refresh() {
-		if (activeProvider != null) {
+		if (metricManager != null) {
 			// metric view
-			setSubTitle(activeProvider.getMetric().getName());
+			setSubTitle(metricManager.getMetric().getName());
 			addLocalActions();
 
 		} else {
@@ -110,7 +110,7 @@ public class GhidraMetricsProvider extends ComponentProvider {
 			removeLocalActions();
 		}
 
-		windowManager.showWindow(activeProvider);
+		windowManager.showWindow(metricManager);
 		windowManager.refresh();
 	}
 
@@ -127,15 +127,13 @@ public class GhidraMetricsProvider extends ComponentProvider {
 	}
 
 	public void locationChanged(ProgramLocation loc) {
-		if (activeProvider == null)
+		if ( metricManager == null || loc == null || !isVisible() ) {
 			return;
-
-		if (loc == null)
-			return;
-
-		if (!isVisible())
-			return;
-
-		activeProvider.locationChanged(loc);
+		}
+		
+		Function fn = plugin.getCurrentProgram().getFunctionManager().getFunctionContaining(loc.getAddress());
+		if ( fn != null ) {
+			metricManager.functionChanged(fn);
+		}
 	}
 }

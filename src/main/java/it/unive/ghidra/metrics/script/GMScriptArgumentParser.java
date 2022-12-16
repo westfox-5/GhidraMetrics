@@ -5,12 +5,11 @@ import java.util.Map;
 
 import it.unive.ghidra.metrics.impl.mccabe.GMMcCabe;
 import it.unive.ghidra.metrics.script.GMScriptArgumentContainer.GMScriptArgumentKey;
-import it.unive.ghidra.metrics.script.exceptions.ScriptException;
 
 public final class GMScriptArgumentParser {
 	private static final String ARG_VALUE_SEPARATOR = "=";
 
-	protected static Map<GMScriptArgumentKey, GMScriptArgumentContainer<?>> parse(String... args) throws ScriptException {
+	protected static Map<GMScriptArgumentKey, GMScriptArgumentContainer<?>> parse(String... args) throws GMScriptException {
 		Map<GMScriptArgumentKey, GMScriptArgumentContainer<?>> map = new HashMap<>();
 
 		if (args != null && args.length > 0) {
@@ -27,7 +26,7 @@ public final class GMScriptArgumentParser {
 		return map;
 	}
 
-	private static <T> GMScriptArgumentContainer<?> parseToken(String token) throws ScriptException {
+	private static <T> GMScriptArgumentContainer<?> parseToken(String token) throws GMScriptException {
 		String[] split = token.split(ARG_VALUE_SEPARATOR);
 
 		// only a single value is allowed!
@@ -46,13 +45,13 @@ public final class GMScriptArgumentParser {
 
 
 	private static void validateArguments(Map<GMScriptArgumentKey, GMScriptArgumentContainer<?>> args)
-			throws ScriptException {
+			throws GMScriptException {
 
 		/// McCabe metric needs a function name
 		GMScriptArgumentContainer<?> metricNameArg = args.get(GMScriptArgumentKey.METRIC);
 		if (metricNameArg.getValue().equals(GMMcCabe.NAME)) {
 			if (!args.containsKey(GMScriptArgumentKey.FUNCTION)) {
-				throw new ScriptException(
+				throw new GMScriptException(
 						"Missing parameter '" + GMScriptArgumentKey.FUNCTION.getKey() + "' "
 						+ "required for metric '" + metricNameArg.getValue() + "'");
 			}

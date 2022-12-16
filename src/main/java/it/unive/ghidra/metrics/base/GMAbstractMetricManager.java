@@ -8,20 +8,21 @@ import java.util.Collections;
 import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
+import ghidra.util.Msg;
 import ghidra.util.Swing;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetricProvider;
-import it.unive.ghidra.metrics.export.GMExporter;
-import it.unive.ghidra.metrics.export.GMExporter.Type;
+import it.unive.ghidra.metrics.base.interfaces.GMiMetric;
+import it.unive.ghidra.metrics.base.interfaces.GMiMetricGUIManager;
+import it.unive.ghidra.metrics.base.interfaces.GMiMetricHeadlessManager;
 
 //@formatter:off
-public abstract class GMAbstractMetricProvider<
+public abstract class GMAbstractMetricManager<
 	M extends GMAbstractMetric<M, P, W>, 
-	P extends GMAbstractMetricProvider<M, P, W>, 
+	P extends GMAbstractMetricManager<M, P, W>, 
 	W extends GMAbstractMetricWindowManager<M, P, W>>
-implements GMiMetricProvider {
+implements GMiMetricGUIManager, GMiMetricHeadlessManager {
 //@formatter:on
-	private final boolean headlessMode;
+	protected final boolean guiEnabled;
 	protected final GhidraMetricsPlugin plugin;
 	protected final Program program;
 
@@ -32,30 +33,35 @@ implements GMiMetricProvider {
 
 	private Function prevFn;
 
-	public GMAbstractMetricProvider(Program program, Class<M> metricClass) {
+	public GMAbstractMetricManager(Program program, Class<M> metricClass) {
 		this.plugin = null;
 		this.program = program;
-		this.headlessMode = true;
+		this.guiEnabled = false;
 
 		this.initialized = _init(metricClass, null);
 	}
 
-	public GMAbstractMetricProvider(GhidraMetricsPlugin plugin, Class<M> metricClass, Class<W> winManagerClass) {
+	public GMAbstractMetricManager(GhidraMetricsPlugin plugin, Class<M> metricClass, Class<W> winManagerClass) {
 		this.plugin = plugin;
 		this.program = plugin.getCurrentProgram();
-		this.headlessMode = false;
+		this.guiEnabled = true;
 
 		this.initialized = _init(metricClass, winManagerClass);
 	}
-
+	
+	@Override
+	public void printException(Exception e) {
+		e.printStackTrace();
+		Msg.error(this, e);
+		
+		if ( guiEnabled ) {
+			Msg.showError(this, getWinManager().getComponent(), "Generic Error", e.getMessage());
+		}
+	}
+	
 	@Override
 	public boolean isInitialized() {
 		return initialized;
-	}
-
-	@Override
-	public boolean isHeadlessMode() {
-		return headlessMode;
 	}
 
 	@Override
@@ -88,32 +94,22 @@ implements GMiMetricProvider {
 		if (prevFn == null || (prevFn != null && !equals(prevFn, fn))) {
 			prevFn = fn;
 			
-			functionChanged(fn);
-			
-		}
-		
-		if (!isHeadlessMode()) {
-			wm.revalidate();
-			wm.refresh();
+			functionChanged(fn);	
 		}
 	}
 	
 	@Override
 	public void functionChanged(Function fn) {
-		metric.functionChanged(fn);		
+		metric.functionChanged(fn);
+		
+		if ( guiEnabled ) {
+			wm.revalidate();
+			wm.refresh();
+		}
 	}
 
 	@Override
-	public GMExporter.Builder makeExporter(Type exportType) {
-		GMExporter.Builder builder = GMExporter.of(exportType, plugin).addMetrics(getMetricsForExport());
-
-		if (!isHeadlessMode())
-			builder.withFileChooser();
-
-		return builder;
-	}
-
-	public Collection<? extends M> getMetricsForExport() {
+	public Collection<GMiMetric> getExportableMetrics() {
 		return Collections.singletonList(getMetric());
 	}
 
@@ -122,18 +118,8 @@ implements GMiMetricProvider {
 			Constructor<M> declaredConstructor = metricClass.getDeclaredConstructor(getClass());
 			this.metric = declaredConstructor.newInstance(this);
 
-			// TODO handle these exceptions more gracefully
-		} catch (InstantiationException x) {
-			x.printStackTrace();
-			return false;
-		} catch (IllegalAccessException x) {
-			x.printStackTrace();
-			return false;
-		} catch (InvocationTargetException x) {
-			x.printStackTrace();
-			return false;
-		} catch (NoSuchMethodException x) {
-			x.printStackTrace();
+		} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+			printException(e);
 			return false;
 		}
 
@@ -145,18 +131,8 @@ implements GMiMetricProvider {
 			Constructor<W> declaredConstructor = winManagerClass.getDeclaredConstructor(getClass());
 			this.wm = declaredConstructor.newInstance(this);
 
-			// TODO handle these exceptions more gracefully
-		} catch (InstantiationException x) {
-			x.printStackTrace();
-			return false;
-		} catch (IllegalAccessException x) {
-			x.printStackTrace();
-			return false;
-		} catch (InvocationTargetException x) {
-			x.printStackTrace();
-			return false;
-		} catch (NoSuchMethodException x) {
-			x.printStackTrace();
+		} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+			printException(e);
 			return false;
 		}
 
@@ -172,7 +148,7 @@ implements GMiMetricProvider {
 	private final boolean _init(Class<M> metricClass, Class<W> winManagerClass) {
 		boolean initialized = _createMetric(metricClass);
 
-		if (initialized && !isHeadlessMode()) {
+		if (initialized && guiEnabled) {
 			_createWindownManager(winManagerClass);
 		}
 

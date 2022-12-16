@@ -3,14 +3,13 @@ import java.nio.file.Path;
 import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.FunctionIterator;
 import ghidra.program.model.listing.Program;
-import ghidra.program.util.ProgramLocation;
 import ghidra.util.Msg;
 import it.unive.ghidra.metrics.GhidraMetricsFactory;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetricProvider;
-import it.unive.ghidra.metrics.export.GMExporter;
+import it.unive.ghidra.metrics.base.GMAbstractMetricExporter;
+import it.unive.ghidra.metrics.base.interfaces.GMiMetricHeadlessManager;
 import it.unive.ghidra.metrics.script.GMBaseScript;
 import it.unive.ghidra.metrics.script.GMScriptArgumentContainer.GMScriptArgumentKey;
-import it.unive.ghidra.metrics.script.exceptions.ScriptException;
+import it.unive.ghidra.metrics.script.GMScriptException;
 
 public class GhidraMetricsScript extends GMBaseScript {
 
@@ -19,31 +18,46 @@ public class GhidraMetricsScript extends GMBaseScript {
 		try {
 			parseArgs();
 			
-			final String metric = getArgValue(GMScriptArgumentKey.METRIC);
-			GMiMetricProvider provider = GhidraMetricsFactory.createHeadless(metric, getCurrentProgram());	 
+			final String metricName = getArgValue(GMScriptArgumentKey.METRIC);
+			GMiMetricHeadlessManager manager = GhidraMetricsFactory.createHeadless(metricName, getCurrentProgram());	 
 
 			if (hasArg(GMScriptArgumentKey.FUNCTION)) {
 				final String fnName = getArgValue(GMScriptArgumentKey.FUNCTION);
 
-				Function function = findFunctionByName(provider.getProgram(), fnName);
+				Function function = findFunctionByName(manager.getProgram(), fnName);
 				if (function == null) {
-					throw new ScriptException("Could not find function with name '" + fnName + "'");
+					throw new GMScriptException("Could not find function with name '" + fnName + "'");
 				}
 
 				goTo(function);
-				provider.locationChanged(new ProgramLocation(getCurrentProgram(), function.getEntryPoint()));
+				manager.functionChanged(function);
 				Msg.info(this, "Program location changed to address: function.getEntryPoint()");
 			}
 
 			if (hasArg(GMScriptArgumentKey.EXPORT)) {
-				final GMExporter.Type exportType = getArgValue(GMScriptArgumentKey.EXPORT);
-				final Path exportPath = Path.of(
-						getProgramFile().getParentFile().getAbsolutePath(), 
-						provider.getMetric().getName() +"_"+ getProgramFile().getName() +"."+ exportType.getExtension());
-
-				GMExporter exporter = provider.makeExporter(exportType).toPath(exportPath).build();
+				final GMAbstractMetricExporter.Type exportType = getArgValue(GMScriptArgumentKey.EXPORT);
+				Path exportDir = null;
+				
+				if (hasArg(GMScriptArgumentKey.EXPORT_DIR)) {
+					// specific directory from args
+					exportDir = getArgValue(GMScriptArgumentKey.EXPORT_DIR);
+				} else {
+					// same directory of input file
+					exportDir = Path.of(getProgramFile().getParentFile().getAbsolutePath());
+				}
+				
+				
+				Path exportPath = Path.of(
+						exportDir.toAbsolutePath().toString(), 
+						manager.getMetric().getName() +"_"+ getProgramFile().getName() +"."+ exportType.getExtension());
+				
+				GMAbstractMetricExporter exporter = manager.makeExporter(exportType).toFile(exportPath).build();
+				if (exporter == null) {
+					throw new GMScriptException("Could not export metric.");
+				}
+				
 				Path export = exporter.export();
-				Msg.info(this, provider.getMetric().getName() + " metric exported to: " + export.toAbsolutePath());
+				Msg.info(this, manager.getMetric().getName() + " metric exported to: " + export.toAbsolutePath());
 			}
 
 			Msg.info(this, "Script terminated successfully.");

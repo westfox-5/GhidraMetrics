@@ -17,13 +17,13 @@ import it.unive.ghidra.metrics.base.interfaces.GMiMetricKey;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetricValue;
 
 //@formatter:off
-public class GMHalsteadWinManager extends GMAbstractMetricWindowManager<GMHalstead, GMHalsteadProvider, GMHalsteadWinManager> {
+public class GMHalsteadWinManager extends GMAbstractMetricWindowManager<GMHalstead, GMHalsteadManager, GMHalsteadWinManager> {
 //@formatter:on
 
 	private static final String[] TABLE_COLUMNS_DEFINITION = { "Name", "Value", "Description", "Formula" };
 	private static final Function<GMiMetricValue<?>, Object[]> TABLE_ROWS_FUNCTION = metric -> new Object[] {
-			metric.getKey().getName(), metric.getValue(), metric.getKey().getInfo(GMiMetricKey.KEY_DESCRIPTION),
-			metric.getKey().getInfo(GMiMetricKey.KEY_FORMULA) };
+			metric.getKey().getName(), metric.getValue(), metric.getKey().getInfo(GMiMetricKey.KEY_INFO_DESCRIPTION),
+			metric.getKey().getInfo(GMiMetricKey.KEY_INFO_FORMULA) };
 
 	private JTable tableProgramMetrics;
 	private JTable tableFunctionMetrics;
@@ -31,8 +31,8 @@ public class GMHalsteadWinManager extends GMAbstractMetricWindowManager<GMHalste
 	private JPanel pnlNoFunctionSelected;
 	private JLabel lblNewLabel;
 
-	public GMHalsteadWinManager(GMHalsteadProvider provider) {
-		super(provider);
+	public GMHalsteadWinManager(GMHalsteadManager manager) {
+		super(manager);
 	}
 
 	@Override
@@ -112,7 +112,7 @@ public class GMHalsteadWinManager extends GMAbstractMetricWindowManager<GMHalste
 	}
 
 	private void populateFunctionMetrics() {
-		GMHalstead fnHalstead = getProvider().getMetricFn();
+		GMHalstead fnHalstead = getManager().getMetricFn();
 		if (fnHalstead != null) {
 			populateMetricTable(tableFunctionMetrics, fnHalstead);
 

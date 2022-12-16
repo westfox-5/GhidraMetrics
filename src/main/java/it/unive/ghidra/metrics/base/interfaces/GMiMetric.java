@@ -3,11 +3,12 @@ package it.unive.ghidra.metrics.base.interfaces;
 import java.util.Collection;
 
 public interface GMiMetric {
-	boolean init();
-
+	
+	GMiMetricManager getManager();
+	
 	String getName();
 
 	Collection<GMiMetricValue<?>> getMetrics();
 
-	GMiMetricValue<?> getMetricValue(GMiMetricKey key);
+	GMiMetricValue<?> getValue(GMiMetricKey key);
 }

@@ -11,26 +11,27 @@ import it.unive.ghidra.metrics.base.interfaces.GMiMetricWindowManager;
 //@formatter:off
 public abstract class GMAbstractMetricWindowManager<
 	M extends GMAbstractMetric<M, P, W>, 
-	P extends GMAbstractMetricProvider<M, P, W>, 
+	P extends GMAbstractMetricManager<M, P, W>, 
 	W extends GMAbstractMetricWindowManager<M, P, W>>
 extends GMAbstractWindowManager implements GMiMetricWindowManager {
 //@formatter:on
-	private final P provider;
+	private final P manager;
 
-	public GMAbstractMetricWindowManager(P provider) {
+	public GMAbstractMetricWindowManager(P manager) {
 		super();
-		this.provider = provider;
+		this.manager = manager;
+	}
+
+	@Override
+	public P getManager() {
+		return manager;
 	}
 
 	@Override
 	public M getMetric() {
-		return getProvider().getMetric();
+		return getManager().getMetric();
 	}
 
-	@Override
-	public P getProvider() {
-		return provider;
-	}
 
 	@Override
 	public void onInitializationCompleted() {

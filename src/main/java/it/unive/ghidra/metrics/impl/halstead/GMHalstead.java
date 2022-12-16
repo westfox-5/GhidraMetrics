@@ -7,15 +7,16 @@ import it.unive.ghidra.metrics.base.GMAbstractMetric;
 import it.unive.ghidra.metrics.impl.halstead.GMHalsteadParser.Result;
 import it.unive.ghidra.metrics.util.NumberUtils;
 
-public class GMHalstead extends GMAbstractMetric<GMHalstead, GMHalsteadProvider, GMHalsteadWinManager> {
+public class GMHalstead extends GMAbstractMetric<GMHalstead, GMHalsteadManager, GMHalsteadWinManager> {
 	public static final String NAME = "Halstead";
+	public static final String LOOKUP_NAME = "halstead";
 
 	public static final class GMHalsteadFunction extends GMHalstead {
 
 		private final Function function;
 
-		protected GMHalsteadFunction(GMHalsteadProvider provider, Function function) {
-			super(NAME, provider);
+		protected GMHalsteadFunction(GMHalsteadManager manager, Function function) {
+			super(NAME, manager);
 			this.function = function;
 		}
 
@@ -42,12 +43,12 @@ public class GMHalstead extends GMAbstractMetric<GMHalstead, GMHalsteadProvider,
 	private BigDecimal n2; // no. operands [distinct, total]
 	private BigDecimal N2;
 
-	protected GMHalstead(String name, GMHalsteadProvider provider) {
-		super(name, provider);
+	protected GMHalstead(String name, GMHalsteadManager manager) {
+		super(name, manager);
 	}
 
-	public GMHalstead(GMHalsteadProvider provider) {
-		this(NAME, provider);
+	public GMHalstead(GMHalsteadManager manager) {
+		this(NAME, manager);
 	}
 
 	@Override
@@ -68,12 +69,12 @@ public class GMHalstead extends GMAbstractMetric<GMHalstead, GMHalsteadProvider,
 
 	@Override
 	protected void functionChanged(Function fn) {
-//		halsteadFn = new GMHalsteadFunction(getProvider(), fn);
-//		halsteadFn.init();
+		manager.setMetricFn(new GMHalsteadFunction(manager, fn));
+		manager.getMetricFn().init();
 	}
 
 	protected GMHalsteadParser getParser() {
-		return GMHalsteadParser.programParser(getProvider().getProgram());
+		return GMHalsteadParser.programParser(getManager().getProgram());
 	}
 
 	public GMHalstead getHalsteadFunction() {

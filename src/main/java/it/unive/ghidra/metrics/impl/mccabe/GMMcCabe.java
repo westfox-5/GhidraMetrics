@@ -10,16 +10,18 @@ import it.unive.ghidra.metrics.impl.mccabe.GMMcCabeParser.Result;
 import it.unive.ghidra.metrics.util.GMTaskMonitor;
 import it.unive.ghidra.metrics.util.NumberUtils;
 
-public class GMMcCabe extends GMAbstractMetric<GMMcCabe, GMMcCabeProvider, GMMcCabeWinManager> {
+public class GMMcCabe extends GMAbstractMetric<GMMcCabe, GMMcCabeManager, GMMcCabeWinManager> {
 	public static final String NAME = "McCabe";
+	public static final String LOOKUP_NAME = "mccabe";
+
 	public static final String METRIC_KEY = "Ciclomatic Complexity";
 
 	private BigDecimal e;
 	private BigDecimal n;
 	private BigDecimal p;
 
-	public GMMcCabe(GMMcCabeProvider provider) {
-		super(NAME, provider);
+	public GMMcCabe(GMMcCabeManager manager) {
+		super(NAME, manager);
 	}
 
 	@Override
@@ -45,8 +47,8 @@ public class GMMcCabe extends GMAbstractMetric<GMMcCabe, GMMcCabeProvider, GMMcC
 				createMetricValue(key);
 			});
 
-		} catch (CancelledException ce) {
-			ce.printStackTrace();
+		} catch (CancelledException e) {
+			manager.printException(e);
 		}
 	}
 

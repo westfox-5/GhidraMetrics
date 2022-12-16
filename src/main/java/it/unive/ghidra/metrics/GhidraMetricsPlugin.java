@@ -24,7 +24,6 @@ import ghidra.framework.plugintool.PluginTool;
 import ghidra.framework.plugintool.util.PluginStatus;
 import ghidra.program.util.ProgramLocation;
 import ghidra.util.HelpLocation;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetric;
 
 /**
  * TODO: Provide class-level documentation that describes what this plugin does.
@@ -54,7 +53,7 @@ public class GhidraMetricsPlugin extends ProgramPlugin {
 	 */
 	public GhidraMetricsPlugin(PluginTool tool) {
 		super(tool, true, true);
-
+	
 		String pluginName = PLUGIN_NAME;
 		provider = new GhidraMetricsProvider(this, pluginName);
 
@@ -72,7 +71,7 @@ public class GhidraMetricsPlugin extends ProgramPlugin {
 		return provider;
 	}
 
-	public Collection<Class<? extends GMiMetric>> getAvailableMetrics() {
-		return GhidraMetricsFactory.allMetrics();
+	public Collection<String> getMetricNames() {
+		return GhidraMetricsFactory.allMetricNames();
 	}
 }

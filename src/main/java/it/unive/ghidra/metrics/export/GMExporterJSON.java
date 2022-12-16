@@ -1,21 +1,22 @@
-package it.unive.ghidra.metrics.export.impl;
+package it.unive.ghidra.metrics.export;
 
 import java.util.Collection;
 import java.util.stream.Stream;
 
+import it.unive.ghidra.metrics.base.GMAbstractMetricExporter;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetric;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetricKey;
+import it.unive.ghidra.metrics.base.interfaces.GMiMetricManager;
 import it.unive.ghidra.metrics.base.interfaces.GMiMetricValue;
-import it.unive.ghidra.metrics.export.GMExporter;
 import it.unive.ghidra.metrics.util.StringUtils;
 
-public class GMExporterJSON extends GMExporter {
+public class GMExporterJSON extends GMAbstractMetricExporter {
 
 	private static final String JSON_SEP = ",";
 	private static final String JSON_KEY_VALUE_SEP = ":";
 
-	public GMExporterJSON() {
-		super(GMExporter.Type.JSON);
+	public GMExporterJSON(GMiMetricManager manager) {
+		super(manager, GMAbstractMetricExporter.Type.JSON);
 	}
 
 	@Override
@@ -46,25 +47,24 @@ public class GMExporterJSON extends GMExporter {
 		Stream<GMiMetricKey> keys = metric.getMetrics().stream().map(val -> val.getKey());
 
 		sb.append("{")
-				.append(format("name", metric.getName())).append(JSON_SEP)
-				.append(format("metrics")).append("{")
+		.append(format("name", metric.getName())).append(JSON_SEP)
+		.append(format("metrics")).append("{")
 
-				.append(format("keys")).append("[");
+		.append(format("keys")).append("[");
 		keys.forEach(k -> {
 			sb.append(dumpMetricKey(k)).append(JSON_SEP);
 		});
 		sb.deleteCharAt(sb.length() - 1);
 		sb.append("]").append(JSON_SEP)
-
-				.append(format("values")).append("[");
+		
+		.append(format("values")).append("[");
 		values.forEach(v -> {
 			sb.append(dumpMetricValue(v)).append(JSON_SEP);
 		});
-		sb.deleteCharAt(sb.length() - 1);
-		sb.append("]")
-
-				.append("}")
-				.append("}");
+		sb.deleteCharAt(sb.length() - 1)
+		.append("]")
+		.append("}")
+		.append("}");
 
 		return sb;
 	}
@@ -77,20 +77,14 @@ public class GMExporterJSON extends GMExporter {
 		StringBuilder sb = new StringBuilder();
 
 		sb.append("{")
-				.append(format("name", key.getName())).append(JSON_SEP)
-				.append(format("type", key.getType().name())).append(JSON_SEP)
-				.append(format("info"))
-				.append("{");
-		if (key.getAllInfo().isEmpty()) {
-			sb.append("");
-		} else {
-			key.getAllInfo().forEach((info) -> {
-				sb.append(format(info, key.getInfo(info))).append(JSON_SEP);
-			});
-			sb.deleteCharAt(sb.length() - 1);
-		}
-		sb.append("}")
-				.append("}");
+		.append(format("name", key.getName())).append(JSON_SEP)
+		.append(format("type", key.getType().name())).append(JSON_SEP)
+		.append(format("info"))
+		.append("{")
+			.append(format(GMiMetricKey.KEY_INFO_DESCRIPTION, key.getInfo(GMiMetricKey.KEY_INFO_DESCRIPTION))).append(JSON_SEP)
+			.append(format(GMiMetricKey.KEY_INFO_FORMULA, key.getInfo(GMiMetricKey.KEY_INFO_FORMULA)))
+		.append("}")
+		.append("}");
 
 		return sb;
 	}
@@ -103,9 +97,9 @@ public class GMExporterJSON extends GMExporter {
 		StringBuilder sb = new StringBuilder();
 
 		sb.append("{")
-				.append(format("keyName", value.getKey().getName())).append(JSON_SEP)
-				.append(format("value", value.getValue()))
-				.append("}");
+		.append(format("keyName", value.getKey().getName())).append(JSON_SEP)
+		.append(format("value", value.getValue()))
+		.append("}");
 
 		return sb;
 	}

@@ -10,5 +10,5 @@ echo ">>> $GRADLE_HOME/bin/gradle -PGHIDRA_INSTALL_DIR=$GHIDRA_HOME"
 $GRADLE_HOME/bin/gradle -PGHIDRA_INSTALL_DIR=$GHIDRA_HOME --stacktrace
 
 ZIP_FILE=./dist/$(ls -Art ./dist | tail -n 1) # latest zip
-echo ">>>  && unzip $ZIP_FILE -d $DIR"
+echo ">>> unzip $ZIP_FILE -d $DIR"
 unzip $ZIP_FILE -d $DIR

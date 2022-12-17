@@ -52,8 +52,8 @@ public class GhidraMetricsPlugin extends ProgramPlugin {
 	 * @param tool The plugin tool that this plugin is added to.
 	 */
 	public GhidraMetricsPlugin(PluginTool tool) {
-		super(tool, true, true);
-	
+		super(tool);
+		
 		String pluginName = PLUGIN_NAME;
 		provider = new GhidraMetricsProvider(this, pluginName);
 

@@ -9,9 +9,9 @@ import java.util.stream.Collectors;
 
 import ghidra.program.model.listing.Program;
 import ghidra.util.Msg;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetricGUIManager;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetricHeadlessManager;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetricManager;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricManagerGUI;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricManagerHeadless;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricManager;
 import it.unive.ghidra.metrics.impl.halstead.GMHalstead;
 import it.unive.ghidra.metrics.impl.halstead.GMHalsteadManager;
 import it.unive.ghidra.metrics.impl.mccabe.GMMcCabe;
@@ -21,8 +21,8 @@ import it.unive.ghidra.metrics.impl.ncd.GMNCDManager;
 
 public class GhidraMetricsFactory {
 
-	private static final Map<String, Class<? extends GMiMetricManager>> managersLookupTable;
-	private static final Map<Class<? extends GMiMetricManager>, String> inverseManagersLookupTable;
+	private static final Map<String, Class<? extends GMMetricManager>> managersLookupTable;
+	private static final Map<Class<? extends GMMetricManager>, String> inverseManagersLookupTable;
 	private static final Map<String, String> metricNamesLookupTable;
 
 	static {
@@ -41,11 +41,11 @@ public class GhidraMetricsFactory {
 				.collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));
 	}
 	
-	public static Collection<Class<? extends GMiMetricManager>> allMetricManagers() {
+	public static Collection<Class<? extends GMMetricManager>> allMetricManagers() {
 		return managersLookupTable.values();
 	}
 	
-	public static String metricLookupNameByManager(Class<? extends GMiMetricManager> managerClass) {
+	public static String metricLookupNameByManager(Class<? extends GMMetricManager> managerClass) {
 		return inverseManagersLookupTable.get(managerClass);
 	}
 
@@ -55,40 +55,44 @@ public class GhidraMetricsFactory {
 	}
 	
 
-	public static GMiMetricGUIManager create(String metricName, GhidraMetricsPlugin plugin) {
-		GMiMetricGUIManager manager = null;
+	public static GMMetricManagerGUI create(String metricName, GhidraMetricsPlugin plugin) {
+		GMMetricManagerGUI manager = null;
 		
-		Class<? extends GMiMetricManager> managerClz = lookupManagerByMetricName(metricName);
+		Class<? extends GMMetricManager> managerClz = lookupManagerByMetricName(metricName);
 		try {
-			Constructor<? extends GMiMetricManager> constructor = managerClz.getConstructor(GhidraMetricsPlugin.class);
+			Constructor<? extends GMMetricManager> constructor = managerClz.getConstructor(GhidraMetricsPlugin.class);
 			if ( constructor != null ) {
-				manager = (GMiMetricGUIManager) constructor.newInstance(plugin);
+				manager = (GMMetricManagerGUI) constructor.newInstance(plugin);
 			}
 		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
 			Msg.showError(plugin, plugin.getProvider().getComponent(), "Generic Error", "Could not instantiate metric '"+ metricName +"'");
 		}
-
+		
+		if (!manager.isInitialized()) {
+			return null;
+		}
+		
 		return manager;
 	}
 
-	public static GMiMetricHeadlessManager createHeadless(String metricName, Program program) {
-		GMiMetricHeadlessManager manager = null;
+	public static GMMetricManagerHeadless createHeadless(String metricName, Program program) {
+		GMMetricManagerHeadless manager = null;
 		
-		Class<? extends GMiMetricManager> managerClz = lookupManagerByMetricName(metricName);
+		Class<? extends GMMetricManager> managerClz = lookupManagerByMetricName(metricName);
 		try {
-			Constructor<? extends GMiMetricManager> constructor = managerClz.getConstructor(Program.class);
+			Constructor<? extends GMMetricManager> constructor = managerClz.getConstructor(Program.class);
 			if ( constructor != null ) {
-				manager = (GMiMetricHeadlessManager) constructor.newInstance(program);
+				manager = (GMMetricManagerHeadless) constructor.newInstance(program);
 			}
 		} catch (NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
 			e.printStackTrace();
 		}
-
+		
 		return manager;
 	}
 
-	private static Class<? extends GMiMetricManager> lookupManagerByMetricName(String metricName) {
+	private static Class<? extends GMMetricManager> lookupManagerByMetricName(String metricName) {
 		
 		if ( managersLookupTable.containsKey(metricName) ) 
 			return managersLookupTable.get(metricName);

@@ -17,7 +17,6 @@ public class GMActionBack extends DockingAction {
 		setToolBarData(new ToolBarData(ResourceManager.loadImage("images/left.png"), null));
 		setDescription("Go back to main view");
 
-		markHelpUnnecessary();
 		setEnabled(true);
 	}
 

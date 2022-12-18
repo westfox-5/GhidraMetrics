@@ -5,8 +5,8 @@ import ghidra.program.model.listing.FunctionIterator;
 import ghidra.program.model.listing.Program;
 import ghidra.util.Msg;
 import it.unive.ghidra.metrics.GhidraMetricsFactory;
-import it.unive.ghidra.metrics.base.GMAbstractMetricExporter;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetricHeadlessManager;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricExporter;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricManagerHeadless;
 import it.unive.ghidra.metrics.script.GMBaseScript;
 import it.unive.ghidra.metrics.script.GMScriptArgumentContainer.GMScriptArgumentKey;
 import it.unive.ghidra.metrics.script.GMScriptException;
@@ -19,8 +19,8 @@ public class GhidraMetricsScript extends GMBaseScript {
 			parseArgs();
 			
 			final String metricName = getArgValue(GMScriptArgumentKey.METRIC);
-			GMiMetricHeadlessManager manager = GhidraMetricsFactory.createHeadless(metricName, getCurrentProgram());	 
-
+			GMMetricManagerHeadless manager = GhidraMetricsFactory.createHeadless(metricName, getCurrentProgram());	 
+			
 			if (hasArg(GMScriptArgumentKey.FUNCTION)) {
 				final String fnName = getArgValue(GMScriptArgumentKey.FUNCTION);
 
@@ -35,11 +35,11 @@ public class GhidraMetricsScript extends GMBaseScript {
 			}
 
 			if (hasArg(GMScriptArgumentKey.EXPORT)) {
-				final GMAbstractMetricExporter.Type exportType = getArgValue(GMScriptArgumentKey.EXPORT);
+				final GMMetricExporter.Type exportType = getArgValue(GMScriptArgumentKey.EXPORT);
 				Path exportDir = null;
 				
 				if (hasArg(GMScriptArgumentKey.EXPORT_DIR)) {
-					// specific directory from args
+					// specific directory from arguments
 					exportDir = getArgValue(GMScriptArgumentKey.EXPORT_DIR);
 				} else {
 					// same directory of input file
@@ -51,7 +51,7 @@ public class GhidraMetricsScript extends GMBaseScript {
 						exportDir.toAbsolutePath().toString(), 
 						manager.getMetric().getName() +"_"+ getProgramFile().getName() +"."+ exportType.getExtension());
 				
-				GMAbstractMetricExporter exporter = manager.makeExporter(exportType).toFile(exportPath).build();
+				GMMetricExporter exporter = manager.makeExporter(exportType).toFile(exportPath).build();
 				if (exporter == null) {
 					throw new GMScriptException("Could not export metric.");
 				}

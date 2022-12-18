@@ -2,10 +2,10 @@ package it.unive.ghidra.metrics.impl.mccabe;
 
 import java.util.List;
 
-import it.unive.ghidra.metrics.base.GMAbstractMetricKey;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetricKey;
+import it.unive.ghidra.metrics.base.GMBaseMetricKey;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricKey;
 
-public final class GMMcCabeKey extends GMAbstractMetricKey {
+public final class GMMcCabeKey extends GMBaseMetricKey {
 
 	private static final GMMcCabeKey NUM_EDGES;
 	private static final GMMcCabeKey NUM_NODES;
@@ -23,10 +23,10 @@ public final class GMMcCabeKey extends GMAbstractMetricKey {
 		//@formatter:on
 	}
 
-	public static final List<GMAbstractMetricKey> ALL_KEYS = List.of(NUM_EDGES, NUM_NODES, NUM_CONNECTED_COMPONENTS, COMPLEXITY);
+	public static final List<GMBaseMetricKey> ALL_KEYS = List.of(NUM_EDGES, NUM_NODES, NUM_CONNECTED_COMPONENTS, COMPLEXITY);
 
 	public GMMcCabeKey(String name, String description, String formula) {
-		super(GMiMetricKey.Type.NUMERIC, name, description, formula, sn++);
+		super(GMMetricKey.Type.NUMERIC, name, description, formula, sn++);
 	}
 
 }

@@ -13,13 +13,13 @@ import ghidra.framework.model.DomainObject;
 import ghidra.program.model.listing.Function;
 import ghidra.util.exception.CancelledException;
 import ghidra.util.exception.VersionException;
-import it.unive.ghidra.metrics.base.GMAbstractMetric;
+import it.unive.ghidra.metrics.base.GMBaseMetric;
 import it.unive.ghidra.metrics.util.GMTaskMonitor;
 import it.unive.ghidra.metrics.util.PathHelper;
 import it.unive.ghidra.metrics.util.ZipHelper;
 import it.unive.ghidra.metrics.util.ZipHelper.ZipException;
 
-public class GMNCD extends GMAbstractMetric<GMNCD, GMNCDManager, GMNCDWinManager> {
+public class GMNCD extends GMBaseMetric<GMNCD, GMNCDManager, GMNCDWinManager> {
 	public static final String NAME = "NCD Similarity";
 	public static final String LOOKUP_NAME = "ncd";
 

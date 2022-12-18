@@ -4,18 +4,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import it.unive.ghidra.metrics.base.interfaces.GMiMetricKey;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricKey;
 
-public abstract class GMAbstractMetricKey implements GMiMetricKey, Comparable<GMAbstractMetricKey> {
-	protected static final Map<String, GMAbstractMetricKey> lookupByName = new HashMap<>();
+public abstract class GMBaseMetricKey implements GMMetricKey, Comparable<GMBaseMetricKey> {
+	protected static final Map<String, GMBaseMetricKey> lookupByName = new HashMap<>();
 	
 	private final String name;
-	private final GMiMetricKey.Type type;
+	private final GMMetricKey.Type type;
 	private final int sortingNumber;
 
 	private final Map<String, String> data = new HashMap<>();
 
-	public GMAbstractMetricKey(GMiMetricKey.Type type, String name, int sn) {
+	public GMBaseMetricKey(GMMetricKey.Type type, String name, int sn) {
 		this.type = type;
 		this.name = name;
 		this.sortingNumber = sn;
@@ -23,7 +23,7 @@ public abstract class GMAbstractMetricKey implements GMiMetricKey, Comparable<GM
 		lookupByName.put(this.getClass().getSimpleName() + "_" + this.getName(), this);
 	}
 
-	public GMAbstractMetricKey(GMiMetricKey.Type type, String name, String description, String formula, int sn) {
+	public GMBaseMetricKey(GMMetricKey.Type type, String name, String description, String formula, int sn) {
 		this(type, name, sn);
 		if (description != null)
 			data.put(KEY_INFO_DESCRIPTION, description);
@@ -31,7 +31,7 @@ public abstract class GMAbstractMetricKey implements GMiMetricKey, Comparable<GM
 			data.put(KEY_INFO_FORMULA, formula);
 	}
 
-	public static GMAbstractMetricKey byName(Class<? extends GMAbstractMetricKey> clz, String name) {
+	public static GMBaseMetricKey byName(Class<? extends GMBaseMetricKey> clz, String name) {
 		return lookupByName.get(clz.getSimpleName() + "_" + name);
 	}
 
@@ -68,12 +68,12 @@ public abstract class GMAbstractMetricKey implements GMiMetricKey, Comparable<GM
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		GMAbstractMetricKey other = (GMAbstractMetricKey) obj;
+		GMBaseMetricKey other = (GMBaseMetricKey) obj;
 		return Objects.equals(name, other.name);
 	}
 
 	@Override
-	public int compareTo(GMAbstractMetricKey key) {
+	public int compareTo(GMBaseMetricKey key) {
 		if (key == null)
 			return 1;
 		return getSortingNumber() - key.getSortingNumber();

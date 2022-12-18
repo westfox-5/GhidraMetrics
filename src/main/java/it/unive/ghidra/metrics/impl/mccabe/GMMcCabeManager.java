@@ -2,9 +2,9 @@ package it.unive.ghidra.metrics.impl.mccabe;
 
 import ghidra.program.model.listing.Program;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
-import it.unive.ghidra.metrics.base.GMAbstractMetricManager;
+import it.unive.ghidra.metrics.base.GMBaseMetricManager;
 
-public class GMMcCabeManager extends GMAbstractMetricManager<GMMcCabe, GMMcCabeManager, GMMcCabeWinManager> {
+public class GMMcCabeManager extends GMBaseMetricManager<GMMcCabe, GMMcCabeManager, GMMcCabeWinManager> {
 
 	public GMMcCabeManager(Program program) {
 		super(program, GMMcCabe.class);

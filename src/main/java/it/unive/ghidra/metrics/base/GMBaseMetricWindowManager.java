@@ -5,20 +5,20 @@ import java.util.function.Function;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
-import it.unive.ghidra.metrics.base.interfaces.GMiMetricValue;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetricWindowManager;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricValue;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricWindowManager;
 
 //@formatter:off
-public abstract class GMAbstractMetricWindowManager<
-	M extends GMAbstractMetric<M, P, W>, 
-	P extends GMAbstractMetricManager<M, P, W>, 
-	W extends GMAbstractMetricWindowManager<M, P, W>>
-extends GMAbstractWindowManager implements GMiMetricWindowManager {
+public abstract class GMBaseMetricWindowManager<
+	M extends GMBaseMetric<M, P, W>, 
+	P extends GMBaseMetricManager<M, P, W>, 
+	W extends GMBaseMetricWindowManager<M, P, W>>
+extends GMBaseWindowManager implements GMMetricWindowManager {
 //@formatter:on
 	private final P manager;
 
-	public GMAbstractMetricWindowManager(P manager) {
-		super();
+	public GMBaseMetricWindowManager(P manager) {
+		super(manager.getPlugin());
 		this.manager = manager;
 	}
 
@@ -43,12 +43,12 @@ extends GMAbstractWindowManager implements GMiMetricWindowManager {
 		// default implementation
 	}
 
-	protected void populateMetricTable(JTable table, String[] columns, Function<GMiMetricValue<?>, Object[]> rowFn) {
+	protected void populateMetricTable(JTable table, String[] columns, Function<GMMetricValue<?>, Object[]> rowFn) {
 		populateMetricTable(table, getMetric(), columns, rowFn);
 	}
 
-	protected static <M extends GMAbstractMetric<?, ?, ?>> void populateMetricTable(JTable table, M metric,
-			String[] columns, Function<GMiMetricValue<?>, Object[]> rowFn) {
+	protected static <M extends GMBaseMetric<?, ?, ?>> void populateMetricTable(JTable table, M metric,
+			String[] columns, Function<GMMetricValue<?>, Object[]> rowFn) {
 		DefaultTableModel dtm = new NonEditableTableModel();
 		dtm.setColumnCount(columns.length);
 		dtm.setColumnIdentifiers(columns);

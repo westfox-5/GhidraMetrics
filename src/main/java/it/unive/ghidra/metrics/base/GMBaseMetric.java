@@ -8,27 +8,27 @@ import java.util.TreeMap;
 
 import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.Program;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetric;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetricKey;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetricValue;
+import it.unive.ghidra.metrics.base.interfaces.GMMetric;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricKey;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricValue;
 import it.unive.ghidra.metrics.util.StringUtils;
 
 //@formatter:off
-public abstract class GMAbstractMetric<
-	M extends GMAbstractMetric<M, P, W>, 
-	P extends GMAbstractMetricManager<M, P, W>, 
-	W extends GMAbstractMetricWindowManager<M, P, W>>
-implements GMiMetric {
+public abstract class GMBaseMetric<
+	M extends GMBaseMetric<M, P, W>, 
+	P extends GMBaseMetricManager<M, P, W>, 
+	W extends GMBaseMetricWindowManager<M, P, W>>
+implements GMMetric {
 //@formatter:on
 
 	private boolean initialized = false;
-	private final Map<GMiMetricKey, GMiMetricValue<?>> metricsByKey = new TreeMap<>();
+	private final Map<GMMetricKey, GMMetricValue<?>> metricsByKey = new TreeMap<>();
 	protected final String name;
 
 	protected final P manager;
 	protected final Program program;
 
-	public GMAbstractMetric(String name, P manager) {
+	public GMBaseMetric(String name, P manager) {
 		this.name = name;
 
 		this.manager = manager;
@@ -40,11 +40,12 @@ implements GMiMetric {
 
 	protected boolean _init() {
 		if (!initialized) {
-			boolean ok = init();
-			initialized = ok;
-			return ok;
+			initialized = false;
+			if (getManager().getProgram() != null) {
+				initialized = init();
+			}
 		}
-		return true;
+		return initialized;
 	}
 
 	@Override
@@ -58,14 +59,14 @@ implements GMiMetric {
 	}
 
 	@Override
-	public GMiMetricValue<?> getValue(GMiMetricKey key) {
+	public GMMetricValue<?> getValue(GMMetricKey key) {
 		if (key == null)
 			return null;
 		return metricsByKey.get(key);
 	}
 
 	@Override
-	public Collection<GMiMetricValue<?>> getMetrics() {
+	public Collection<GMMetricValue<?>> getMetrics() {
 		return metricsByKey.values();
 	}
 
@@ -73,7 +74,7 @@ implements GMiMetric {
 		this.metricsByKey.clear();
 	}
 
-	protected <T> void createMetricValue(GMiMetricKey key) {
+	protected <T> void createMetricValue(GMMetricKey key) {
 		try {
 			var value = getMetricValueByKeyName(key, this);
 			createMetricValue(key, value);
@@ -83,12 +84,12 @@ implements GMiMetric {
 		}
 	}
 
-	protected <T> void createMetricValue(GMiMetricKey key, T value) {
-		GMMetricValue<T> gmMetricValue = new GMMetricValue<>(key, value);
+	protected <T> void createMetricValue(GMMetricKey key, T value) {
+		GMBaseMetricValue<T> gmMetricValue = new GMBaseMetricValue<>(key, value);
 		addMetricValue(gmMetricValue);
 	}
 
-	private void addMetricValue(GMiMetricValue<?> value) {
+	private void addMetricValue(GMMetricValue<?> value) {
 		if (value != null)
 			metricsByKey.put(value.getKey(), value);
 	}
@@ -97,7 +98,7 @@ implements GMiMetric {
 	 * Executes the getter method in the GMiMetric object for the GMiMetricKey.name
 	 * object,
 	 */
-	private static final Object getMetricValueByKeyName(GMiMetricKey key, GMiMetric metric)
+	private static final Object getMetricValueByKeyName(GMMetricKey key, GMMetric metric)
 			throws NoSuchMethodException, IllegalAccessException, IllegalArgumentException, InvocationTargetException {
 		String getterMethodName = StringUtils.getterMethodName(key.getName());
 		Method getterMethod = metric.getClass().getMethod(getterMethodName);

@@ -6,8 +6,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import it.unive.ghidra.metrics.base.GMAbstractMetricExporter;
-import it.unive.ghidra.metrics.base.GMAbstractMetricExporter.Type;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricExporter;
 
 /**
  * 
@@ -89,14 +88,14 @@ public abstract class GMScriptArgumentContainer<T> {
 	// -- Type: GMExporter.Type
 	//
 	//@formatter:off
-	public static final GMScriptArgumentContainer<GMAbstractMetricExporter.Type> ARG_EXPORT = new GMScriptArgumentContainer<>(GMScriptArgumentKey.EXPORT) {
+	public static final GMScriptArgumentContainer<GMMetricExporter.Type> ARG_EXPORT = new GMScriptArgumentContainer<>(GMScriptArgumentKey.EXPORT) {
 	//@formatter:on
 		@Override
-		protected Type getTypedValue(String str) throws GMScriptException {
+		protected GMMetricExporter.Type getTypedValue(String str) throws GMScriptException {
 			try {
-				return GMAbstractMetricExporter.Type.valueOf(str.toUpperCase());
+				return GMMetricExporter.Type.valueOf(str.toUpperCase());
 			} catch (IllegalArgumentException e) {
-				String allowedTypes = Stream.of(GMAbstractMetricExporter.Type.values())
+				String allowedTypes = Stream.of(GMMetricExporter.Type.values())
 						.map(type -> type.name().toLowerCase())
 						.collect(Collectors.joining(","));
 				throw new GMScriptException("No export defined for value '" + str + "'. Please use one of: " + allowedTypes);

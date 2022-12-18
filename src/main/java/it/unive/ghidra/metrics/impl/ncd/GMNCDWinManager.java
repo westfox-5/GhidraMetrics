@@ -20,12 +20,12 @@ import docking.widgets.filechooser.GhidraFileChooser;
 import docking.widgets.filechooser.GhidraFileChooserMode;
 import ghidra.util.filechooser.GhidraFileChooserModel;
 import ghidra.util.filechooser.GhidraFileFilter;
-import it.unive.ghidra.metrics.base.GMAbstractMetricWindowManager;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetricValue;
+import it.unive.ghidra.metrics.base.GMBaseMetricWindowManager;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricValue;
 
-public class GMNCDWinManager extends GMAbstractMetricWindowManager<GMNCD, GMNCDManager, GMNCDWinManager> {
+public class GMNCDWinManager extends GMBaseMetricWindowManager<GMNCD, GMNCDManager, GMNCDWinManager> {
 	private static final String[] TABLE_COLUMNS_DEFINITION = { "File", "NCD Similarity" };
-	private static final Function<GMiMetricValue<?>, Object[]> TABLE_ROWS_FUNCTION = metric -> new Object[] {
+	private static final Function<GMMetricValue<?>, Object[]> TABLE_ROWS_FUNCTION = metric -> new Object[] {
 			metric.getKey().getName(), metric.getValue() };
 
 	private List<File> selectedFiles;

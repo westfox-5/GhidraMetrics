@@ -5,10 +5,10 @@ import java.util.List;
 
 import ghidra.program.model.listing.Program;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
-import it.unive.ghidra.metrics.base.GMAbstractMetricManager;
+import it.unive.ghidra.metrics.base.GMBaseMetricManager;
 import it.unive.ghidra.metrics.util.ZipHelper.ZipException;
 
-public class GMNCDManager extends GMAbstractMetricManager<GMNCD, GMNCDManager, GMNCDWinManager> {
+public class GMNCDManager extends GMBaseMetricManager<GMNCD, GMNCDManager, GMNCDWinManager> {
 
 	public GMNCDManager(Program program) {
 		super(program, GMNCD.class);

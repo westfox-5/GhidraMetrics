@@ -7,33 +7,33 @@ import java.util.List;
 
 import javax.swing.JComponent;
 
-import docking.ComponentProvider;
 import docking.action.DockingAction;
+import ghidra.framework.plugintool.ComponentProviderAdapter;
 import ghidra.program.model.listing.Function;
 import ghidra.program.util.ProgramLocation;
 import ghidra.util.Msg;
-import it.unive.ghidra.metrics.base.GMAbstractMetricExporter;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetricGUIManager;
+import it.unive.ghidra.metrics.base.GMBaseMetricExporter;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricExporter;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricManagerGUI;
 import it.unive.ghidra.metrics.gui.GMActionBack;
 import it.unive.ghidra.metrics.gui.GMActionExport;
 import it.unive.ghidra.metrics.gui.GMWindowManager;
 
-public class GhidraMetricsProvider extends ComponentProvider {
+public class GhidraMetricsProvider extends ComponentProviderAdapter {
 
 	private final GhidraMetricsPlugin plugin;
 	private final GMWindowManager windowManager;
 
-	private GMiMetricGUIManager metricManager;
+	private GMMetricManagerGUI metricManager;
 
-	private List<DockingAction> actions;
+	private List<DockingAction> localActions;
 
 	public GhidraMetricsProvider(GhidraMetricsPlugin plugin, String owner) {
 		super(plugin.getTool(), owner, owner);
 		this.plugin = plugin;
-
 		this.windowManager = new GMWindowManager(plugin);
-
-		createActions();
+		
+		createLocalActions();
 		buildPanel();
 	}
 
@@ -45,13 +45,13 @@ public class GhidraMetricsProvider extends ComponentProvider {
 		setVisible(true);
 	}
 
-	private void createActions() {
-		this.actions = new ArrayList<>();
+	private void createLocalActions() {
+		localActions = new ArrayList<>();
 
-		actions.add(new GMActionBack(plugin));
+		localActions.add(new GMActionBack(plugin));
 
-		for (GMAbstractMetricExporter.Type type : GMAbstractMetricExporter.Type.values()) {
-			actions.add(new GMActionExport(plugin, type));
+		for (GMMetricExporter.Type type : GMMetricExporter.Type.values()) {
+			localActions.add(new GMActionExport(plugin, type));
 		}
 	}
 
@@ -63,24 +63,35 @@ public class GhidraMetricsProvider extends ComponentProvider {
 	public GhidraMetricsPlugin getPlugin() {
 		return plugin;
 	}
+	
+	private final void updateWindow() {
+		if ( metricManager != null ) {
+			setSubTitle(metricManager.getMetric().getName());
+			addAllLocalActions();
+		} else {
+			setSubTitle(null);
+			removeAllLocalActions();
+		}
+		
+		windowManager.updateWindow(metricManager);
+	}
 
 	public void showMainWindow() {
 		metricManager = null;
-		refresh();
+		updateWindow();
 	}
 
 	public void showMetricWindow(String metricName) {
 		metricManager = GhidraMetricsFactory.create(metricName, getPlugin());
-
-		refresh();
+		updateWindow();
 	}
 
-	public void doExport(GMAbstractMetricExporter.Type exportType) {
+	public void doExport(GMMetricExporter.Type exportType) {
 		if (metricManager == null)
 			throw new RuntimeException("ERROR: no metric is selected!");
 
 		try {
-			GMAbstractMetricExporter exporter = metricManager.makeExporter(exportType).withFileChooser().build();
+			GMBaseMetricExporter exporter = metricManager.makeExporter(exportType).withFileChooser().build();
 			if ( exporter == null ) {
 				return; // no error
 			}
@@ -98,34 +109,14 @@ public class GhidraMetricsProvider extends ComponentProvider {
 		}
 	}
 
-	public final void refresh() {
-		if (metricManager != null) {
-			// metric view
-			setSubTitle(metricManager.getMetric().getName());
-			addLocalActions();
-
-		} else {
-			// main view
-			setSubTitle(null);
-			removeLocalActions();
-		}
-
-		windowManager.showWindow(metricManager);
-		windowManager.refresh();
+	public final void addAllLocalActions() {
+		localActions.forEach(action -> addLocalAction(action));
 	}
-
-	private final void addLocalActions() {
-		for (DockingAction action : actions) {
-			dockingTool.addLocalAction(this, action);
-		}
+	
+	public final void removeAllLocalActions() {
+		localActions.forEach(action -> removeLocalAction(action));
 	}
-
-	private final void removeLocalActions() {
-		for (DockingAction action : actions) {
-			dockingTool.removeLocalAction(this, action);
-		}
-	}
-
+	
 	public void locationChanged(ProgramLocation loc) {
 		if ( metricManager == null || loc == null || !isVisible() ) {
 			return;

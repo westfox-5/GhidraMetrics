@@ -1,6 +1,6 @@
 package it.unive.ghidra.metrics.base.interfaces;
 
-public interface GMiMetricKey {
+public interface GMMetricKey {
 	public static final String KEY_INFO_DESCRIPTION = "description";
 	public static final String KEY_INFO_FORMULA = "formula";
 

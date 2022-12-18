@@ -3,30 +3,27 @@ package it.unive.ghidra.metrics.gui;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.GridLayout;
-import java.util.Collection;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
-import it.unive.ghidra.metrics.base.GMAbstractWindowManager;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetricGUIManager;
+import it.unive.ghidra.metrics.base.GMBaseWindowManager;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricManagerGUI;
 
-public class GMWindowManager extends GMAbstractWindowManager {
-
-	private final GhidraMetricsPlugin plugin;
+public class GMWindowManager extends GMBaseWindowManager {
 
 	private JPanel pnlMainContainer;
 	private JPanel pnlMetricContainer;
 
 	public GMWindowManager(GhidraMetricsPlugin plugin) {
-		this.plugin = plugin;
+		super(plugin);
 	}
 
 	@Override
 	public void onInitializationCompleted() {
-		populateMetricButtons(plugin.getMetricNames());
+		createAllMetricButtons();
 	}
 
 	/**
@@ -59,7 +56,7 @@ public class GMWindowManager extends GMAbstractWindowManager {
 		return component;
 	}
 
-	public final void showWindow(GMiMetricGUIManager manager) {
+	public final void updateWindow(GMMetricManagerGUI manager) {
 		pnlMetricContainer.removeAll();
 
 		if (manager == null) {
@@ -69,17 +66,18 @@ public class GMWindowManager extends GMAbstractWindowManager {
 		} else {
 			JComponent component = manager.getWinManager().getComponent();
 			pnlMetricContainer.add(component, BorderLayout.CENTER);
-
+			
 			pnlMainContainer.setVisible(false);
 			pnlMetricContainer.setVisible(true);
 		}
 
 		revalidate();
+		refresh();
 	}
 
-	private final void populateMetricButtons(Collection<String> metricNames) {
-		metricNames.forEach(metricName -> {
-			pnlMainContainer.add(new GMMetricButton(plugin, metricName));
+	private final void createAllMetricButtons() {
+		getPlugin().getMetricNames().forEach(metricName -> {
+			pnlMainContainer.add(new GMMetricButton(getPlugin(), metricName));
 		});
 	}
 }

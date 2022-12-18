@@ -2,10 +2,10 @@ package it.unive.ghidra.metrics.impl.halstead;
 
 import java.util.List;
 
-import it.unive.ghidra.metrics.base.GMAbstractMetricKey;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetricKey;
+import it.unive.ghidra.metrics.base.GMBaseMetricKey;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricKey;
 
-public final class GMHalsteadKey extends GMAbstractMetricKey {
+public final class GMHalsteadKey extends GMBaseMetricKey {
 
 	private static final GMHalsteadKey NUM_DISTINCT_OPERATORS;
 	private static final GMHalsteadKey NUM_DISTINCT_OPERANDS;
@@ -40,12 +40,12 @@ public final class GMHalsteadKey extends GMAbstractMetricKey {
 	}
 
 	//@formatter:off
-	public static final List<GMAbstractMetricKey> ALL_KEYS = List.of(NUM_DISTINCT_OPERATORS, NUM_DISTINCT_OPERANDS, NUM_OPERATORS, NUM_OPERANDS,
+	public static final List<GMBaseMetricKey> ALL_KEYS = List.of(NUM_DISTINCT_OPERATORS, NUM_DISTINCT_OPERANDS, NUM_OPERATORS, NUM_OPERANDS,
 			VOCABULARY, PROGRAM_LENGTH, ESTIMATED_LENGTH, VOLUME, DIFFICULTY, EFFORT, CODING_TIME, ESTIMATED_ERRORS);
 	//@formatter:on
 
 	private GMHalsteadKey(String name, String description, String formula) {
-		super(GMiMetricKey.Type.NUMERIC, name, description, formula, sn++);
+		super(GMMetricKey.Type.NUMERIC, name, description, formula, sn++);
 	}
 
 }

@@ -1,12 +1,12 @@
 package it.unive.ghidra.metrics.impl.ncd;
 
-import it.unive.ghidra.metrics.base.GMAbstractMetricKey;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetricKey;
+import it.unive.ghidra.metrics.base.GMBaseMetricKey;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricKey;
 
-public class GMNCDKey extends GMAbstractMetricKey {
+public class GMNCDKey extends GMBaseMetricKey {
 	private static int sn = 0;
 
 	public GMNCDKey(String name) {
-		super(GMiMetricKey.Type.NUMERIC, name, sn++);
+		super(GMMetricKey.Type.NUMERIC, name, sn++);
 	}
 }

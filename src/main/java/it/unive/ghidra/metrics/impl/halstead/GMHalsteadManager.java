@@ -6,10 +6,10 @@ import java.util.List;
 
 import ghidra.program.model.listing.Program;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
-import it.unive.ghidra.metrics.base.GMAbstractMetricManager;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetric;
+import it.unive.ghidra.metrics.base.GMBaseMetricManager;
+import it.unive.ghidra.metrics.base.interfaces.GMMetric;
 
-public class GMHalsteadManager extends GMAbstractMetricManager<GMHalstead, GMHalsteadManager, GMHalsteadWinManager> {
+public class GMHalsteadManager extends GMBaseMetricManager<GMHalstead, GMHalsteadManager, GMHalsteadWinManager> {
 
 	private GMHalstead metricFn;
 	
@@ -22,8 +22,8 @@ public class GMHalsteadManager extends GMAbstractMetricManager<GMHalstead, GMHal
 	}
 
 	@Override
-	public Collection<GMiMetric> getExportableMetrics() {
-		List<GMiMetric> exportableMetrics = new ArrayList<>(super.getExportableMetrics());
+	public Collection<GMMetric> getExportableMetrics() {
+		List<GMMetric> exportableMetrics = new ArrayList<>(super.getExportableMetrics());
 
 		if (getMetricFn() != null) {
 			// in headless mode, always add halsteadFunction

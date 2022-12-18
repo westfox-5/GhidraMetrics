@@ -42,8 +42,6 @@ public class GhidraMetricsPlugin extends ProgramPlugin {
 	public static final String PLUGIN_NAME = "Ghidra Metrics";
 	public static final String DESCR = "Ghidra Metrics Plugin";
 
-	public static final boolean DEBUG = true;
-
 	private final GhidraMetricsProvider provider;
 
 	/**

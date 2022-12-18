@@ -11,16 +11,16 @@ import ghidra.program.util.ProgramLocation;
 import ghidra.util.Msg;
 import ghidra.util.Swing;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetric;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetricGUIManager;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetricHeadlessManager;
+import it.unive.ghidra.metrics.base.interfaces.GMMetric;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricManagerGUI;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricManagerHeadless;
 
 //@formatter:off
-public abstract class GMAbstractMetricManager<
-	M extends GMAbstractMetric<M, P, W>, 
-	P extends GMAbstractMetricManager<M, P, W>, 
-	W extends GMAbstractMetricWindowManager<M, P, W>>
-implements GMiMetricGUIManager, GMiMetricHeadlessManager {
+public abstract class GMBaseMetricManager<
+	M extends GMBaseMetric<M, P, W>, 
+	P extends GMBaseMetricManager<M, P, W>, 
+	W extends GMBaseMetricWindowManager<M, P, W>>
+implements GMMetricManagerGUI, GMMetricManagerHeadless {
 //@formatter:on
 	protected final boolean guiEnabled;
 	protected final GhidraMetricsPlugin plugin;
@@ -33,7 +33,7 @@ implements GMiMetricGUIManager, GMiMetricHeadlessManager {
 
 	private Function prevFn;
 
-	public GMAbstractMetricManager(Program program, Class<M> metricClass) {
+	public GMBaseMetricManager(Program program, Class<M> metricClass) {
 		this.plugin = null;
 		this.program = program;
 		this.guiEnabled = false;
@@ -41,7 +41,7 @@ implements GMiMetricGUIManager, GMiMetricHeadlessManager {
 		this.initialized = _init(metricClass, null);
 	}
 
-	public GMAbstractMetricManager(GhidraMetricsPlugin plugin, Class<M> metricClass, Class<W> winManagerClass) {
+	public GMBaseMetricManager(GhidraMetricsPlugin plugin, Class<M> metricClass, Class<W> winManagerClass) {
 		this.plugin = plugin;
 		this.program = plugin.getCurrentProgram();
 		this.guiEnabled = true;
@@ -109,7 +109,7 @@ implements GMiMetricGUIManager, GMiMetricHeadlessManager {
 	}
 
 	@Override
-	public Collection<GMiMetric> getExportableMetrics() {
+	public Collection<GMMetric> getExportableMetrics() {
 		return Collections.singletonList(getMetric());
 	}
 

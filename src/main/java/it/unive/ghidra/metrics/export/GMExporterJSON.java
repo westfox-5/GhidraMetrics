@@ -3,24 +3,25 @@ package it.unive.ghidra.metrics.export;
 import java.util.Collection;
 import java.util.stream.Stream;
 
-import it.unive.ghidra.metrics.base.GMAbstractMetricExporter;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetric;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetricKey;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetricManager;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetricValue;
+import it.unive.ghidra.metrics.base.GMBaseMetricExporter;
+import it.unive.ghidra.metrics.base.interfaces.GMMetric;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricExporter;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricKey;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricManager;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricValue;
 import it.unive.ghidra.metrics.util.StringUtils;
 
-public class GMExporterJSON extends GMAbstractMetricExporter {
+public class GMExporterJSON extends GMBaseMetricExporter {
 
 	private static final String JSON_SEP = ",";
 	private static final String JSON_KEY_VALUE_SEP = ":";
 
-	public GMExporterJSON(GMiMetricManager manager) {
-		super(manager, GMAbstractMetricExporter.Type.JSON);
+	public GMExporterJSON(GMMetricManager manager) {
+		super(manager, GMMetricExporter.Type.JSON);
 	}
 
 	@Override
-	protected <V> StringBuilder serialize(Collection<GMiMetric> metrics) {
+	protected <V> StringBuilder serialize(Collection<GMMetric> metrics) {
 		StringBuilder sb = new StringBuilder();
 
 		sb.append("{");
@@ -40,11 +41,11 @@ public class GMExporterJSON extends GMAbstractMetricExporter {
 	 * A metric object is formatted as: { name, metrics: { keys: [ metricKey ],
 	 * values: [ metricValue ] } }
 	 */
-	private StringBuilder serializeMetric(GMiMetric metric) {
+	private StringBuilder serializeMetric(GMMetric metric) {
 		StringBuilder sb = new StringBuilder();
 
-		Stream<GMiMetricValue<?>> values = metric.getMetrics().stream();
-		Stream<GMiMetricKey> keys = metric.getMetrics().stream().map(val -> val.getKey());
+		Stream<GMMetricValue<?>> values = metric.getMetrics().stream();
+		Stream<GMMetricKey> keys = metric.getMetrics().stream().map(val -> val.getKey());
 
 		sb.append("{")
 		.append(format("name", metric.getName())).append(JSON_SEP)
@@ -72,7 +73,7 @@ public class GMExporterJSON extends GMAbstractMetricExporter {
 	/**
 	 * A metric key is formatted as: { name, type, info: [{name, value}] }
 	 */
-	private StringBuilder dumpMetricKey(GMiMetricKey key) {
+	private StringBuilder dumpMetricKey(GMMetricKey key) {
 
 		StringBuilder sb = new StringBuilder();
 
@@ -81,8 +82,8 @@ public class GMExporterJSON extends GMAbstractMetricExporter {
 		.append(format("type", key.getType().name())).append(JSON_SEP)
 		.append(format("info"))
 		.append("{")
-			.append(format(GMiMetricKey.KEY_INFO_DESCRIPTION, key.getInfo(GMiMetricKey.KEY_INFO_DESCRIPTION))).append(JSON_SEP)
-			.append(format(GMiMetricKey.KEY_INFO_FORMULA, key.getInfo(GMiMetricKey.KEY_INFO_FORMULA)))
+			.append(format(GMMetricKey.KEY_INFO_DESCRIPTION, key.getInfo(GMMetricKey.KEY_INFO_DESCRIPTION))).append(JSON_SEP)
+			.append(format(GMMetricKey.KEY_INFO_FORMULA, key.getInfo(GMMetricKey.KEY_INFO_FORMULA)))
 		.append("}")
 		.append("}");
 
@@ -92,7 +93,7 @@ public class GMExporterJSON extends GMAbstractMetricExporter {
 	/**
 	 * A metric value is formatted as: { keyName, value }
 	 */
-	private StringBuilder dumpMetricValue(GMiMetricValue<?> value) {
+	private StringBuilder dumpMetricValue(GMMetricValue<?> value) {
 
 		StringBuilder sb = new StringBuilder();
 

@@ -12,18 +12,18 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 
-import it.unive.ghidra.metrics.base.GMAbstractMetricWindowManager;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetricKey;
-import it.unive.ghidra.metrics.base.interfaces.GMiMetricValue;
+import it.unive.ghidra.metrics.base.GMBaseMetricWindowManager;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricKey;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricValue;
 
 //@formatter:off
-public class GMHalsteadWinManager extends GMAbstractMetricWindowManager<GMHalstead, GMHalsteadManager, GMHalsteadWinManager> {
+public class GMHalsteadWinManager extends GMBaseMetricWindowManager<GMHalstead, GMHalsteadManager, GMHalsteadWinManager> {
 //@formatter:on
 
 	private static final String[] TABLE_COLUMNS_DEFINITION = { "Name", "Value", "Description", "Formula" };
-	private static final Function<GMiMetricValue<?>, Object[]> TABLE_ROWS_FUNCTION = metric -> new Object[] {
-			metric.getKey().getName(), metric.getValue(), metric.getKey().getInfo(GMiMetricKey.KEY_INFO_DESCRIPTION),
-			metric.getKey().getInfo(GMiMetricKey.KEY_INFO_FORMULA) };
+	private static final Function<GMMetricValue<?>, Object[]> TABLE_ROWS_FUNCTION = metric -> new Object[] {
+			metric.getKey().getName(), metric.getValue(), metric.getKey().getInfo(GMMetricKey.KEY_INFO_DESCRIPTION),
+			metric.getKey().getInfo(GMMetricKey.KEY_INFO_FORMULA) };
 
 	private JTable tableProgramMetrics;
 	private JTable tableFunctionMetrics;

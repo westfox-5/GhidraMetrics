@@ -5,12 +5,12 @@ import java.math.BigDecimal;
 import ghidra.program.model.listing.Function;
 import ghidra.util.exception.CancelledException;
 import ghidra.util.task.TaskMonitor;
-import it.unive.ghidra.metrics.base.GMAbstractMetric;
+import it.unive.ghidra.metrics.base.GMBaseMetric;
 import it.unive.ghidra.metrics.impl.mccabe.GMMcCabeParser.Result;
 import it.unive.ghidra.metrics.util.GMTaskMonitor;
 import it.unive.ghidra.metrics.util.NumberUtils;
 
-public class GMMcCabe extends GMAbstractMetric<GMMcCabe, GMMcCabeManager, GMMcCabeWinManager> {
+public class GMMcCabe extends GMBaseMetric<GMMcCabe, GMMcCabeManager, GMMcCabeWinManager> {
 	public static final String NAME = "McCabe";
 	public static final String LOOKUP_NAME = "mccabe";
 

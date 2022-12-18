@@ -35,8 +35,6 @@ public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadManager, GMHa
 		}
 	}
 
-	private GMHalsteadFunction halsteadFn; // specific function metric
-
 	private BigDecimal n1; // no. operators [distinct, total]
 	private BigDecimal N1;
 
@@ -55,30 +53,30 @@ public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadManager, GMHa
 	public boolean init() {
 		Result result = getParser().parse();
 
-		this.n1 = result.n1;
-		this.n2 = result.n2;
-		this.N1 = result.N1;
-		this.N2 = result.N2;
+		if (result.ok()) { 
+			this.n1 = result.n1;
+			this.n2 = result.n2;
+			this.N1 = result.N1;
+			this.N2 = result.N2;
+	
+			GMHalsteadKey.ALL_KEYS.forEach(key -> {
+				createMetricValue(key);
+			});
 
-		GMHalsteadKey.ALL_KEYS.forEach(key -> {
-			createMetricValue(key);
-		});
-
-		return true;
+			return true;
+		} 
+		
+		return false;
 	}
 
 	@Override
-	protected void functionChanged(Function fn) {
-		manager.setMetricFn(new GMHalsteadFunction(manager, fn));
+	protected void functionChanged(Function function) {
+		manager.setMetricFn(new GMHalsteadFunction(manager, function));
 		manager.getMetricFn().init();
 	}
 
 	protected GMHalsteadParser getParser() {
 		return GMHalsteadParser.programParser(getManager().getProgram());
-	}
-
-	public GMHalstead getHalsteadFunction() {
-		return halsteadFn;
 	}
 
 	public BigDecimal getNumDistinctOperators() {

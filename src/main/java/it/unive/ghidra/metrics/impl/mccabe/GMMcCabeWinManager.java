@@ -7,9 +7,10 @@ import java.util.function.Function;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
-import javax.swing.border.EmptyBorder;
 
 import it.unive.ghidra.metrics.base.GMBaseMetricWindowManager;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricKey;
@@ -20,12 +21,21 @@ public class GMMcCabeWinManager extends GMBaseMetricWindowManager<GMMcCabe, GMMc
 	private static final Function<GMMetricValue<?>, Object[]> TABLE_ROWS_FUNCTION = metric -> new Object[] {
 			metric.getKey().getName(), metric.getValue(), metric.getKey().getInfo(GMMetricKey.KEY_INFO_FORMULA) };
 
-	private JPanel pnlSelection;
-	private JPanel pnlContainer;
-	private JTable tbl;
+	private JTable tableProgramMetrics;
+	private JTable tableFunctionMetrics;
+	private JTabbedPane tabbedPane;
+	private JPanel pnlNoFunctionSelected;
+	private JLabel lblNewLabel;
+
 
 	public GMMcCabeWinManager(GMMcCabeManager manager) {
 		super(manager);
+	}
+	
+	@Override
+	public void onMetricInitialized() {
+		populateProgramMetrics();
+		populateFunctionMetrics();
 	}
 
 	@Override
@@ -33,26 +43,52 @@ public class GMMcCabeWinManager extends GMBaseMetricWindowManager<GMMcCabe, GMMc
 		JComponent component = new JPanel();
 		component.setLayout(new BorderLayout(0, 0));
 
-		pnlSelection = new JPanel();
-		pnlSelection.setBorder(new EmptyBorder(10, 10, 10, 10));
-		component.add(pnlSelection, BorderLayout.NORTH);
-		pnlSelection.setLayout(new BorderLayout(0, 0));
+		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
+		component.add(tabbedPane, BorderLayout.CENTER);
 
-		JLabel lblNewLabel = new JLabel("Select a valid function in the listing");
-		lblNewLabel.setFont(new Font("Dialog", Font.BOLD | Font.ITALIC, 14));
-		lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		pnlSelection.add(lblNewLabel, BorderLayout.WEST);
+		// tab 0 - Program metrics
+		{
+			JPanel pnlProgramMetrics = new JPanel();
+			tabbedPane.addTab("Program metrics", null, new JScrollPane(pnlProgramMetrics), null);
+			pnlProgramMetrics.setLayout(new BorderLayout(0, 0));
+			
+			tableProgramMetrics = new JTable();
+			
+			JScrollPane scrollPane = new JScrollPane(tableProgramMetrics);  
+			scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+			scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+			
+			pnlProgramMetrics.add(tableProgramMetrics.getTableHeader(), BorderLayout.NORTH);
+			pnlProgramMetrics.add(scrollPane, BorderLayout.CENTER);
+		}
 
-		pnlContainer = new JPanel();
-		pnlContainer.setLayout(new BorderLayout(0, 0));
-		component.add(pnlContainer, BorderLayout.CENTER);
+		// tab 1 - Function metrics
+		{
+			JPanel pnlFunctionMetrics = new JPanel();
+			tabbedPane.addTab("Function metrics", null, new JScrollPane(pnlFunctionMetrics), null);
+			pnlFunctionMetrics.setLayout(new BorderLayout(0, 0));
 
-		tbl = new JTable();
-		pnlContainer.add(tbl.getTableHeader(), BorderLayout.NORTH);
-		pnlContainer.add(tbl, BorderLayout.CENTER);
+			tableFunctionMetrics = new JTable();
+			tableFunctionMetrics.setVisible(false);
+			tableFunctionMetrics.setEnabled(false);
+			
+			JScrollPane scrollPane = new JScrollPane(tableFunctionMetrics);  
+			scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+			scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+			
+			pnlFunctionMetrics.add(tableFunctionMetrics.getTableHeader(), BorderLayout.NORTH);
+			pnlFunctionMetrics.add(scrollPane, BorderLayout.CENTER);
 
-		pnlSelection.setVisible(true);
-		pnlContainer.setVisible(false);
+			pnlNoFunctionSelected = new JPanel();
+			pnlNoFunctionSelected.setVisible(true);
+			pnlFunctionMetrics.add(pnlNoFunctionSelected, BorderLayout.SOUTH);
+			pnlNoFunctionSelected.setLayout(new BorderLayout(0, 0));
+
+			lblNewLabel = new JLabel("Select a valid function in the listing");
+			lblNewLabel.setFont(new Font("Dialog", Font.BOLD | Font.ITALIC, 14));
+			lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
+			pnlNoFunctionSelected.add(lblNewLabel, BorderLayout.CENTER);
+		}
 		return component;
 	}
 
@@ -63,20 +99,33 @@ public class GMMcCabeWinManager extends GMBaseMetricWindowManager<GMMcCabe, GMMc
 
 		super.revalidate();
 	}
+	
+
+	private void populateProgramMetrics() {
+		populateMetricTable(tableProgramMetrics, getMetric());
+	}
 
 	private void populateFunctionMetrics() {
-		GMMcCabe mcCabe = getMetric();
-		if (mcCabe != null) {
-			populateMetricTable(tbl, mcCabe);
+		GMMcCabe mcCabeFn = getManager().getMetricFn();
+		if (mcCabeFn != null) {
+			populateMetricTable(tableFunctionMetrics, mcCabeFn);
 
-			pnlContainer.setVisible(true);
-			pnlSelection.setVisible(false);
+			tableFunctionMetrics.setVisible(true);
+			pnlNoFunctionSelected.setVisible(false);
 		} else {
-			pnlContainer.setVisible(false);
-			pnlSelection.setVisible(true);
+			tableFunctionMetrics.setVisible(false);
+			pnlNoFunctionSelected.setVisible(true);
 		}
 	}
 
+	public boolean isProgramTabVisible() {
+		return tabbedPane.getSelectedIndex() == 0;
+	}
+
+	public boolean isFunctionTabVisible() {
+		return tabbedPane.getSelectedIndex() == 1;
+	}
+	
 	private void populateMetricTable(JTable table, GMMcCabe metric) {
 		populateMetricTable(table, metric, TABLE_COLUMNS_DEFINITION, TABLE_ROWS_FUNCTION);
 	}

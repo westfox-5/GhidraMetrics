@@ -5,7 +5,7 @@ import it.unive.ghidra.metrics.GhidraMetricsPlugin;
 import it.unive.ghidra.metrics.base.GMBaseMetricManager;
 
 public class GMMcCabeManager extends GMBaseMetricManager<GMMcCabe, GMMcCabeManager, GMMcCabeWinManager> {
-
+	
 	public GMMcCabeManager(Program program) {
 		super(program, GMMcCabe.class);
 	}
@@ -18,5 +18,4 @@ public class GMMcCabeManager extends GMBaseMetricManager<GMMcCabe, GMMcCabeManag
 	protected void init() {
 		// do nothing
 	}
-
 }

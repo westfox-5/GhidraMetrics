@@ -2,8 +2,9 @@ package it.unive.ghidra.metrics.base;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
+import java.util.List;
 
 import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.Program;
@@ -32,6 +33,7 @@ implements GMMetricManagerGUI, GMMetricManagerHeadless {
 	protected W wm;
 
 	private Function prevFn;
+	private M metricFn;
 	
 	protected abstract void init();
 
@@ -90,8 +92,14 @@ implements GMMetricManagerGUI, GMMetricManagerHeadless {
 	public void locationChanged(ProgramLocation loc) {
 		Function fn = getProgram().getFunctionManager().getFunctionContaining(loc.getAddress());
 
-		if (fn == null)
+		if (fn == null) {
+			if (metricFn != null) {
+				metricFn = null;
+				wm.revalidate();
+				wm.refresh();
+			}
 			return;
+		}
 
 		if (prevFn == null || (prevFn != null && !equals(prevFn, fn))) {
 			prevFn = fn;
@@ -110,9 +118,26 @@ implements GMMetricManagerGUI, GMMetricManagerHeadless {
 		}
 	}
 
+
 	@Override
 	public Collection<GMMetric> getExportableMetrics() {
-		return Collections.singletonList(getMetric());
+		List<GMMetric> toExport = new ArrayList<>();
+
+		toExport.add(getMetric());
+		
+		if (getMetricFn() != null) {
+			toExport.add(getMetricFn());
+		}
+
+		return toExport;
+	}
+
+	public M getMetricFn() {
+		return metricFn;
+	}
+
+	public void setMetricFn(M metricFn) {
+		this.metricFn = metricFn;
 	}
 
 	private final boolean _createMetric(Class<M> metricClass) {

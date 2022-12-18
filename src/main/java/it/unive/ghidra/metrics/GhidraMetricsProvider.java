@@ -122,9 +122,6 @@ public class GhidraMetricsProvider extends ComponentProviderAdapter {
 			return;
 		}
 		
-		Function fn = plugin.getCurrentProgram().getFunctionManager().getFunctionContaining(loc.getAddress());
-		if ( fn != null ) {
-			metricManager.functionChanged(fn);
-		}
+		metricManager.locationChanged(loc);
 	}
 }

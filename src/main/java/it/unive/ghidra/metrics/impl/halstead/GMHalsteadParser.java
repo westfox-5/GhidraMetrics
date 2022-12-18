@@ -11,6 +11,7 @@ import ghidra.program.model.listing.FunctionIterator;
 import ghidra.program.model.listing.Instruction;
 import ghidra.program.model.listing.InstructionIterator;
 import ghidra.program.model.listing.Program;
+import it.unive.ghidra.metrics.util.NumberUtils;
 import it.unive.ghidra.metrics.util.StringUtils;
 
 public abstract class GMHalsteadParser {
@@ -148,6 +149,10 @@ public abstract class GMHalsteadParser {
 			this.n2 = n2;
 			this.N1 = N1;
 			this.N2 = N2;
+		}
+		
+		public boolean ok() {
+			return NumberUtils.gt0(n1) && NumberUtils.gt0(n2) && NumberUtils.gt0(N1) && NumberUtils.gt0(N2);
 		}
 	}
 }

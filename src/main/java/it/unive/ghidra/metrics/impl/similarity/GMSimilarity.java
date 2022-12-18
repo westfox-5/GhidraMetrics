@@ -5,7 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import ghidra.app.plugin.core.analysis.AutoAnalysisManager;
 import ghidra.app.util.exporter.ExporterException;
 import ghidra.app.util.importer.AutoImporter;
 import ghidra.app.util.importer.MessageLog;
@@ -113,10 +112,12 @@ public class GMSimilarity extends GMBaseMetric<GMSimilarity, GMSimilarityManager
 	private Program importNewProgram(Path path) throws CancelledException, DuplicateNameException, InvalidNameException, VersionException, IOException {
 		GMTaskMonitor monitor = new GMTaskMonitor();
 		Program program = AutoImporter.importByUsingBestGuess(path.toFile(), (DomainFolder)null, this, new MessageLog(), monitor);
-		
+/*
 		AutoAnalysisManager analysisManager = AutoAnalysisManager.getAnalysisManager(program);
 		analysisManager.startAnalysis(monitor);
 		analysisManager.waitForAnalysis(null, monitor); // waits for all analysis to complete
 		return analysisManager.getProgram();
+*/
+		return program;
 	}
 }

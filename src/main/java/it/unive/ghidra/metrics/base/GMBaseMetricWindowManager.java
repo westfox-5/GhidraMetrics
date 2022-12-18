@@ -53,7 +53,7 @@ extends GMBaseWindowManager implements GMMetricWindowManager {
 		dtm.setColumnCount(columns.length);
 		dtm.setColumnIdentifiers(columns);
 
-		metric.getMetrics().forEach(val -> {
+		metric.getMeasures().forEach(val -> {
 			dtm.addRow(rowFn.apply(val));
 		});
 

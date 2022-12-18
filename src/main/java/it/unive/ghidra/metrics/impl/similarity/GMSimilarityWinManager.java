@@ -1,6 +1,7 @@
 package it.unive.ghidra.metrics.impl.similarity;
 
 import java.awt.BorderLayout;
+import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -32,9 +33,9 @@ public class GMSimilarityWinManager extends GMBaseMetricWindowManager<GMSimilari
 
 	private List<Path> selectedFiles;
 
-	private JPanel pnlSelection;
-	private JPanel pnlNcdContainer;
-	private JTable tblNcd;
+	private JPanel pnlContainer;
+	private JTable tblMeasures;
+	private JButton btnClearMeasures;
 
 	public GMSimilarityWinManager(GMSimilarityManager manager) {
 		super(manager);
@@ -48,17 +49,38 @@ public class GMSimilarityWinManager extends GMBaseMetricWindowManager<GMSimilari
 		JComponent component = new JPanel();
 		component.setLayout(new BorderLayout(0, 0));
 
-		pnlSelection = new JPanel();
-		pnlSelection.setVisible(true);
-		pnlSelection.setBorder(new EmptyBorder(10, 10, 10, 10));
-		component.add(pnlSelection, BorderLayout.NORTH);
-		pnlSelection.setLayout(new BorderLayout(0, 0));
+		pnlContainer = new JPanel();
+		pnlContainer.setVisible(true);
+		pnlContainer.setBorder(new EmptyBorder(10, 10, 10, 10));
+		pnlContainer.setLayout(new BorderLayout(0, 0));
+		component.add(pnlContainer, BorderLayout.CENTER);
+		
 
+		JPanel pnlTop = new JPanel();
+		pnlTop.setLayout(new BorderLayout(0, 0));
+		pnlContainer.add(pnlTop, BorderLayout.NORTH);
+		
 		JLabel lblNewLabel = new JLabel("Select binary files");
-		pnlSelection.add(lblNewLabel, BorderLayout.WEST);
+		pnlTop.add(lblNewLabel, BorderLayout.WEST);
 
+		JPanel pnlTopBtn = new JPanel();
+		pnlTopBtn.setLayout(new FlowLayout());
+		pnlTop.add(pnlTopBtn, BorderLayout.EAST);
+		
+		btnClearMeasures = new JButton("Clear");
+		btnClearMeasures.setVisible(false);
+		pnlTopBtn.add(btnClearMeasures);
+		{
+			btnClearMeasures.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent arg0) {
+					getManager().clearSelectedFiles();
+				}
+			});
+		}
+		
 		JButton btnSelectFiles = new JButton("Select");
-		pnlSelection.add(btnSelectFiles, BorderLayout.EAST);
+		pnlTopBtn.add(btnSelectFiles);
 
 		{
 			final GhidraFileChooser fileChooser = new GhidraFileChooser(component);
@@ -102,26 +124,15 @@ public class GMSimilarityWinManager extends GMBaseMetricWindowManager<GMSimilari
 			});
 		}
 
-		pnlNcdContainer = new JPanel();
-		pnlNcdContainer.setLayout(new BorderLayout(0, 0));
-		component.add(pnlNcdContainer, BorderLayout.CENTER);
-
-		tblNcd = new JTable();
-		pnlNcdContainer.add(tblNcd.getTableHeader(), BorderLayout.NORTH);
-		pnlNcdContainer.add(tblNcd, BorderLayout.CENTER);
-		pnlNcdContainer.setVisible(false);
+		JPanel pnlMeasureTable = new JPanel();
+		pnlMeasureTable.setLayout(new BorderLayout());
+		tblMeasures = new JTable();
+		pnlMeasureTable.add(tblMeasures.getTableHeader(), BorderLayout.NORTH);
+		pnlMeasureTable.add(tblMeasures, BorderLayout.CENTER);
+		pnlContainer.add(pnlMeasureTable, BorderLayout.CENTER);
+		pnlContainer.setVisible(true);
 
 		return component;
-	}
-
-	public void setNcdVisible(boolean visible) {
-		this.pnlSelection.setVisible(!visible);
-		this.pnlNcdContainer.setVisible(visible);
-
-		if (visible) {
-			populateMetricTable(tblNcd, TABLE_COLUMNS_DEFINITION, TABLE_ROWS_FUNCTION);
-		}
-		refresh();
 	}
 
 	public List<Path> getSelectedFiles() {
@@ -130,6 +141,21 @@ public class GMSimilarityWinManager extends GMBaseMetricWindowManager<GMSimilari
 
 	public boolean hasSelectedFiles() {
 		return selectedFiles != null && !selectedFiles.isEmpty();
+	}
+
+	@Override
+	public void revalidate() {
+		super.revalidate();
+		
+		if ( hasSelectedFiles() ) {
+			populateMetricTable(tblMeasures, TABLE_COLUMNS_DEFINITION, TABLE_ROWS_FUNCTION);
+
+			btnClearMeasures.setVisible(true);	
+			tblMeasures.setVisible(true);
+		} else {
+			btnClearMeasures.setVisible(false);	
+			tblMeasures.setVisible(false);
+		}
 	}
 
 }

@@ -8,7 +8,9 @@ public interface GMMetric {
 	
 	String getName();
 
-	Collection<GMMetricValue<?>> getMetrics();
+	Collection<GMMetricValue<?>> getMeasures();
 
-	GMMetricValue<?> getValue(GMMetricKey key);
+	GMMetricValue<?> getMeasureValue(GMMetricKey key);
+	
+	void clearMeasures();
 }

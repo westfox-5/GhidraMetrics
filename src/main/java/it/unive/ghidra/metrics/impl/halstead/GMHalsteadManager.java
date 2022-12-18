@@ -22,6 +22,11 @@ public class GMHalsteadManager extends GMBaseMetricManager<GMHalstead, GMHalstea
 	}
 
 	@Override
+	protected void init() { 
+		// do nothing
+	}
+
+	@Override
 	public Collection<GMMetric> getExportableMetrics() {
 		List<GMMetric> exportableMetrics = new ArrayList<>(super.getExportableMetrics());
 

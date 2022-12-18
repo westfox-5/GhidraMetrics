@@ -22,7 +22,7 @@ implements GMMetric {
 //@formatter:on
 
 	private boolean initialized = false;
-	private final Map<GMMetricKey, GMMetricValue<?>> metricsByKey = new TreeMap<>();
+	private final Map<GMMetricKey, GMMetricValue<?>> measuresByKey = new TreeMap<>();
 	protected final String name;
 
 	protected final P manager;
@@ -59,19 +59,19 @@ implements GMMetric {
 	}
 
 	@Override
-	public GMMetricValue<?> getValue(GMMetricKey key) {
+	public GMMetricValue<?> getMeasureValue(GMMetricKey key) {
 		if (key == null)
 			return null;
-		return metricsByKey.get(key);
+		return measuresByKey.get(key);
 	}
 
 	@Override
-	public Collection<GMMetricValue<?>> getMetrics() {
-		return metricsByKey.values();
+	public Collection<GMMetricValue<?>> getMeasures() {
+		return measuresByKey.values();
 	}
 
-	protected void clearMetrics() {
-		this.metricsByKey.clear();
+	public void clearMeasures() {
+		this.measuresByKey.clear();
 	}
 
 	protected <T> void createMetricValue(GMMetricKey key) {
@@ -91,7 +91,7 @@ implements GMMetric {
 
 	private void addMetricValue(GMMetricValue<?> value) {
 		if (value != null)
-			metricsByKey.put(value.getKey(), value);
+			measuresByKey.put(value.getKey(), value);
 	}
 
 	/**

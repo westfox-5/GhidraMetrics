@@ -14,4 +14,9 @@ public class GMMcCabeManager extends GMBaseMetricManager<GMMcCabe, GMMcCabeManag
 		super(plugin, GMMcCabe.class, GMMcCabeWinManager.class);
 	}
 
+	@Override
+	protected void init() {
+		// do nothing
+	}
+
 }

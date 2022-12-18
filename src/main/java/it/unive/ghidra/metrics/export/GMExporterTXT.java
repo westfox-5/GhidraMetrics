@@ -40,7 +40,7 @@ public class GMExporterTXT extends GMBaseMetricExporter {
 	 */
 	private StringBuilder serializeMetric(GMMetric metric) {
 		StringBuilder sb = new StringBuilder();
-		Stream<GMMetricValue<?>> values = metric.getMetrics().stream();
+		Stream<GMMetricValue<?>> values = metric.getMeasures().stream();
 
 		sb
 		.append(METRIC_BEGIN_SEPARATOR + System.lineSeparator())

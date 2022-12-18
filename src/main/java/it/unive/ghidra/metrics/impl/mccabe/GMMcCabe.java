@@ -32,7 +32,7 @@ public class GMMcCabe extends GMBaseMetric<GMMcCabe, GMMcCabeManager, GMMcCabeWi
 
 	@Override
 	protected void functionChanged(Function function) {
-		clearMetrics();
+		clearMeasures();
 
 		TaskMonitor monitor = new GMTaskMonitor();
 		try {

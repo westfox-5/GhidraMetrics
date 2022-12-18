@@ -44,8 +44,8 @@ public class GMExporterJSON extends GMBaseMetricExporter {
 	private StringBuilder serializeMetric(GMMetric metric) {
 		StringBuilder sb = new StringBuilder();
 
-		Stream<GMMetricValue<?>> values = metric.getMetrics().stream();
-		Stream<GMMetricKey> keys = metric.getMetrics().stream().map(val -> val.getKey());
+		Stream<GMMetricValue<?>> values = metric.getMeasures().stream();
+		Stream<GMMetricKey> keys = metric.getMeasures().stream().map(val -> val.getKey());
 
 		sb.append("{")
 		.append(format("name", metric.getName())).append(JSON_SEP)

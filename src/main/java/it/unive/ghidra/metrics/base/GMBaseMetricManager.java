@@ -32,6 +32,8 @@ implements GMMetricManagerGUI, GMMetricManagerHeadless {
 	protected W wm;
 
 	private Function prevFn;
+	
+	protected abstract void init();
 
 	public GMBaseMetricManager(Program program, Class<M> metricClass) {
 		this.plugin = null;
@@ -150,6 +152,10 @@ implements GMMetricManagerGUI, GMMetricManagerHeadless {
 
 		if (initialized && guiEnabled) {
 			_createWindownManager(winManagerClass);
+		}
+		
+		if (initialized) {
+			init();
 		}
 
 		return initialized;

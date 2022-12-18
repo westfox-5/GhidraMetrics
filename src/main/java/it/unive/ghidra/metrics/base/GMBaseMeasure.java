@@ -2,20 +2,20 @@ package it.unive.ghidra.metrics.base;
 
 import java.util.Objects;
 
-import it.unive.ghidra.metrics.base.interfaces.GMMetricKey;
-import it.unive.ghidra.metrics.base.interfaces.GMMetricValue;
+import it.unive.ghidra.metrics.base.interfaces.GMMeasure;
+import it.unive.ghidra.metrics.base.interfaces.GMMeasureKey;
 
-public class GMBaseMetricValue<T> implements GMMetricValue<T> {
-	private final GMMetricKey key;
+public class GMBaseMeasure<T> implements GMMeasure<T> {
+	private final GMMeasureKey key;
 	private final T value;
 
-	protected GMBaseMetricValue(GMMetricKey key, T value) {
+	protected GMBaseMeasure(GMMeasureKey key, T value) {
 		this.key = key;
 		this.value = value;
 	}
-
+	
 	@Override
-	public GMMetricKey getKey() {
+	public GMMeasureKey getKey() {
 		return key;
 	}
 
@@ -37,7 +37,7 @@ public class GMBaseMetricValue<T> implements GMMetricValue<T> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		GMBaseMetricValue<?> other = (GMBaseMetricValue<?>) obj;
+		GMBaseMeasure<?> other = (GMBaseMeasure<?>) obj;
 		return Objects.equals(key, other.key);
 	}
 

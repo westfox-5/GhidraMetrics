@@ -4,12 +4,24 @@ import java.math.BigDecimal;
 
 import ghidra.program.model.listing.Function;
 import it.unive.ghidra.metrics.base.GMBaseMetric;
+import it.unive.ghidra.metrics.base.interfaces.GMMeasure;
+import it.unive.ghidra.metrics.base.interfaces.GMMeasureKey;
 import it.unive.ghidra.metrics.impl.halstead.GMHalsteadParser.Result;
 import it.unive.ghidra.metrics.util.NumberUtils;
 
 public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadManager, GMHalsteadWinManager> {
 	public static final String NAME = "Halstead";
 	public static final String LOOKUP_NAME = "halstead";
+	
+	private static final String[] 
+			TABLE_COLUMNS = { "Name", "Value", "Description", "Formula" };
+	private static final java.util.function.Function<GMMeasure<?>, Object[]> 
+			TABLE_ROWS_FUNCTION = measure -> new Object[] {
+				measure.getKey().getName(), 
+				measure.getValue(), 
+				measure.getKey().getInfo(GMMeasureKey.KEY_INFO_DESCRIPTION),
+				measure.getKey().getInfo(GMMeasureKey.KEY_INFO_FORMULA)
+			};
 
 	public static final class GMHalsteadFunction extends GMHalstead {
 
@@ -60,7 +72,7 @@ public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadManager, GMHa
 			this.N2 = result.N2;
 	
 			GMHalsteadKey.ALL_KEYS.forEach(key -> {
-				createMetricValue(key);
+				createMeasure(key);
 			});
 
 			return true;
@@ -175,6 +187,16 @@ public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadManager, GMHa
 	public BigDecimal getEstimatedErrors() {
 		BigDecimal V = getVolume();
 		return NumberUtils.div(V, new BigDecimal(3000));
+	}
+
+	@Override
+	public String[] getTableColumns() {
+		return TABLE_COLUMNS;
+	}
+
+	@Override
+	public java.util.function.Function<GMMeasure<?>, Object[]> getTableRowFn() {
+		return TABLE_ROWS_FUNCTION;
 	}
 
 }

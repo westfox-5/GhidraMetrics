@@ -2,7 +2,6 @@ package it.unive.ghidra.metrics.impl.mccabe;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
-import java.util.function.Function;
 
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -13,16 +12,11 @@ import javax.swing.JTable;
 import javax.swing.SwingConstants;
 
 import it.unive.ghidra.metrics.base.GMBaseMetricWindowManager;
-import it.unive.ghidra.metrics.base.interfaces.GMMetricKey;
-import it.unive.ghidra.metrics.base.interfaces.GMMetricValue;
 
 public class GMMcCabeWinManager extends GMBaseMetricWindowManager<GMMcCabe, GMMcCabeManager, GMMcCabeWinManager> {
-	private static final String[] TABLE_COLUMNS_DEFINITION = { "Name", "Value", "Formula" };
-	private static final Function<GMMetricValue<?>, Object[]> TABLE_ROWS_FUNCTION = metric -> new Object[] {
-			metric.getKey().getName(), metric.getValue(), metric.getKey().getInfo(GMMetricKey.KEY_INFO_FORMULA) };
 
-	private JTable tableProgramMetrics;
-	private JTable tableFunctionMetrics;
+	private JTable tableProgramMeasure;
+	private JTable tableFunctionMeasure;
 	private JTabbedPane tabbedPane;
 	private JPanel pnlNoFunctionSelected;
 	private JLabel lblNewLabel;
@@ -34,8 +28,8 @@ public class GMMcCabeWinManager extends GMBaseMetricWindowManager<GMMcCabe, GMMc
 	
 	@Override
 	public void onMetricInitialized() {
-		populateProgramMetrics();
-		populateFunctionMetrics();
+		populateProgramMeasures();
+		populateFunctionMeasures();
 	}
 
 	@Override
@@ -46,37 +40,37 @@ public class GMMcCabeWinManager extends GMBaseMetricWindowManager<GMMcCabe, GMMc
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		component.add(tabbedPane, BorderLayout.CENTER);
 
-		// tab 0 - Program metrics
+		// tab 0 - Program measures
 		{
 			JPanel pnlProgramMetrics = new JPanel();
-			tabbedPane.addTab("Program metrics", null, new JScrollPane(pnlProgramMetrics), null);
+			tabbedPane.addTab("Program measures", null, new JScrollPane(pnlProgramMetrics), null);
 			pnlProgramMetrics.setLayout(new BorderLayout(0, 0));
 			
-			tableProgramMetrics = new JTable();
+			tableProgramMeasure = new JTable();
 			
-			JScrollPane scrollPane = new JScrollPane(tableProgramMetrics);  
+			JScrollPane scrollPane = new JScrollPane(tableProgramMeasure);  
 			scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 			scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 			
-			pnlProgramMetrics.add(tableProgramMetrics.getTableHeader(), BorderLayout.NORTH);
+			pnlProgramMetrics.add(tableProgramMeasure.getTableHeader(), BorderLayout.NORTH);
 			pnlProgramMetrics.add(scrollPane, BorderLayout.CENTER);
 		}
 
-		// tab 1 - Function metrics
+		// tab 1 - Function measures
 		{
 			JPanel pnlFunctionMetrics = new JPanel();
-			tabbedPane.addTab("Function metrics", null, new JScrollPane(pnlFunctionMetrics), null);
+			tabbedPane.addTab("Function measures", null, new JScrollPane(pnlFunctionMetrics), null);
 			pnlFunctionMetrics.setLayout(new BorderLayout(0, 0));
 
-			tableFunctionMetrics = new JTable();
-			tableFunctionMetrics.setVisible(false);
-			tableFunctionMetrics.setEnabled(false);
+			tableFunctionMeasure = new JTable();
+			tableFunctionMeasure.setVisible(false);
+			tableFunctionMeasure.setEnabled(false);
 			
-			JScrollPane scrollPane = new JScrollPane(tableFunctionMetrics);  
+			JScrollPane scrollPane = new JScrollPane(tableFunctionMeasure);  
 			scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 			scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 			
-			pnlFunctionMetrics.add(tableFunctionMetrics.getTableHeader(), BorderLayout.NORTH);
+			pnlFunctionMetrics.add(tableFunctionMeasure.getTableHeader(), BorderLayout.NORTH);
 			pnlFunctionMetrics.add(scrollPane, BorderLayout.CENTER);
 
 			pnlNoFunctionSelected = new JPanel();
@@ -87,6 +81,7 @@ public class GMMcCabeWinManager extends GMBaseMetricWindowManager<GMMcCabe, GMMc
 			lblNewLabel = new JLabel("Select a valid function in the listing");
 			lblNewLabel.setFont(new Font("Dialog", Font.BOLD | Font.ITALIC, 14));
 			lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
+			lblNewLabel.setVisible(true);
 			pnlNoFunctionSelected.add(lblNewLabel, BorderLayout.CENTER);
 		}
 		return component;
@@ -94,26 +89,26 @@ public class GMMcCabeWinManager extends GMBaseMetricWindowManager<GMMcCabe, GMMc
 
 	@Override
 	public void revalidate() {
-		// populateProgramMetrics();
-		populateFunctionMetrics();
+		// populateProgramMeasures();
+		populateFunctionMeasures();
 
 		super.revalidate();
 	}
 	
 
-	private void populateProgramMetrics() {
-		populateMetricTable(tableProgramMetrics, getMetric());
+	private void populateProgramMeasures() {
+		populateMeasureTable(tableProgramMeasure, getMetric());
 	}
 
-	private void populateFunctionMetrics() {
+	private void populateFunctionMeasures() {
 		GMMcCabe mcCabeFn = getManager().getMetricFn();
 		if (mcCabeFn != null) {
-			populateMetricTable(tableFunctionMetrics, mcCabeFn);
+			populateMeasureTable(tableFunctionMeasure, mcCabeFn);
 
-			tableFunctionMetrics.setVisible(true);
+			tableFunctionMeasure.setVisible(true);
 			pnlNoFunctionSelected.setVisible(false);
 		} else {
-			tableFunctionMetrics.setVisible(false);
+			tableFunctionMeasure.setVisible(false);
 			pnlNoFunctionSelected.setVisible(true);
 		}
 	}
@@ -124,9 +119,5 @@ public class GMMcCabeWinManager extends GMBaseMetricWindowManager<GMMcCabe, GMMc
 
 	public boolean isFunctionTabVisible() {
 		return tabbedPane.getSelectedIndex() == 1;
-	}
-	
-	private void populateMetricTable(JTable table, GMMcCabe metric) {
-		populateMetricTable(table, metric, TABLE_COLUMNS_DEFINITION, TABLE_ROWS_FUNCTION);
 	}
 }

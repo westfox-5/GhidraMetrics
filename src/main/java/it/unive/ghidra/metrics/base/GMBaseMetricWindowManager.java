@@ -5,7 +5,8 @@ import java.util.function.Function;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
-import it.unive.ghidra.metrics.base.interfaces.GMMetricValue;
+import it.unive.ghidra.metrics.base.interfaces.GMMeasure;
+import it.unive.ghidra.metrics.base.interfaces.GMMetric;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricWindowManager;
 
 //@formatter:off
@@ -43,18 +44,20 @@ extends GMBaseWindowManager implements GMMetricWindowManager {
 		// default implementation
 	}
 
-	protected void populateMetricTable(JTable table, String[] columns, Function<GMMetricValue<?>, Object[]> rowFn) {
-		populateMetricTable(table, getMetric(), columns, rowFn);
+	protected void populateMeasureTable(JTable table) {
+		populateMeasureTable(table, getMetric());
 	}
 
-	protected static <M extends GMBaseMetric<?, ?, ?>> void populateMetricTable(JTable table, M metric,
-			String[] columns, Function<GMMetricValue<?>, Object[]> rowFn) {
+	protected static void populateMeasureTable(JTable table, GMMetric metric) {
 		DefaultTableModel dtm = new NonEditableTableModel();
-		dtm.setColumnCount(columns.length);
-		dtm.setColumnIdentifiers(columns);
-
-		metric.getMeasures().forEach(val -> {
-			dtm.addRow(rowFn.apply(val));
+		
+		String[] tableColumns = metric.getTableColumns();
+		dtm.setColumnCount(tableColumns.length);
+		dtm.setColumnIdentifiers(tableColumns);
+		
+		Function<GMMeasure<?>, Object[]> tableRowFn = metric.getTableRowFn();
+		metric.getMeasures().parallelStream().forEach(measure -> {
+			dtm.addRow( tableRowFn.apply(measure) );
 		});
 
 		table.setModel(dtm);

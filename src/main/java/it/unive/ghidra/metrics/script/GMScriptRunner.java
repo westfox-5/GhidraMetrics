@@ -38,27 +38,34 @@ public class GMScriptRunner {
 	public static void main(String[] args) throws Exception {		
 		doWelcome();
 
-		CommandLine cmd = null; 
-		{ 
-			Options options = createOptions();
-	        CommandLineParser parser = new DefaultParser();
-	        
-	        
-	        try {
-	        	cmd = parser.parse(options, args);
-	        	
-	        } catch (ParseException e) {
-	        	System.out.println(e.getMessage());
-	        	printHelp(options);
-	        	System.exit(1);
-	        }
+		CommandLine cmd = parseArgs(args);
+		if ( cmd == null ) {
+			System.exit(1);
 		}
-		
 		
 		GMScriptRunner sr = new GMScriptRunner(cmd);
 		sr.run();
+		
+		System.exit(0);
 	}
 	
+	private static CommandLine parseArgs(String[] args) {
+		CommandLine cmd = null; 
+		
+		Options options = createOptions();
+        CommandLineParser parser = new DefaultParser();
+        
+        try {
+        	cmd = parser.parse(options, args);
+        	
+        } catch (ParseException e) {
+        	System.out.println(e.getMessage());
+        	printHelp(options);
+        }
+		
+        return cmd;
+	}
+
 	public static void doWelcome() { 
 		System.out.println();
 		System.out.println("    /$$$$$$  /$$       /$$       /$$                                /$$      /$$             /$$               /$$                     ");
@@ -128,7 +135,7 @@ public class GMScriptRunner {
 	
 	public GMScriptRunner(CommandLine cmd) throws Exception { 
 		init();
-		parseCommands(cmd);
+		addCommands(cmd);
 	}
 	
 	private void init() throws Exception {
@@ -150,7 +157,7 @@ public class GMScriptRunner {
 		}
 	}
 	
-	private void parseCommands(CommandLine cmd) {
+	private void addCommands(CommandLine cmd) {
 		addGhidraArg(GMScriptArgumentKey.METRIC, cmd.getOptionValue("metric-name"));
 		addGhidraArg(GMScriptArgumentKey.EXPORT, cmd.getOptionValue("export-type"));
 		
@@ -183,7 +190,7 @@ public class GMScriptRunner {
 
 	}
 	
-	public void addGhidraArg(GMScriptArgumentKey key, String value) {
+	public final void addGhidraArg(GMScriptArgumentKey key, String value) {
 		scriptArgs.put(key, value);
 	}
 	
@@ -293,15 +300,15 @@ public class GMScriptRunner {
 		return commands;
 	}
 	
-	private String absolute(File file) {
+	private final String absolute(File file) {
 		return file.getAbsolutePath();
 	}
 	
-	private String absolute(Path path) {
+	private final String absolute(Path path) {
 		return path.toAbsolutePath().toString();
 	}
 
-	private List<String> serializeScriptArgs() {
+	private final List<String> serializeScriptArgs() {
 		return scriptArgs.keySet().parallelStream().map( k -> serializeScriptArgs(k)).collect(Collectors.toList());
 	}
 
@@ -313,7 +320,7 @@ public class GMScriptRunner {
 		return key.getKey();
 	}
 	
-	private boolean checkErrors(File tempFile) throws IOException {
+	private final boolean checkErrors(File tempFile) throws IOException {
 		try (BufferedReader br = new BufferedReader(new FileReader(tempFile))) {
 	        String line;
 	        while ((line = br.readLine()) != null) {

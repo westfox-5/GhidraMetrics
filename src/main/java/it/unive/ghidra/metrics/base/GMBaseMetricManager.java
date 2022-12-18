@@ -140,7 +140,7 @@ implements GMMetricManagerGUI, GMMetricManagerHeadless {
 		this.metricFn = metricFn;
 	}
 
-	private final boolean _createMetric(Class<M> metricClass) {
+	private final boolean _initMetric(Class<M> metricClass) {
 		try {
 			Constructor<M> declaredConstructor = metricClass.getDeclaredConstructor(getClass());
 			this.metric = declaredConstructor.newInstance(this);
@@ -150,10 +150,10 @@ implements GMMetricManagerGUI, GMMetricManagerHeadless {
 			return false;
 		}
 
-		return this.metric._init();
+		return metric._init();
 	}
 
-	private final boolean _createWindownManager(Class<W> winManagerClass) {
+	private final boolean _initWindownManager(Class<W> winManagerClass) {
 		try {
 			Constructor<W> declaredConstructor = winManagerClass.getDeclaredConstructor(getClass());
 			this.wm = declaredConstructor.newInstance(this);
@@ -163,27 +163,28 @@ implements GMMetricManagerGUI, GMMetricManagerHeadless {
 			return false;
 		}
 
-		Swing.runIfSwingOrRunLater(() -> wm.init());
+		Swing.runIfSwingOrRunLater(() -> {
+			wm.init();
 
-		if (metric != null) {
-			wm.onMetricInitialized();
-		}
+			if (metric != null) {
+				wm.onMetricInitialized();
+			}
+		});
 
 		return true;
 	}
 
 	private final boolean _init(Class<M> metricClass, Class<W> winManagerClass) {
-		boolean initialized = _createMetric(metricClass);
-
-		if (initialized && guiEnabled) {
-			_createWindownManager(winManagerClass);
-		}
 		
-		if (initialized) {
-			init();
-		}
+		if ( !_initMetric(metricClass) )
+			return false;
 
-		return initialized;
+		if ( guiEnabled && !_initWindownManager(winManagerClass) )
+			return false;
+		
+		init();
+
+		return true;
 	}
 
 	private static boolean equals(Function f1, Function f2) {

@@ -9,7 +9,6 @@ import javax.swing.JComponent;
 
 import docking.action.DockingAction;
 import ghidra.framework.plugintool.ComponentProviderAdapter;
-import ghidra.program.model.listing.Function;
 import ghidra.program.util.ProgramLocation;
 import ghidra.util.Msg;
 import it.unive.ghidra.metrics.base.GMBaseMetricExporter;

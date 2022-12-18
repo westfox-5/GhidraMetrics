@@ -1,8 +1,8 @@
 package it.unive.ghidra.metrics.base.interfaces;
 
-public interface GMMetricValue<T> {
+public interface GMMeasure<T> {
 
 	T getValue();
 
-	GMMetricKey getKey();
+	GMMeasureKey getKey();
 }

@@ -7,7 +7,7 @@ import it.unive.ghidra.metrics.base.GMBaseMetricExporter;
 import it.unive.ghidra.metrics.base.interfaces.GMMetric;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricExporter;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricManager;
-import it.unive.ghidra.metrics.base.interfaces.GMMetricValue;
+import it.unive.ghidra.metrics.base.interfaces.GMMeasure;
 import it.unive.ghidra.metrics.util.StringUtils;
 
 public class GMExporterTXT extends GMBaseMetricExporter {
@@ -40,13 +40,13 @@ public class GMExporterTXT extends GMBaseMetricExporter {
 	 */
 	private StringBuilder serializeMetric(GMMetric metric) {
 		StringBuilder sb = new StringBuilder();
-		Stream<GMMetricValue<?>> values = metric.getMeasures().stream();
+		Stream<GMMeasure<?>> measures = metric.getMeasures().stream();
 
 		sb
 		.append(METRIC_BEGIN_SEPARATOR + System.lineSeparator())
 		.append(format("name", metric.getName()));
-		values.forEach(v -> {
-			sb.append(format(v.getKey().getName(), v.getValue()));
+		measures.forEach(measure -> {
+			sb.append(format(measure.getKey().getName(), measure.getValue()));
 		});
 		sb.append(METRIC_END_SEPARATOR + System.lineSeparator());
 		return sb;

@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import javax.swing.JButton;
@@ -24,17 +23,13 @@ import docking.widgets.filechooser.GhidraFileChooserMode;
 import ghidra.util.filechooser.GhidraFileChooserModel;
 import ghidra.util.filechooser.GhidraFileFilter;
 import it.unive.ghidra.metrics.base.GMBaseMetricWindowManager;
-import it.unive.ghidra.metrics.base.interfaces.GMMetricValue;
 
 public class GMSimilarityWinManager extends GMBaseMetricWindowManager<GMSimilarity, GMSimilarityManager, GMSimilarityWinManager> {
-	private static final String[] TABLE_COLUMNS_DEFINITION = { "File", "NCD Similarity" };
-	private static final Function<GMMetricValue<?>, Object[]> TABLE_ROWS_FUNCTION = metric -> new Object[] {
-			metric.getKey().getName(), metric.getValue() };
 
 	private List<Path> selectedFiles;
 
 	private JPanel pnlContainer;
-	private JTable tblMeasures;
+	private JTable tblMeasure;
 	private JButton btnClearMeasures;
 
 	public GMSimilarityWinManager(GMSimilarityManager manager) {
@@ -126,9 +121,9 @@ public class GMSimilarityWinManager extends GMBaseMetricWindowManager<GMSimilari
 
 		JPanel pnlMeasureTable = new JPanel();
 		pnlMeasureTable.setLayout(new BorderLayout());
-		tblMeasures = new JTable();
-		pnlMeasureTable.add(tblMeasures.getTableHeader(), BorderLayout.NORTH);
-		pnlMeasureTable.add(tblMeasures, BorderLayout.CENTER);
+		tblMeasure = new JTable();
+		pnlMeasureTable.add(tblMeasure.getTableHeader(), BorderLayout.NORTH);
+		pnlMeasureTable.add(tblMeasure, BorderLayout.CENTER);
 		pnlContainer.add(pnlMeasureTable, BorderLayout.CENTER);
 		pnlContainer.setVisible(true);
 
@@ -148,13 +143,13 @@ public class GMSimilarityWinManager extends GMBaseMetricWindowManager<GMSimilari
 		super.revalidate();
 		
 		if ( hasSelectedFiles() ) {
-			populateMetricTable(tblMeasures, TABLE_COLUMNS_DEFINITION, TABLE_ROWS_FUNCTION);
+			populateMeasureTable(tblMeasure);
 
 			btnClearMeasures.setVisible(true);	
-			tblMeasures.setVisible(true);
+			tblMeasure.setVisible(true);
 		} else {
 			btnClearMeasures.setVisible(false);	
-			tblMeasures.setVisible(false);
+			tblMeasure.setVisible(false);
 		}
 	}
 

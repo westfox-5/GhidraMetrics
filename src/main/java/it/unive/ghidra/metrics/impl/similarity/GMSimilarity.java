@@ -17,6 +17,7 @@ import ghidra.util.exception.CancelledException;
 import ghidra.util.exception.DuplicateNameException;
 import ghidra.util.exception.VersionException;
 import it.unive.ghidra.metrics.base.GMBaseMetric;
+import it.unive.ghidra.metrics.base.interfaces.GMMeasure;
 import it.unive.ghidra.metrics.util.GMTaskMonitor;
 import it.unive.ghidra.metrics.util.PathHelper;
 import it.unive.ghidra.metrics.util.ZipHelper;
@@ -26,8 +27,15 @@ public class GMSimilarity extends GMBaseMetric<GMSimilarity, GMSimilarityManager
 	public static final String NAME = "Similarity";
 	public static final String LOOKUP_NAME = "similarity";
 
+	private static final String[] 
+			TABLE_COLUMNS = { "File", "NCD Similarity" };
+	private static final java.util.function.Function<GMMeasure<?>, Object[]> 
+			TABLE_ROWS_FUNCTION = measure -> new Object[] {
+				measure.getKey().getName(), 
+				measure.getValue()
+			};
+	
 	private static final String TEMP_DIR_PREFIX = "ghidra_metrics_";
-
 	private Path TEMP_DIR;
 
 	private final ZipHelper.Zipper zipper = ZipHelper::rzip;
@@ -80,7 +88,7 @@ public class GMSimilarity extends GMBaseMetric<GMSimilarity, GMSimilarityManager
 			Double ncd = (1.00 * concatZipSize - Math.min(zipSize, otherZipSize)) / (1.00 * Math.max(zipSize, otherZipSize));
 
 			GMSimilarityKey key = new GMSimilarityKey(path);
-			createMetricValue(key, 1-ncd);
+			createMeasure(key, 1-ncd);
 			
 			Files.deleteIfExists(otherZipPath);
 			Files.deleteIfExists(concatPath);
@@ -120,4 +128,15 @@ public class GMSimilarity extends GMBaseMetric<GMSimilarity, GMSimilarityManager
 */
 		return program;
 	}
+	
+	@Override
+	public String[] getTableColumns() {
+		return TABLE_COLUMNS;
+	}
+
+	@Override
+	public java.util.function.Function<GMMeasure<?>, Object[]> getTableRowFn() {
+		return TABLE_ROWS_FUNCTION;
+	}
+
 }

@@ -102,7 +102,6 @@ public class GhidraMetricsProvider extends ComponentProviderAdapter {
 				throw new RuntimeException("Could not export selected metric.");
 			}
 
-			Msg.info(this, "Export to file: " + exportPath.toAbsolutePath());
 			Msg.showInfo(this, getComponent(), "Export", "File exported: " + exportPath.toAbsolutePath());
 
 		} catch (IOException e) {

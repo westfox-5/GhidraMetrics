@@ -1,17 +1,21 @@
 package it.unive.ghidra.metrics.impl.similarity;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
-import ghidra.app.util.exporter.BinaryExporter;
+import ghidra.app.plugin.core.analysis.AutoAnalysisManager;
 import ghidra.app.util.exporter.ExporterException;
-import ghidra.framework.model.DomainFile;
-import ghidra.framework.model.DomainObject;
+import ghidra.app.util.importer.AutoImporter;
+import ghidra.app.util.importer.MessageLog;
+import ghidra.framework.model.DomainFolder;
 import ghidra.program.model.listing.Function;
+import ghidra.program.model.listing.Program;
+import ghidra.util.InvalidNameException;
+import ghidra.util.Msg;
 import ghidra.util.exception.CancelledException;
+import ghidra.util.exception.DuplicateNameException;
 import ghidra.util.exception.VersionException;
 import it.unive.ghidra.metrics.base.GMBaseMetric;
 import it.unive.ghidra.metrics.util.GMTaskMonitor;
@@ -23,14 +27,9 @@ public class GMSimilarity extends GMBaseMetric<GMSimilarity, GMSimilarityManager
 	public static final String NAME = "Similarity";
 	public static final String LOOKUP_NAME = "similarity";
 
-	private static final String DEFAULT_DIR = "ghidra_metrics_";
-	private static final String DEFUALT_PREFIX = "ghidra_similarity_";
+	private static final String TEMP_DIR_PREFIX = "ghidra_metrics_";
 
-	private Path tmpDir;
-
-	private Path exportPath;
-	private Path zipPath;
-	private Long zipSize;
+	private Path TEMP_DIR;
 
 	private final ZipHelper.Zipper zipper = ZipHelper::rzip;
 
@@ -41,25 +40,12 @@ public class GMSimilarity extends GMBaseMetric<GMSimilarity, GMSimilarityManager
 	@Override
 	public boolean init() {
 		try {
-			this.tmpDir = Files.createTempDirectory(DEFAULT_DIR);
-			this.exportPath = Files.createTempFile(tmpDir, DEFUALT_PREFIX, null);
-
-			GMTaskMonitor monitor = new GMTaskMonitor();
-
-			DomainObject immutableDomainObject = getManager().getProgram().getDomainFile()
-					.getImmutableDomainObject(this, DomainFile.DEFAULT_VERSION, monitor);
-
-			BinaryExporter binaryExporter = new BinaryExporter();
-			binaryExporter.export(exportPath.toFile(), immutableDomainObject, null, null);
-
-			this.zipPath = zipper.zip(tmpDir, exportPath);
-			this.zipSize = Files.size(zipPath);
-
-		} catch (ZipException x) {
-			manager.printException(new Exception("If you see this error, it is very likely that you do not have 'rzip' installed in your system. Please procede to installation in order to continue using this plugin.", x));
-			return false;
+			TEMP_DIR = Files.createTempDirectory(TEMP_DIR_PREFIX);
 			
-		} catch (IOException | VersionException | CancelledException | ExporterException x) {
+			Msg.info(this, "temp directory created: "+ TEMP_DIR.toAbsolutePath().toString());
+			/* getManager().getPlugin().getTool().getProject(); */
+						
+		} catch (IOException x) {
 			manager.printException(x);
 			return false;
 		}
@@ -67,35 +53,70 @@ public class GMSimilarity extends GMBaseMetric<GMSimilarity, GMSimilarityManager
 		return true;
 	}
 
-	protected void compute(List<File> files) throws ZipException {
-		for (File file : files) {
-			Path path = file.toPath();
-			double ncd = ncd(path);
 
-			GMSimilarityKey key = new GMSimilarityKey(path.getFileName().toString());
-			createMetricValue(key, 1-ncd);
+	protected void createMetricValues(List<Path> toCompute) throws ZipException, VersionException, CancelledException, ExporterException, DuplicateNameException, InvalidNameException, IOException {
+		Path zipPath;
+		try {
+			zipPath = zipToTempFile(getExecutablePath(getManager().getProgram()));
+		} catch (ZipException x) {
+			manager.printException(new Exception("If you see this error, it is very likely that you do not have 'rzip' installed in your system."
+					+ " Please procede to installation in order to continue using this plugin.", x));
+			return;
 		}
+
+		Long zipSize = Files.size(zipPath);
+		
+		for (Path path: toCompute) {
+			// data for other programs
+			Program otherProgram = importNewProgram(path);
+			otherProgram.setTemporary(true);
+			
+			Path otherZipPath = zipToTempFile(getExecutablePath(otherProgram));
+			Long otherZipSize = Files.size(otherZipPath);
+			
+			Path concatPath = PathHelper.concatPaths(TEMP_DIR, zipPath, otherZipPath);
+			Path concatZipPath = zipper.zip(TEMP_DIR, concatPath);
+			Long concatZipSize = Files.size(concatZipPath);
+
+			Double ncd = (1.00 * concatZipSize - Math.min(zipSize, otherZipSize)) / (1.00 * Math.max(zipSize, otherZipSize));
+
+			GMSimilarityKey key = new GMSimilarityKey(path);
+			createMetricValue(key, 1-ncd);
+			
+			Files.deleteIfExists(otherZipPath);
+			Files.deleteIfExists(concatPath);
+			Files.deleteIfExists(concatZipPath);
+		}
+		
+		Files.deleteIfExists(zipPath);
+		
 	}
 
 	@Override
 	protected void functionChanged(Function fn) {
 
 	}
-
-	private double ncd(Path path) throws ZipException {
-		try {
-			Path zipPath2 = zipper.zip(tmpDir, path);
-			Long zipSize2 = Files.size(zipPath2);
 	
-			Path concatPath = PathHelper.concatPaths2(tmpDir, exportPath, path);
-			Path zipConcat = zipper.zip(tmpDir, concatPath);
-			Long zipSizeConcat = Files.size(zipConcat);
+	private Path zipToTempFile(Path file) throws ZipException {
+		return zipper.zip(TEMP_DIR, file);
+	}
 	
-			Double ncd = (1.00 * zipSizeConcat - Math.min(zipSize, zipSize2)) / (1.00 * Math.max(zipSize, zipSize2));
-			
-			return ncd;
-		} catch(IOException e) {
-			throw new ZipException(e);
-		}
+	private Path getExecutablePath(Program program) throws IOException {
+		/*
+		Path source = Path.of(getManager().getProgram().getExecutablePath());
+		Path target = TEMP_DIR.toAbsolutePath().resolve(source.getFileName());
+		Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
+		*/
+		return Path.of(getManager().getProgram().getExecutablePath());
+	}
+	
+	private Program importNewProgram(Path path) throws CancelledException, DuplicateNameException, InvalidNameException, VersionException, IOException {
+		GMTaskMonitor monitor = new GMTaskMonitor();
+		Program program = AutoImporter.importByUsingBestGuess(path.toFile(), (DomainFolder)null, this, new MessageLog(), monitor);
+		
+		AutoAnalysisManager analysisManager = AutoAnalysisManager.getAnalysisManager(program);
+		analysisManager.startAnalysis(monitor);
+		analysisManager.waitForAnalysis(null, monitor); // waits for all analysis to complete
+		return analysisManager.getProgram();
 	}
 }

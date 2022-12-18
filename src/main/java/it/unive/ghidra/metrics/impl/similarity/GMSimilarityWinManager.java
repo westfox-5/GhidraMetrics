@@ -6,8 +6,10 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -28,7 +30,7 @@ public class GMSimilarityWinManager extends GMBaseMetricWindowManager<GMSimilari
 	private static final Function<GMMetricValue<?>, Object[]> TABLE_ROWS_FUNCTION = metric -> new Object[] {
 			metric.getKey().getName(), metric.getValue() };
 
-	private List<File> selectedFiles;
+	private List<Path> selectedFiles;
 
 	private JPanel pnlSelection;
 	private JPanel pnlNcdContainer;
@@ -91,7 +93,10 @@ public class GMSimilarityWinManager extends GMBaseMetricWindowManager<GMSimilari
 			btnSelectFiles.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
-					selectedFiles = fileChooser.getSelectedFiles();
+					List<File> _selectedFiles = fileChooser.getSelectedFiles();
+					if (_selectedFiles != null) {
+						selectedFiles = _selectedFiles.stream().map(f -> f.toPath()).collect(Collectors.toList());
+					}
 					getManager().fileSelected();
 				}
 			});
@@ -119,7 +124,7 @@ public class GMSimilarityWinManager extends GMBaseMetricWindowManager<GMSimilari
 		refresh();
 	}
 
-	public List<File> getSelectedFiles() {
+	public List<Path> getSelectedFiles() {
 		return selectedFiles;
 	}
 

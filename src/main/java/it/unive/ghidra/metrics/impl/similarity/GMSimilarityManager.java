@@ -1,12 +1,11 @@
 package it.unive.ghidra.metrics.impl.similarity;
 
-import java.io.File;
+import java.nio.file.Path;
 import java.util.List;
 
 import ghidra.program.model.listing.Program;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
 import it.unive.ghidra.metrics.base.GMBaseMetricManager;
-import it.unive.ghidra.metrics.util.ZipHelper.ZipException;
 
 public class GMSimilarityManager extends GMBaseMetricManager<GMSimilarity, GMSimilarityManager, GMSimilarityWinManager> {
 
@@ -20,11 +19,13 @@ public class GMSimilarityManager extends GMBaseMetricManager<GMSimilarity, GMSim
 
 	public void fileSelected() {
 		if (getWinManager().hasSelectedFiles()) {
-			List<File> selectedFiles = getWinManager().getSelectedFiles();
+			List<Path> selectedFiles = getWinManager().getSelectedFiles();
 
 			try {
-				getMetric().compute(selectedFiles);
-			} catch (ZipException e) {
+				
+				getMetric().createMetricValues(selectedFiles);
+				
+			} catch (Exception e) {
 				printException(e);
 			}
 

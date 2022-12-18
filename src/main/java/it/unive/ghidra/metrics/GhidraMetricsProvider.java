@@ -18,6 +18,7 @@ import it.unive.ghidra.metrics.base.interfaces.GMMetricManagerGUI;
 import it.unive.ghidra.metrics.gui.GMActionBack;
 import it.unive.ghidra.metrics.gui.GMActionExport;
 import it.unive.ghidra.metrics.gui.GMWindowManager;
+import it.unive.ghidra.metrics.util.GMFactory;
 
 public class GhidraMetricsProvider extends ComponentProviderAdapter {
 
@@ -82,7 +83,7 @@ public class GhidraMetricsProvider extends ComponentProviderAdapter {
 	}
 
 	public void showMetricWindow(String metricName) {
-		metricManager = GhidraMetricsFactory.create(metricName, getPlugin());
+		metricManager = GMFactory.create(metricName, getPlugin());
 		updateWindow();
 	}
 

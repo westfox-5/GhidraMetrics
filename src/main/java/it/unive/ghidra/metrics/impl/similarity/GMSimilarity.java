@@ -1,4 +1,4 @@
-package it.unive.ghidra.metrics.impl.ncd;
+package it.unive.ghidra.metrics.impl.similarity;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,12 +19,12 @@ import it.unive.ghidra.metrics.util.PathHelper;
 import it.unive.ghidra.metrics.util.ZipHelper;
 import it.unive.ghidra.metrics.util.ZipHelper.ZipException;
 
-public class GMNCD extends GMBaseMetric<GMNCD, GMNCDManager, GMNCDWinManager> {
-	public static final String NAME = "NCD Similarity";
-	public static final String LOOKUP_NAME = "ncd";
+public class GMSimilarity extends GMBaseMetric<GMSimilarity, GMSimilarityManager, GMSimilarityWinManager> {
+	public static final String NAME = "Similarity";
+	public static final String LOOKUP_NAME = "similarity";
 
 	private static final String DEFAULT_DIR = "ghidra_metrics_";
-	private static final String DEFUALT_PREFIX = "ghidra_ncd_";
+	private static final String DEFUALT_PREFIX = "ghidra_similarity_";
 
 	private Path tmpDir;
 
@@ -34,7 +34,7 @@ public class GMNCD extends GMBaseMetric<GMNCD, GMNCDManager, GMNCDWinManager> {
 
 	private final ZipHelper.Zipper zipper = ZipHelper::rzip;
 
-	public GMNCD(GMNCDManager manager) {
+	public GMSimilarity(GMSimilarityManager manager) {
 		super(NAME, manager);
 	}
 
@@ -72,8 +72,8 @@ public class GMNCD extends GMBaseMetric<GMNCD, GMNCDManager, GMNCDWinManager> {
 			Path path = file.toPath();
 			double ncd = ncd(path);
 
-			GMNCDKey key = new GMNCDKey(path.getFileName().toString());
-			createMetricValue(key, ncd);
+			GMSimilarityKey key = new GMSimilarityKey(path.getFileName().toString());
+			createMetricValue(key, 1-ncd);
 		}
 	}
 
@@ -83,8 +83,6 @@ public class GMNCD extends GMBaseMetric<GMNCD, GMNCDManager, GMNCDWinManager> {
 	}
 
 	private double ncd(Path path) throws ZipException {
-		Double similarity = null;
-
 		try {
 			Path zipPath2 = zipper.zip(tmpDir, path);
 			Long zipSize2 = Files.size(zipPath2);
@@ -94,11 +92,10 @@ public class GMNCD extends GMBaseMetric<GMNCD, GMNCDManager, GMNCDWinManager> {
 			Long zipSizeConcat = Files.size(zipConcat);
 	
 			Double ncd = (1.00 * zipSizeConcat - Math.min(zipSize, zipSize2)) / (1.00 * Math.max(zipSize, zipSize2));
-			similarity = 1.00 - ncd;
+			
+			return ncd;
 		} catch(IOException e) {
 			throw new ZipException(e);
 		}
-		
-		return similarity;
 	}
 }

@@ -9,7 +9,7 @@ import it.unive.ghidra.metrics.script.GMScriptArgumentContainer.GMScriptArgument
 public final class GMScriptArgumentParser {
 	private static final String ARG_VALUE_SEPARATOR = "=";
 
-	protected static Map<GMScriptArgumentKey, GMScriptArgumentContainer<?>> parse(String... args) throws GMScriptException {
+	public static Map<GMScriptArgumentKey, GMScriptArgumentContainer<?>> parse(String... args) throws GMScriptException {
 		Map<GMScriptArgumentKey, GMScriptArgumentContainer<?>> map = new HashMap<>();
 
 		if (args != null && args.length > 0) {

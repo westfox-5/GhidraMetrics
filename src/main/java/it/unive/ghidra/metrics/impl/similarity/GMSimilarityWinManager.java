@@ -1,4 +1,4 @@
-package it.unive.ghidra.metrics.impl.ncd;
+package it.unive.ghidra.metrics.impl.similarity;
 
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -23,7 +23,7 @@ import ghidra.util.filechooser.GhidraFileFilter;
 import it.unive.ghidra.metrics.base.GMBaseMetricWindowManager;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricValue;
 
-public class GMNCDWinManager extends GMBaseMetricWindowManager<GMNCD, GMNCDManager, GMNCDWinManager> {
+public class GMSimilarityWinManager extends GMBaseMetricWindowManager<GMSimilarity, GMSimilarityManager, GMSimilarityWinManager> {
 	private static final String[] TABLE_COLUMNS_DEFINITION = { "File", "NCD Similarity" };
 	private static final Function<GMMetricValue<?>, Object[]> TABLE_ROWS_FUNCTION = metric -> new Object[] {
 			metric.getKey().getName(), metric.getValue() };
@@ -34,7 +34,7 @@ public class GMNCDWinManager extends GMBaseMetricWindowManager<GMNCD, GMNCDManag
 	private JPanel pnlNcdContainer;
 	private JTable tblNcd;
 
-	public GMNCDWinManager(GMNCDManager manager) {
+	public GMSimilarityWinManager(GMSimilarityManager manager) {
 		super(manager);
 	}
 

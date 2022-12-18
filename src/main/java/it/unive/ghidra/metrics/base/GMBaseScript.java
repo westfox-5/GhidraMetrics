@@ -1,9 +1,12 @@
-package it.unive.ghidra.metrics.script;
+package it.unive.ghidra.metrics.base;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import ghidra.app.script.GhidraScript;
+import it.unive.ghidra.metrics.script.GMScriptArgumentContainer;
+import it.unive.ghidra.metrics.script.GMScriptArgumentParser;
+import it.unive.ghidra.metrics.script.GMScriptException;
 import it.unive.ghidra.metrics.script.GMScriptArgumentContainer.GMScriptArgumentKey;
 
 public abstract class GMBaseScript extends GhidraScript {

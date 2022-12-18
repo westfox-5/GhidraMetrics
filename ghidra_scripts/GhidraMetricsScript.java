@@ -4,11 +4,11 @@ import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.FunctionIterator;
 import ghidra.program.model.listing.Program;
 import ghidra.util.Msg;
-import it.unive.ghidra.metrics.GhidraMetricsFactory;
+import it.unive.ghidra.metrics.base.GMBaseScript;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricExporter;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricManagerHeadless;
-import it.unive.ghidra.metrics.script.GMBaseScript;
 import it.unive.ghidra.metrics.script.GMScriptArgumentContainer.GMScriptArgumentKey;
+import it.unive.ghidra.metrics.util.GMFactory;
 import it.unive.ghidra.metrics.script.GMScriptException;
 
 public class GhidraMetricsScript extends GMBaseScript {
@@ -19,7 +19,7 @@ public class GhidraMetricsScript extends GMBaseScript {
 			parseArgs();
 			
 			final String metricName = getArgValue(GMScriptArgumentKey.METRIC);
-			GMMetricManagerHeadless manager = GhidraMetricsFactory.createHeadless(metricName, getCurrentProgram());	 
+			GMMetricManagerHeadless manager = GMFactory.createHeadless(metricName, getCurrentProgram());	 
 			
 			if (hasArg(GMScriptArgumentKey.FUNCTION)) {
 				final String fnName = getArgValue(GMScriptArgumentKey.FUNCTION);

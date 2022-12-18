@@ -1,4 +1,4 @@
-package it.unive.ghidra.metrics.impl.ncd;
+package it.unive.ghidra.metrics.impl.similarity;
 
 import java.io.File;
 import java.util.List;
@@ -8,14 +8,14 @@ import it.unive.ghidra.metrics.GhidraMetricsPlugin;
 import it.unive.ghidra.metrics.base.GMBaseMetricManager;
 import it.unive.ghidra.metrics.util.ZipHelper.ZipException;
 
-public class GMNCDManager extends GMBaseMetricManager<GMNCD, GMNCDManager, GMNCDWinManager> {
+public class GMSimilarityManager extends GMBaseMetricManager<GMSimilarity, GMSimilarityManager, GMSimilarityWinManager> {
 
-	public GMNCDManager(Program program) {
-		super(program, GMNCD.class);
+	public GMSimilarityManager(Program program) {
+		super(program, GMSimilarity.class);
 	}
 
-	public GMNCDManager(GhidraMetricsPlugin plugin) {
-		super(plugin, GMNCD.class, GMNCDWinManager.class);
+	public GMSimilarityManager(GhidraMetricsPlugin plugin) {
+		super(plugin, GMSimilarity.class, GMSimilarityWinManager.class);
 	}
 
 	public void fileSelected() {

@@ -4,7 +4,5 @@ public interface GMMetricWindowManager extends GMWindowManager {
 
 	GMMetricManager getManager();
 
-	GMMetric getMetric();
-
-	void onMetricInitialized();
+	default GMMetric getMetric() { return getManager().getMetric(); }
 }

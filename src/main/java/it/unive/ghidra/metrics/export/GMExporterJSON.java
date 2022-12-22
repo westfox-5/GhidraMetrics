@@ -17,7 +17,7 @@ public class GMExporterJSON extends GMBaseMetricExporter {
 	private static final String JSON_KEY_VALUE_SEP = ":";
 
 	public GMExporterJSON(GMMetricManager manager) {
-		super(manager, GMMetricExporter.Type.JSON);
+		super(manager, GMMetricExporter.FileFormat.JSON);
 	}
 
 	@Override

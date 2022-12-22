@@ -27,8 +27,8 @@ public class GMSimilarityManager extends GMBaseMetricManager<GMSimilarity, GMSim
 
 	public void fileSelected() {
 		
-		if (getWinManager().hasSelectedFiles()) {
-			List<Path> toCompute = getWinManager().getSelectedFiles();
+		if (getWindowManager().hasSelectedFiles()) {
+			List<Path> toCompute = getWindowManager().getSelectedFiles();
 			this.selectedFiles.addAll(toCompute);
 			
 			try {	
@@ -38,16 +38,16 @@ public class GMSimilarityManager extends GMBaseMetricManager<GMSimilarity, GMSim
 			}
 		} 
 		
-		getWinManager().revalidate();
-		getWinManager().refresh();
+		getWindowManager().revalidate();
+		getWindowManager().repaint();
 	}
 	
 	public void clearSelectedFiles() {
 		this.selectedFiles.clear();
 		getMetric().clearMeasures();
 		
-		getWinManager().revalidate();
-		getWinManager().refresh();
+		getWindowManager().revalidate();
+		getWindowManager().repaint();
 	}
 
 }

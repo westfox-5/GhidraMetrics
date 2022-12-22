@@ -2,17 +2,20 @@ package it.unive.ghidra.metrics.base.interfaces;
 
 import javax.swing.JComponent;
 
+import ghidra.util.Swing;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
 
 public interface GMWindowManager {
 
 	GhidraMetricsPlugin getPlugin();
-	
+
 	JComponent getComponent();
 
-	void onInitializationCompleted();
+	default void repaint() { 
+		Swing.runIfSwingOrRunLater( () -> getComponent().repaint() );
+	}
 
-	void refresh();
-
-	void revalidate();
+	default void revalidate() { 
+		Swing.runIfSwingOrRunLater( () -> getComponent().revalidate() );
+	}
 }

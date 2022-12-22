@@ -11,20 +11,20 @@ import it.unive.ghidra.metrics.script.GMScriptArgumentContainer.GMScriptArgument
 
 public abstract class GMBaseScript extends GhidraScript {
 
-	private final Map<GMScriptArgumentKey, GMScriptArgumentContainer<?>> _args = new HashMap<>();
+	private final Map<GMScriptArgumentKey, GMScriptArgumentContainer<?>> args = new HashMap<>();
 
 	protected void parseArgs() throws GMScriptException {
 		Map<GMScriptArgumentKey, GMScriptArgumentContainer<?>> parsed = GMScriptArgumentParser.parse(getScriptArgs());
-		_args.putAll(parsed);
+		args.putAll(parsed);
 	}
 
 	@SuppressWarnings("unchecked")
 	private <T> GMScriptArgumentContainer<T> getArg(GMScriptArgumentKey option) {
-		return (GMScriptArgumentContainer<T>) _args.get(option);
+		return (GMScriptArgumentContainer<T>) args.get(option);
 	}
 
 	public boolean hasArg(GMScriptArgumentKey option) {
-		return _args.containsKey(option);
+		return args.containsKey(option);
 	}
 
 	@SuppressWarnings("unchecked")

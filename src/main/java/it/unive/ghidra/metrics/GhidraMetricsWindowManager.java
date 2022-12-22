@@ -1,4 +1,4 @@
-package it.unive.ghidra.metrics.gui;
+package it.unive.ghidra.metrics;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
@@ -8,22 +8,24 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
-import it.unive.ghidra.metrics.GhidraMetricsPlugin;
 import it.unive.ghidra.metrics.base.GMBaseWindowManager;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricManagerGUI;
+import it.unive.ghidra.metrics.gui.GMActionMetric;
 
-public class GMWindowManager extends GMBaseWindowManager {
+public class GhidraMetricsWindowManager extends GMBaseWindowManager {
 
 	private JPanel pnlMainContainer;
 	private JPanel pnlMetricContainer;
 
-	public GMWindowManager(GhidraMetricsPlugin plugin) {
+	public GhidraMetricsWindowManager(GhidraMetricsPlugin plugin) {
 		super(plugin);
 	}
 
 	@Override
-	public void onInitializationCompleted() {
+	public boolean init() {
 		createAllMetricButtons();
+		
+		return true;
 	}
 
 	/**
@@ -64,7 +66,7 @@ public class GMWindowManager extends GMBaseWindowManager {
 			pnlMainContainer.setVisible(true);
 
 		} else {
-			JComponent component = manager.getWinManager().getComponent();
+			JComponent component = manager.getWindowManager().getComponent();
 			pnlMetricContainer.add(component, BorderLayout.CENTER);
 			
 			pnlMainContainer.setVisible(false);
@@ -72,12 +74,12 @@ public class GMWindowManager extends GMBaseWindowManager {
 		}
 
 		revalidate();
-		refresh();
+		repaint();
 	}
 
 	private final void createAllMetricButtons() {
 		getPlugin().getMetricNames().forEach(metricName -> {
-			pnlMainContainer.add(new GMMetricButton(getPlugin(), metricName));
+			pnlMainContainer.add(new GMActionMetric(getPlugin(), metricName));
 		});
 	}
 }

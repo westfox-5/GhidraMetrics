@@ -88,14 +88,14 @@ public abstract class GMScriptArgumentContainer<T> {
 	// -- Type: GMExporter.Type
 	//
 	//@formatter:off
-	public static final GMScriptArgumentContainer<GMMetricExporter.Type> ARG_EXPORT = new GMScriptArgumentContainer<>(GMScriptArgumentKey.EXPORT) {
+	public static final GMScriptArgumentContainer<GMMetricExporter.FileFormat> ARG_EXPORT = new GMScriptArgumentContainer<>(GMScriptArgumentKey.EXPORT) {
 	//@formatter:on
 		@Override
-		protected GMMetricExporter.Type getTypedValue(String str) throws GMScriptException {
+		protected GMMetricExporter.FileFormat getTypedValue(String str) throws GMScriptException {
 			try {
-				return GMMetricExporter.Type.valueOf(str.toUpperCase());
+				return GMMetricExporter.FileFormat.valueOf(str.toUpperCase());
 			} catch (IllegalArgumentException e) {
-				String allowedTypes = Stream.of(GMMetricExporter.Type.values())
+				String allowedTypes = Stream.of(GMMetricExporter.FileFormat.values())
 						.map(type -> type.name().toLowerCase())
 						.collect(Collectors.joining(","));
 				throw new GMScriptException("No export defined for value '" + str + "'. Please use one of: " + allowedTypes);

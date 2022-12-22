@@ -7,8 +7,8 @@ import ghidra.util.Msg;
 import it.unive.ghidra.metrics.base.GMBaseScript;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricExporter;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricManagerHeadless;
+import it.unive.ghidra.metrics.impl.GhidraMetricFactory;
 import it.unive.ghidra.metrics.script.GMScriptArgumentContainer.GMScriptArgumentKey;
-import it.unive.ghidra.metrics.util.GMFactory;
 import it.unive.ghidra.metrics.script.GMScriptException;
 
 public class GhidraMetricsScript extends GMBaseScript {
@@ -17,10 +17,10 @@ public class GhidraMetricsScript extends GMBaseScript {
 	protected void run() {
 		try {
 			parseArgs();
-			
+
 			final String metricName = getArgValue(GMScriptArgumentKey.METRIC);
-			GMMetricManagerHeadless manager = GMFactory.createHeadless(metricName, getCurrentProgram());	 
-			
+			GMMetricManagerHeadless manager = GhidraMetricFactory.createHeadless(metricName, getCurrentProgram());
+
 			if (hasArg(GMScriptArgumentKey.FUNCTION)) {
 				final String fnName = getArgValue(GMScriptArgumentKey.FUNCTION);
 
@@ -35,9 +35,9 @@ public class GhidraMetricsScript extends GMBaseScript {
 			}
 
 			if (hasArg(GMScriptArgumentKey.EXPORT)) {
-				final GMMetricExporter.Type exportType = getArgValue(GMScriptArgumentKey.EXPORT);
+				final GMMetricExporter.FileFormat fileFormat = getArgValue(GMScriptArgumentKey.EXPORT);
 				Path exportDir = null;
-				
+
 				if (hasArg(GMScriptArgumentKey.EXPORT_DIR)) {
 					// specific directory from arguments
 					exportDir = getArgValue(GMScriptArgumentKey.EXPORT_DIR);
@@ -45,17 +45,16 @@ public class GhidraMetricsScript extends GMBaseScript {
 					// same directory of input file
 					exportDir = Path.of(getProgramFile().getParentFile().getAbsolutePath());
 				}
-				
-				
-				Path exportPath = Path.of(
-						exportDir.toAbsolutePath().toString(), 
-						manager.getMetric().getName() +"_"+ getProgramFile().getName() +"."+ exportType.getExtension());
-				
-				GMMetricExporter exporter = manager.makeExporter(exportType).toFile(exportPath).build();
+
+				Path exportPath = Path.of(exportDir.toAbsolutePath().toString(), 
+						manager.getMetric().getName() + "_"
+						+ getProgramFile().getName() + "." + fileFormat.getExtension());
+
+				GMMetricExporter exporter = manager.makeExporter(fileFormat).toFile(exportPath).build();
 				if (exporter == null) {
 					throw new GMScriptException("Could not export metric.");
 				}
-				
+
 				Path export = exporter.export();
 				Msg.info(this, manager.getMetric().getName() + " metric exported to: " + export.toAbsolutePath());
 			}
@@ -64,7 +63,6 @@ public class GhidraMetricsScript extends GMBaseScript {
 
 		} catch (Exception e) {
 			Msg.error(this, e.getMessage());
-
 			e.printStackTrace();
 		}
 	}

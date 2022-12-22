@@ -16,13 +16,12 @@ import it.unive.ghidra.metrics.base.interfaces.GMMetricExporter;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricManagerGUI;
 import it.unive.ghidra.metrics.gui.GMActionBack;
 import it.unive.ghidra.metrics.gui.GMActionExport;
-import it.unive.ghidra.metrics.gui.GMWindowManager;
-import it.unive.ghidra.metrics.util.GMFactory;
+import it.unive.ghidra.metrics.impl.GhidraMetricFactory;
 
 public class GhidraMetricsProvider extends ComponentProviderAdapter {
 
 	private final GhidraMetricsPlugin plugin;
-	private final GMWindowManager windowManager;
+	private final GhidraMetricsWindowManager windowManager;
 
 	private GMMetricManagerGUI metricManager;
 
@@ -31,7 +30,7 @@ public class GhidraMetricsProvider extends ComponentProviderAdapter {
 	public GhidraMetricsProvider(GhidraMetricsPlugin plugin, String owner) {
 		super(plugin.getTool(), owner, owner);
 		this.plugin = plugin;
-		this.windowManager = new GMWindowManager(plugin);
+		this.windowManager = new GhidraMetricsWindowManager(plugin);
 		
 		createLocalActions();
 		buildPanel();
@@ -50,8 +49,8 @@ public class GhidraMetricsProvider extends ComponentProviderAdapter {
 
 		localActions.add(new GMActionBack(plugin));
 
-		for (GMMetricExporter.Type type : GMMetricExporter.Type.values()) {
-			localActions.add(new GMActionExport(plugin, type));
+		for (GMMetricExporter.FileFormat format : GMMetricExporter.FileFormat.values()) {
+			localActions.add(new GMActionExport(plugin, format));
 		}
 	}
 
@@ -82,16 +81,16 @@ public class GhidraMetricsProvider extends ComponentProviderAdapter {
 	}
 
 	public void showMetricWindow(String metricName) {
-		metricManager = GMFactory.create(metricName, getPlugin());
+		metricManager = GhidraMetricFactory.create(metricName, getPlugin());
 		updateWindow();
 	}
 
-	public void doExport(GMMetricExporter.Type exportType) {
+	public void doExport(GMMetricExporter.FileFormat fileFormat) {
 		if (metricManager == null)
 			throw new RuntimeException("ERROR: no metric is selected!");
 
 		try {
-			GMBaseMetricExporter exporter = metricManager.makeExporter(exportType).withFileChooser().build();
+			GMBaseMetricExporter exporter = metricManager.makeExporter(fileFormat).withFileChooser().build();
 			if ( exporter == null ) {
 				return; // no error
 			}

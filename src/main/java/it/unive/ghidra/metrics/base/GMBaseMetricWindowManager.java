@@ -16,6 +16,16 @@ public abstract class GMBaseMetricWindowManager<
 	W extends GMBaseMetricWindowManager<M, P, W>>
 extends GMBaseWindowManager implements GMMetricWindowManager {
 //@formatter:on
+	
+	public static class NonEditableTableModel extends DefaultTableModel {
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public boolean isCellEditable(int rowIndex, int columnIndex) {
+			return false;
+		}
+	}
+	
 	private final P manager;
 
 	public GMBaseMetricWindowManager(P manager) {
@@ -26,22 +36,6 @@ extends GMBaseWindowManager implements GMMetricWindowManager {
 	@Override
 	public P getManager() {
 		return manager;
-	}
-
-	@Override
-	public M getMetric() {
-		return getManager().getMetric();
-	}
-
-
-	@Override
-	public void onInitializationCompleted() {
-		// default implementation
-	}
-
-	@Override
-	public void onMetricInitialized() {
-		// default implementation
 	}
 
 	protected void populateMeasureTable(JTable table) {

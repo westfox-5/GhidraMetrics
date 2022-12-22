@@ -17,7 +17,7 @@ public interface GMMetricManager {
 		
 	void printException(Exception e);
 	
-	default GMBaseMetricExporter.Builder makeExporter(GMMetricExporter.Type exportType) {
+	default GMBaseMetricExporter.Builder makeExporter(GMMetricExporter.FileFormat exportType) {
 		return GMBaseMetricExporter.make(exportType, this);
 	}
 

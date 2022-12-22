@@ -16,7 +16,7 @@ public class GMExporterTXT extends GMBaseMetricExporter {
 	private static final String TXT_KEY_VALUE_SEP = ": ";
 
 	public GMExporterTXT(GMMetricManager manager) {
-		super(manager, GMMetricExporter.Type.TXT);
+		super(manager, GMMetricExporter.FileFormat.TXT);
 	}
 
 	@Override

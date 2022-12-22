@@ -24,7 +24,7 @@ import ghidra.framework.plugintool.PluginTool;
 import ghidra.framework.plugintool.util.PluginStatus;
 import ghidra.program.util.ProgramLocation;
 import ghidra.util.HelpLocation;
-import it.unive.ghidra.metrics.util.GMFactory;
+import it.unive.ghidra.metrics.impl.GhidraMetricFactory;
 
 /**
  * TODO: Provide class-level documentation that describes what this plugin does.
@@ -71,6 +71,6 @@ public class GhidraMetricsPlugin extends ProgramPlugin {
 	}
 
 	public Collection<String> getMetricNames() {
-		return GMFactory.allMetricNames();
+		return GhidraMetricFactory.allMetricNames();
 	}
 }

@@ -5,14 +5,14 @@ import java.nio.file.Path;
 
 public interface GMMetricExporter {
 
-	public static enum Type {
+	public static enum FileFormat {
 		JSON("json", "application/json"),
 		TXT("txt", "text/plain");
 	
 		private String ext;
 		private String contentType;
 	
-		private Type(String ext, String contentType) {
+		private FileFormat(String ext, String contentType) {
 			this.ext = ext;
 			this.contentType = contentType;
 		}
@@ -28,5 +28,5 @@ public interface GMMetricExporter {
 
 	Path export() throws IOException;
 	
-	GMMetricExporter.Type getExportType();
+	GMMetricExporter.FileFormat getFileFormat();
 }

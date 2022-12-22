@@ -7,7 +7,7 @@ public interface GMMetricManagerGUI extends GMMetricManager {
 	
 	GhidraMetricsPlugin getPlugin();
 
-	GMWindowManager getWinManager();
+	GMWindowManager getWindowManager();
 	
 	void locationChanged(ProgramLocation loc);
 }

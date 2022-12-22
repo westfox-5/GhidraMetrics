@@ -36,6 +36,11 @@ public class GMSimilarityWinManager extends GMBaseMetricWindowManager<GMSimilari
 		super(manager);
 	}
 
+	@Override
+	protected boolean init() {
+		return true;
+	}
+
 	/**
 	 * @wbp.parser.entryPoint
 	 */
@@ -130,14 +135,6 @@ public class GMSimilarityWinManager extends GMBaseMetricWindowManager<GMSimilari
 		return component;
 	}
 
-	public List<Path> getSelectedFiles() {
-		return selectedFiles;
-	}
-
-	public boolean hasSelectedFiles() {
-		return selectedFiles != null && !selectedFiles.isEmpty();
-	}
-
 	@Override
 	public void revalidate() {
 		super.revalidate();
@@ -153,4 +150,11 @@ public class GMSimilarityWinManager extends GMBaseMetricWindowManager<GMSimilari
 		}
 	}
 
+	public List<Path> getSelectedFiles() {
+		return selectedFiles;
+	}
+
+	public boolean hasSelectedFiles() {
+		return selectedFiles != null && !selectedFiles.isEmpty();
+	}
 }

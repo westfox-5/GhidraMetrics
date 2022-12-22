@@ -9,15 +9,15 @@ import it.unive.ghidra.metrics.base.interfaces.GMMetricExporter;
 
 public final class GMActionExport extends MultiActionDockingAction {
 	private final GhidraMetricsPlugin plugin;
-	private final GMMetricExporter.Type type;
+	private final GMMetricExporter.FileFormat fileFormat;
 
-	public GMActionExport(GhidraMetricsPlugin plugin, GMMetricExporter.Type type) {
+	public GMActionExport(GhidraMetricsPlugin plugin, GMMetricExporter.FileFormat fileFormat) {
 		super("Export", plugin.getName());
 		this.plugin = plugin;
-		this.type = type;
+		this.fileFormat = fileFormat;
 
-		setMenuBarData(new MenuData(new String[] { type.name() }));
-		setDescription("Export current metric as " + type.name());
+		setMenuBarData(new MenuData(new String[] { fileFormat.name() }));
+		setDescription("Export current metric as " + fileFormat.name());
 
 		setEnabled(true);
 	}
@@ -26,7 +26,7 @@ public final class GMActionExport extends MultiActionDockingAction {
 	public void actionPerformed(ActionContext ctx) {
 		GhidraMetricsProvider provider = plugin.getProvider();
 
-		provider.doExport(type);
+		provider.doExport(fileFormat);
 	}
 
 }

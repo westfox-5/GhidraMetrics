@@ -10,7 +10,6 @@ import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.Program;
 import ghidra.program.util.ProgramLocation;
 import ghidra.util.Msg;
-import ghidra.util.Swing;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
 import it.unive.ghidra.metrics.base.interfaces.GMMetric;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricManagerGUI;
@@ -53,13 +52,28 @@ implements GMMetricManagerGUI, GMMetricManagerHeadless {
 		this.initialized = _init(metricClass, winManagerClass);
 	}
 	
+
+	private final boolean _init(Class<M> metricClass, Class<W> winManagerClass) {
+		
+		if ( !_initMetric(metricClass) )
+			return false;
+
+		if ( guiEnabled && !_initWindownManager(winManagerClass) )
+			return false;
+		
+		init();
+
+		return true;
+	}
+	
+	
 	@Override
 	public void printException(Exception e) {
 		e.printStackTrace();
 		Msg.error(this, e);
 		
 		if ( guiEnabled ) {
-			Msg.showError(this, getWinManager().getComponent(), "Generic Error", e.getMessage());
+			Msg.showError(this, getWindowManager().getComponent(), "Generic Error", e.getMessage());
 		}
 	}
 	
@@ -74,7 +88,7 @@ implements GMMetricManagerGUI, GMMetricManagerHeadless {
 	}
 
 	@Override
-	public W getWinManager() {
+	public W getWindowManager() {
 		return wm;
 	}
 
@@ -96,7 +110,7 @@ implements GMMetricManagerGUI, GMMetricManagerHeadless {
 			if (metricFn != null) {
 				metricFn = null;
 				wm.revalidate();
-				wm.refresh();
+				wm.repaint();
 			}
 			return;
 		}
@@ -114,7 +128,7 @@ implements GMMetricManagerGUI, GMMetricManagerHeadless {
 		
 		if ( guiEnabled ) {
 			wm.revalidate();
-			wm.refresh();
+			wm.repaint();
 		}
 	}
 
@@ -163,29 +177,9 @@ implements GMMetricManagerGUI, GMMetricManagerHeadless {
 			return false;
 		}
 
-		Swing.runIfSwingOrRunLater(() -> {
-			wm.init();
-
-			if (metric != null) {
-				wm.onMetricInitialized();
-			}
-		});
-
-		return true;
+		return wm.init();
 	}
 
-	private final boolean _init(Class<M> metricClass, Class<W> winManagerClass) {
-		
-		if ( !_initMetric(metricClass) )
-			return false;
-
-		if ( guiEnabled && !_initWindownManager(winManagerClass) )
-			return false;
-		
-		init();
-
-		return true;
-	}
 
 	private static boolean equals(Function f1, Function f2) {
 		if (f1 != null && f2 != null)

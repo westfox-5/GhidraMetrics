@@ -1,4 +1,4 @@
-package it.unive.ghidra.metrics.util;
+package it.unive.ghidra.metrics.impl;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -20,7 +20,7 @@ import it.unive.ghidra.metrics.impl.mccabe.GMMcCabeManager;
 import it.unive.ghidra.metrics.impl.similarity.GMSimilarity;
 import it.unive.ghidra.metrics.impl.similarity.GMSimilarityManager;
 
-public class GMFactory {
+public class GhidraMetricFactory {
 
 	private static final Map<String, Class<? extends GMMetricManager>> MANAGERS_TABLE = new HashMap<>();;
 	private static final Map<String, String> METRICNAMES_TABLE = new HashMap<>();

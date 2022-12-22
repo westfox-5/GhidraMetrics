@@ -28,9 +28,11 @@ public class GMHalsteadWinManager extends GMBaseMetricWindowManager<GMHalstead, 
 	}
 
 	@Override
-	public void onMetricInitialized() {
+	public boolean init() {
 		populateProgramMeasures();
 		populateFunctionMeasures();
+		
+		return true;
 	}
 
 	/**

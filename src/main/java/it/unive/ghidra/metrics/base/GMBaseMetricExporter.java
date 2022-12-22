@@ -35,7 +35,7 @@ public abstract class GMBaseMetricExporter implements GMMetricExporter {
 		USER_HOME = userHome;
 	}
 
-	private static final GMBaseMetricExporter create(GMMetricManager manager, GMMetricExporter.Type exportType) {
+	private static final GMBaseMetricExporter create(GMMetricManager manager, GMMetricExporter.FileFormat exportType) {
 		switch (exportType) {
 		case JSON:
 			return new GMExporterJSON(manager);
@@ -47,22 +47,22 @@ public abstract class GMBaseMetricExporter implements GMMetricExporter {
 	}
 
 	
-	private final GMMetricExporter.Type exportType;
+	private final GMMetricExporter.FileFormat fileFormat;
 	private final GMMetricManager manager;
 	private Path exportPath;
 
-	protected GMBaseMetricExporter(GMMetricManager manager, GMMetricExporter.Type exportType) {
-		this.manager = manager;
-		this.exportType = exportType;
-	}
-
 	protected abstract <V> StringBuilder serialize(Collection<GMMetric> metrics);
+
+	protected GMBaseMetricExporter(GMMetricManager manager, GMMetricExporter.FileFormat fileFormat) {
+		this.manager = manager;
+		this.fileFormat = fileFormat;
+	}
 
 	@Override
 	public Path export() throws IOException {
 
-		if (!accept(exportPath, exportType))
-			throw new IOException("Only " + exportType.name() + " Files ( *." + exportType.getExtension() + ")");
+		if (!accept(exportPath, fileFormat))
+			throw new IOException("Only " + fileFormat.name() + " Files ( *." + fileFormat.getExtension() + ")");
 
 		Files.deleteIfExists(exportPath);
 		Files.createDirectories(exportPath.getParent());
@@ -88,16 +88,16 @@ public abstract class GMBaseMetricExporter implements GMMetricExporter {
 		}
 	}
 
-	public GMMetricExporter.Type getExportType() {
-		return exportType;
+	public GMMetricExporter.FileFormat getFileFormat() {
+		return fileFormat;
 	}
 	
-	public static final GMBaseMetricExporter.Builder make(GMMetricExporter.Type exportType, GMMetricManager manager) {
+	public static final GMBaseMetricExporter.Builder make(GMMetricExporter.FileFormat exportType, GMMetricManager manager) {
 		return new Builder(exportType, manager);
 	}
 
 	public final static class Builder {
-		private final GMMetricExporter.Type exportType;
+		private final GMMetricExporter.FileFormat format;
 		private final GMMetricManager manager;
 
 		private List<GMMetric> metrics;
@@ -105,8 +105,8 @@ public abstract class GMBaseMetricExporter implements GMMetricExporter {
 		private boolean withFileChooser;
 		private Path choosenPath;
 
-		private Builder(GMMetricExporter.Type exportType, GMMetricManager manager) {
-			this.exportType = exportType;
+		private Builder(GMMetricExporter.FileFormat fileFormat, GMMetricManager manager) {
+			this.format = fileFormat;
 			this.manager = manager;
 			metrics = new ArrayList<>();
 		}
@@ -139,9 +139,9 @@ public abstract class GMBaseMetricExporter implements GMMetricExporter {
 				fileChooser.setMultiSelectionEnabled(false);
 				fileChooser.setFileSelectionMode(GhidraFileChooserMode.FILES_ONLY);
 				fileChooser.setFileFilter(new ExtensionFileFilter(
-						new String[] { exportType.getExtension() }, exportType.getContentType()));
+						new String[] { format.getExtension() }, format.getContentType()));
 				fileChooser.setApproveButtonText("Export");
-				File newFile = new File(USER_HOME, "gm-export-"+(new SimpleDateFormat("ddMMyyy-HHmmsss").format(new Date()))+"."+exportType.getExtension());
+				File newFile = new File(USER_HOME, "gm-export-"+(new SimpleDateFormat("ddMMyyy-HHmmsss").format(new Date()))+"."+format.getExtension());
 				
 				fileChooser.setSelectedFile(newFile);
 				return fileChooser;
@@ -166,15 +166,15 @@ public abstract class GMBaseMetricExporter implements GMMetricExporter {
 				return null;
 			}
 			
-			GMBaseMetricExporter exporter = GMBaseMetricExporter.create(manager, exportType);
+			GMBaseMetricExporter exporter = GMBaseMetricExporter.create(manager, format);
 			exporter.exportPath = exportPath;
 
 			return exporter;
 		}
 	}
 
-	private static boolean accept(Path path, GMMetricExporter.Type exportType) {
+	private static boolean accept(Path path, GMMetricExporter.FileFormat fileFormat) {
 		String extension = StringUtils.getFileExtension(path.toFile());
-		return exportType.getExtension().equalsIgnoreCase(extension);
+		return fileFormat.getExtension().equalsIgnoreCase(extension);
 	}
 }

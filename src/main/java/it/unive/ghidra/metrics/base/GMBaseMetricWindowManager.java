@@ -50,7 +50,7 @@ extends GMBaseWindowManager implements GMMetricWindowManager {
 		dtm.setColumnIdentifiers(tableColumns);
 		
 		Function<GMMeasure<?>, Object[]> tableRowFn = metric.getTableRowFn();
-		metric.getMeasures().parallelStream().forEach(measure -> {
+		metric.getMeasures().stream().forEach(measure -> {
 			dtm.addRow( tableRowFn.apply(measure) );
 		});
 

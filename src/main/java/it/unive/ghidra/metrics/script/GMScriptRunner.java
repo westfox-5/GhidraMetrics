@@ -28,6 +28,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import it.unive.ghidra.metrics.impl.GhidraMetricFactory;
 import it.unive.ghidra.metrics.script.GMScriptArgumentContainer.GMScriptArgumentKey;
 
 public class GMScriptRunner {
@@ -68,14 +69,7 @@ public class GMScriptRunner {
 
 	public static void doWelcome() { 
 		System.out.println();
-		System.out.println("    /$$$$$$  /$$       /$$       /$$                                /$$      /$$             /$$               /$$                     ");
-		System.out.println("   /$$__  $$| $$      |__/      | $$                               | $$$    /$$$            | $$              |__/                    ");
-		System.out.println("  | $$  \\__/| $$$$$$$  /$$  /$$$$$$$  /$$$$$$  /$$$$$$             | $$$$  /$$$$  /$$$$$$  /$$$$$$    /$$$$$$  /$$  /$$$$$$$  /$$$$$$$");
-		System.out.println("  | $$ /$$$$| $$__  $$| $$ /$$__  $$ /$$__  $$|____  $$            | $$ $$/$$ $$ /$$__  $$|_  $$_/   /$$__  $$| $$ /$$_____/ /$$_____/");
-		System.out.println("  | $$|_  $$| $$  \\ $$| $$| $$  | $$| $$  \\__/ /$$$$$$$            | $$  $$$| $$| $$$$$$$$  | $$    | $$  \\__/| $$| $$      |  $$$$$$ ");
-		System.out.println("  | $$  \\ $$| $$  | $$| $$| $$  | $$| $$      /$$__  $$            | $$\\  $ | $$| $$_____/  | $$ /$$| $$      | $$| $$       \\____  $$");
-		System.out.println("  |  $$$$$$/| $$  | $$| $$|  $$$$$$$| $$     |  $$$$$$$            | $$ \\/  | $$|  $$$$$$$  |  $$$$/| $$      | $$|  $$$$$$$ /$$$$$$$/");
-		System.out.println("   \\______/ |__/  |__/|__/ \\_______/|__/      \\_______/            |__/     |__/ \\_______/   \\___/  |__/      |__/ \\_______/|_______/ ");
+		System.out.println("Ghidra Metrics - compute code metric on native code");
 		System.out.println();
 	}
 	
@@ -88,11 +82,11 @@ public class GMScriptRunner {
 	private static Options createOptions() {
 		Options options = new Options();		
 		
-		Option metricName = new Option("m", "metric-name", true, "metric name [halstead, ncd, mccabe]");
+		Option metricName = new Option("m", "metric-name", true, "metric name ["+ GhidraMetricFactory.allMetricNames().stream().sorted().collect(Collectors.joining(", ")) +"]");
 		metricName.setRequired(true);
         options.addOption(metricName);
         
-		Option exportType = new Option("e", "export-type", true, "export type [txt, json]");
+		Option exportType = new Option("e", "export-type", true, "export type ["+ GhidraMetricFactory.allFileFormatNames().stream().sorted().collect(Collectors.joining(", ")) +"]");
 		exportType.setRequired(true);
         options.addOption(exportType);
         
@@ -108,17 +102,21 @@ public class GMScriptRunner {
         output.setRequired(false);
         options.addOption(output);
         
-        Option inputRecursive = new Option("r", "recursive", false, "perform analysis over all exe files recursively, otherwise only top-level files");
+        Option inputRecursive = new Option("r", "recursive", false, "perform analysis over all executable files recursively, otherwise only top-level ones");
         inputRecursive.setRequired(false);
         options.addOption(inputRecursive);
         
-        Option logger = new Option("l", "log", true, "log output file. If not provided, it will be created a file in the project directory");
+        Option logger = new Option("l", "log", true, "logger output file. If not provided, the output will be saved in the project directory");
         logger.setRequired(false);
         options.addOption(logger);
         
         Option verbose = new Option("v", "verbose", false, "enable verbose mode");
         verbose.setRequired(false);
         options.addOption(verbose);
+        
+        Option ncdInput = new Option(null, "similarity-input", true, "path to an executable file to compare with current input in the similarity metric");
+        ncdInput.setRequired(false);
+        options.addOption(ncdInput);
         
         return options;
 	}
@@ -168,6 +166,13 @@ public class GMScriptRunner {
 		if (cmd.hasOption("output")) {
 			addGhidraArg(GMScriptArgumentKey.EXPORT_DIR, cmd.getOptionValue("output", null));
 		}
+		
+		if (cmd.hasOption("similarity-input")) {
+			File ncdInputFile = new File(cmd.getOptionValue("similarity-input"));
+			if (ncdInputFile.exists()) {
+				addGhidraArg(GMScriptArgumentKey.SIMILARITY_INPUT, ncdInputFile.getAbsolutePath());
+			}
+		}
 
 		if (cmd.hasOption("recursive")) {
 			setRecursive(true);
@@ -187,7 +192,6 @@ public class GMScriptRunner {
 		
 		String input = cmd.getOptionValue("input");
 		this.inPath = Path.of(input);
-
 	}
 	
 	public final void addGhidraArg(GMScriptArgumentKey key, String value) {

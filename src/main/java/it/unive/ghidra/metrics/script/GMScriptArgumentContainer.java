@@ -26,7 +26,8 @@ public abstract class GMScriptArgumentContainer<T> {
 		METRIC("metric"), 
 		FUNCTION("function"),
 		EXPORT("export"),
-		EXPORT_DIR("export-dir");
+		EXPORT_DIR("export-dir"),
+		SIMILARITY_INPUT("similarity-input");
 		
 		//@formatter:on		
 		private final String key;
@@ -132,8 +133,22 @@ public abstract class GMScriptArgumentContainer<T> {
 			return str;
 		}
 	};
-	
-	
+
+	// -----------------------
+	// ARG_SIMILARITY_INPUT
+	// -----------------------
+	// -- Name: SIMILARITY_INPUT
+	// -- Type: Path
+	//
+	//@formatter:off
+	public static final GMScriptArgumentContainer<Path> ARG_SIMILARITY_INPUT = new GMScriptArgumentContainer<>(GMScriptArgumentKey.SIMILARITY_INPUT) {
+	//@formatter:on
+		@Override
+		protected Path getTypedValue(String str) {
+			return Path.of(str);
+		}
+	};
+		
 
 	public static final GMScriptArgumentContainer<?> byName(String name) {
 		return lookupByKey.getOrDefault(GMScriptArgumentKey.of(name), ARG_DEFAULT);

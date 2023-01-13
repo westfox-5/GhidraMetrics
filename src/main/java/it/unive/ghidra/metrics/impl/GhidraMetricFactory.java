@@ -10,6 +10,8 @@ import java.util.stream.Collectors;
 import ghidra.program.model.listing.Program;
 import ghidra.util.Msg;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricExporter;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricExporter.FileFormat;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricManager;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricManagerGUI;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricManagerHeadless;
@@ -24,6 +26,7 @@ public class GhidraMetricFactory {
 
 	private static final Map<String, Class<? extends GMMetricManager>> MANAGERS_TABLE = new HashMap<>();;
 	private static final Map<String, String> METRICNAMES_TABLE = new HashMap<>();
+	private static final Map<String, GMMetricExporter.FileFormat> FILEFORMATS_TABLE = new HashMap<>();
 
 	static { 
 		MANAGERS_TABLE.put(GMHalstead.LOOKUP_NAME, 		GMHalsteadManager.class);
@@ -33,7 +36,12 @@ public class GhidraMetricFactory {
 
 		METRICNAMES_TABLE.put(GMHalstead.NAME, 		GMHalstead.LOOKUP_NAME); 
 		METRICNAMES_TABLE.put(GMSimilarity.NAME, 	GMSimilarity.LOOKUP_NAME);
-		METRICNAMES_TABLE.put(GMMcCabe.NAME, 		GMMcCabe.LOOKUP_NAME);		
+		METRICNAMES_TABLE.put(GMMcCabe.NAME, 		GMMcCabe.LOOKUP_NAME);
+		
+		
+		for (GMMetricExporter.FileFormat ff: FileFormat.values()) {
+			FILEFORMATS_TABLE.put(ff.getExtension(), ff);
+		}
 	}
 	
 	private static final Map<Class<? extends GMMetricManager>, String> INVERSE_MANAGERS_TABLE;
@@ -50,9 +58,12 @@ public class GhidraMetricFactory {
 		return INVERSE_MANAGERS_TABLE.get(managerClass);
 	}
 
-	
 	public static Collection<String> allMetricNames() {
 		return METRICNAMES_TABLE.keySet();
+	}
+
+	public static Collection<String> allFileFormatNames() {
+		return FILEFORMATS_TABLE.keySet();
 	}
 	
 

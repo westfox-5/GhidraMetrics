@@ -61,7 +61,7 @@ public class GMSimilarity extends GMBaseMetric<GMSimilarity, GMSimilarityManager
 	}
 
 
-	protected void createMetricValues(List<Path> toCompute) throws ZipException, VersionException, CancelledException, ExporterException, DuplicateNameException, InvalidNameException, IOException {
+	protected void createMeasures(List<Path> toCompute) throws ZipException, ExporterException, IOException {
 		Path zipPath;
 		try {
 			zipPath = zipToTempFile(getExecutablePath(getManager().getProgram()));
@@ -117,16 +117,21 @@ public class GMSimilarity extends GMBaseMetric<GMSimilarity, GMSimilarityManager
 		return Path.of(getManager().getProgram().getExecutablePath());
 	}
 	
-	private Program importNewProgram(Path path) throws CancelledException, DuplicateNameException, InvalidNameException, VersionException, IOException {
+	private Program importNewProgram(Path path) throws IOException {
 		GMTaskMonitor monitor = new GMTaskMonitor();
-		Program program = AutoImporter.importByUsingBestGuess(path.toFile(), (DomainFolder)null, this, new MessageLog(), monitor);
+		try {
+			return AutoImporter.importByUsingBestGuess(path.toFile(), (DomainFolder)null, this, new MessageLog(), monitor);
+		} catch (CancelledException | DuplicateNameException | InvalidNameException | VersionException e) {
+			manager.printException(e);
+		}
+		
+		return null;
 /*
 		AutoAnalysisManager analysisManager = AutoAnalysisManager.getAnalysisManager(program);
 		analysisManager.startAnalysis(monitor);
 		analysisManager.waitForAnalysis(null, monitor); // waits for all analysis to complete
 		return analysisManager.getProgram();
 */
-		return program;
 	}
 	
 	@Override

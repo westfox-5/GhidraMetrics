@@ -1,12 +1,14 @@
 package it.unive.ghidra.metrics.impl.similarity;
 
+import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 
+import ghidra.app.util.exporter.ExporterException;
 import ghidra.program.model.listing.Program;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
 import it.unive.ghidra.metrics.base.GMBaseMetricManager;
+import it.unive.ghidra.metrics.util.ZipHelper.ZipException;
 
 public class GMSimilarityManager extends GMBaseMetricManager<GMSimilarity, GMSimilarityManager, GMSimilarityWinManager> {
 
@@ -21,33 +23,29 @@ public class GMSimilarityManager extends GMBaseMetricManager<GMSimilarity, GMSim
 	}
 	
 	@Override
-	protected void init() {
-		this.selectedFiles = new ArrayList<>();
-	}	
+	protected void init() {	}	
 
-	public void fileSelected() {
-		
-		if (getWindowManager().hasSelectedFiles()) {
-			List<Path> toCompute = getWindowManager().getSelectedFiles();
-			this.selectedFiles.addAll(toCompute);
-			
-			try {	
-				getMetric().createMetricValues(toCompute);
-			} catch (Exception e) {
+	public List<Path> getSelectedFiles() {
+		return selectedFiles;
+	}
+
+	public void setSelectedFiles(List<Path> selectedFiles) {
+		this.selectedFiles = selectedFiles;
+	}
+
+	public void compute() {
+		if ( selectedFiles != null && !selectedFiles.isEmpty() ) {
+			try {
+				getMetric().createMeasures(selectedFiles);
+				if (guiEnabled) {
+					getWindowManager().revalidate();
+					getWindowManager().repaint();
+				}
+			} catch (ZipException | ExporterException | IOException e) {
 				printException(e);
-			}
-		} 
-		
-		getWindowManager().revalidate();
-		getWindowManager().repaint();
+			}			
+		} else {
+			getMetric().clearMeasures();
+		}
 	}
-	
-	public void clearSelectedFiles() {
-		this.selectedFiles.clear();
-		getMetric().clearMeasures();
-		
-		getWindowManager().revalidate();
-		getWindowManager().repaint();
-	}
-
 }

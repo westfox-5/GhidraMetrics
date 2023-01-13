@@ -74,7 +74,8 @@ public class GMSimilarityWinManager extends GMBaseMetricWindowManager<GMSimilari
 			btnClearMeasures.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent arg0) {
-					getManager().clearSelectedFiles();
+					getManager().setSelectedFiles(null);
+					getManager().compute();
 				}
 			});
 		}
@@ -118,8 +119,9 @@ public class GMSimilarityWinManager extends GMBaseMetricWindowManager<GMSimilari
 					List<File> _selectedFiles = fileChooser.getSelectedFiles();
 					if (_selectedFiles != null) {
 						selectedFiles = _selectedFiles.stream().map(f -> f.toPath()).collect(Collectors.toList());
+						getManager().setSelectedFiles(selectedFiles);
+						getManager().compute();
 					}
-					getManager().fileSelected();
 				}
 			});
 		}

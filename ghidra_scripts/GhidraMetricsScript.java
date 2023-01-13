@@ -1,4 +1,5 @@
 import java.nio.file.Path;
+import java.util.Arrays;
 
 import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.FunctionIterator;
@@ -8,6 +9,7 @@ import it.unive.ghidra.metrics.base.GMBaseScript;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricExporter;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricManagerHeadless;
 import it.unive.ghidra.metrics.impl.GhidraMetricFactory;
+import it.unive.ghidra.metrics.impl.similarity.GMSimilarityManager;
 import it.unive.ghidra.metrics.script.GMScriptArgumentContainer.GMScriptArgumentKey;
 import it.unive.ghidra.metrics.script.GMScriptException;
 
@@ -33,7 +35,17 @@ public class GhidraMetricsScript extends GMBaseScript {
 				manager.functionChanged(function);
 				Msg.info(this, "Program location changed to address: function.getEntryPoint()");
 			}
-
+			
+			if (manager instanceof GMSimilarityManager) {
+				if (hasArg(GMScriptArgumentKey.SIMILARITY_INPUT)) {
+					final GMSimilarityManager similarityManager = (GMSimilarityManager)manager;
+					final Path ncdInput = getArgValue(GMScriptArgumentKey.SIMILARITY_INPUT);
+					similarityManager.setSelectedFiles(Arrays.asList(ncdInput));
+				} else {
+					throw new GMScriptException("Could not find input file for Similarity metric. Please provide a valid path in the '"+ GMScriptArgumentKey.SIMILARITY_INPUT +"' argument.");
+				}
+			}
+			
 			if (hasArg(GMScriptArgumentKey.EXPORT)) {
 				final GMMetricExporter.FileFormat fileFormat = getArgValue(GMScriptArgumentKey.EXPORT);
 				Path exportDir = null;

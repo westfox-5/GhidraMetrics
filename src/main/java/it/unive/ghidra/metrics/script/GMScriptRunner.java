@@ -235,37 +235,47 @@ public class GMScriptRunner {
 			pb.redirectError(Redirect.appendTo(errTempFile));
 
 			System.out.println("> Processing file: " + absolute(executable));
-			if (isVerbose()) System.out.println(pb.command().stream().collect(Collectors.joining(" ")));
+			if (verbose) System.out.println(pb.command().stream().collect(Collectors.joining(" ")));
 			
 			Process process = pb.start();
 			boolean success = false;
-			boolean hasErrors = false;
+			boolean hasExceptions = false;
+			List<String> exceptionsInLog = null;
 			
 			try {
 				success = process.waitFor(20, TimeUnit.SECONDS);
-				if (isVerbose()) System.out.println("> Checking errors...");
-				hasErrors = checkErrors(errTempFile);
-
+				if (verbose) System.out.println("> Checking errors...");
+				exceptionsInLog = getExceptionsInFile(errTempFile, 5);
+				hasExceptions = exceptionsInLog != null;
+				
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 				Files.writeString(errTempFile.toPath(), e.getMessage(), StandardOpenOption.APPEND);
 			}
 			
-			if (success && !hasErrors) {
+			if (success && !hasExceptions) {
 				System.out.println("> OK");
 				errTempFile.deleteOnExit();
 			} else {
 				System.out.println("> KO: log generated in: " + absolute(errTempFile));
+				if (!hasExceptions) {
+					System.err.println("> Analysis timed out!");
+				} else if (verbose) {
+					System.out.println("> Found errors (check the error log for better understanding):");
+					for (String exception: exceptionsInLog) {
+						System.err.println(exception);
+					}
+				}
 				ok = false;
 			}
 		}
 		
 		if (ok) {
 			System.out.println();
-			System.out.println("> All executions terminated successfully.");
+			System.out.println("> All executions terminated successfully!");
 		} else {
-			System.out.println();
-			System.out.println("> Some executions failed.");
+			System.err.println();
+			System.err.println("> Some executions failed.");
 		}
 		
 		return ok;
@@ -324,17 +334,22 @@ public class GMScriptRunner {
 		return key.getKey();
 	}
 	
-	private final boolean checkErrors(File tempFile) throws IOException {
+	private final List<String> getExceptionsInFile(File tempFile, int maxLines) throws IOException {
+		List<String> exceptions = new ArrayList<>();
 		try (BufferedReader br = new BufferedReader(new FileReader(tempFile))) {
 	        String line;
-	        while ((line = br.readLine()) != null) {
-	            if (line.startsWith("ERROR")) 
-	            	return true;
-	            if (line.contains("exception") || line.contains("Exception"))
-	            	return true;
+	        int count = 0;
+	        while ((line = br.readLine()) != null && count < maxLines) {
+	        	if (line.contains("exception") || line.contains("Exception")) {
+	        		exceptions.add(line);
+	        		count++;
+	        	} else if (line.startsWith("ERROR")) {
+	            	exceptions.add(line);
+	            	count++; 
+	            }
 	        }
 		}
-		return false;
+		return exceptions.isEmpty() ? null: exceptions;
 	}
 
 	public boolean isRecursive() {

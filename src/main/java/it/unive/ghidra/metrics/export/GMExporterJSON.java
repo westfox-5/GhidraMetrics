@@ -1,14 +1,14 @@
 package it.unive.ghidra.metrics.export;
 
 import java.util.Collection;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 
 import it.unive.ghidra.metrics.base.GMBaseMetricExporter;
+import it.unive.ghidra.metrics.base.interfaces.GMMeasure;
+import it.unive.ghidra.metrics.base.interfaces.GMMeasureKey;
 import it.unive.ghidra.metrics.base.interfaces.GMMetric;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricExporter;
-import it.unive.ghidra.metrics.base.interfaces.GMMeasureKey;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricManager;
-import it.unive.ghidra.metrics.base.interfaces.GMMeasure;
 import it.unive.ghidra.metrics.util.StringUtils;
 
 public class GMExporterJSON extends GMBaseMetricExporter {
@@ -22,87 +22,72 @@ public class GMExporterJSON extends GMBaseMetricExporter {
 
 	@Override
 	protected <V> StringBuilder serialize(Collection<GMMetric> metrics) {
+
+		String dumpMetrics = "";
+		if (metrics != null) {
+			dumpMetrics = metrics.stream().map(m -> serializeMetric(m)).collect(Collectors.joining(JSON_SEP));
+		}
+				
 		StringBuilder sb = new StringBuilder();
-
-		sb.append("{");
-		sb.append(format("metrics")).append("[");
-
-		metrics.forEach(metric -> {
-			sb.append(serializeMetric(metric)).append(JSON_SEP);
-		});
-		sb.deleteCharAt(sb.length() - 1);
-
-		sb.append("]").append("}");
-
-		return sb;
-	}
-
-	/**
-	 * A metric object is formatted as: { name, metrics: { keys: [ metricKey ],
-	 * values: [ metricValue ] } }
-	 */
-	private StringBuilder serializeMetric(GMMetric metric) {
-		StringBuilder sb = new StringBuilder();
-
-		Stream<GMMeasure<?>> measures = metric.getMeasures().stream();
-		Stream<GMMeasureKey> keys = metric.getMeasures().stream().map(val -> val.getKey());
 
 		sb.append("{")
-		.append(format("name", metric.getName())).append(JSON_SEP)
-		.append(format("metrics")).append("{")
-
-		.append(format("keys")).append("[");
-		keys.forEach(k -> {
-			sb.append(dumpMeasureKey(k)).append(JSON_SEP);
-		});
-		sb.deleteCharAt(sb.length() - 1);
-		sb.append("]").append(JSON_SEP)
-		
-		.append(format("values")).append("[");
-		measures.forEach(v -> {
-			sb.append(dumpMeasure(v)).append(JSON_SEP);
-		});
-		sb.deleteCharAt(sb.length() - 1)
+		.append(format("metrics")).append("[")
+			.append(dumpMetrics)
 		.append("]")
-		.append("}")
 		.append("}");
 
 		return sb;
 	}
 
 	/**
-	 * A metric key is formatted as: { name, type, info: [{name, value}] }
+	 * A metric is formatted as: { name, measures: { keys: [ measureKey ], values: [ measureValue ] } }
 	 */
-	private StringBuilder dumpMeasureKey(GMMeasureKey key) {
-
-		StringBuilder sb = new StringBuilder();
-
-		sb.append("{")
-		.append(format("name", key.getName())).append(JSON_SEP)
-		.append(format("type", key.getType().name())).append(JSON_SEP)
-		.append(format("info"))
-		.append("{")
-			.append(format(GMMeasureKey.KEY_INFO_DESCRIPTION, key.getInfo(GMMeasureKey.KEY_INFO_DESCRIPTION))).append(JSON_SEP)
-			.append(format(GMMeasureKey.KEY_INFO_FORMULA, key.getInfo(GMMeasureKey.KEY_INFO_FORMULA)))
-		.append("}")
-		.append("}");
-
-		return sb;
+	private String serializeMetric(GMMetric metric) {
+		
+		Collection<GMMeasure<?>> measures = metric.getMeasures();
+		String dumpMeasureValues = "";
+		String dumpMeasureKeys = "";
+		if (measures != null) {
+			dumpMeasureValues = measures.stream().map(m -> dumpMeasure(m)).collect(Collectors.joining(JSON_SEP));
+			dumpMeasureKeys = measures.stream().map(m -> dumpMeasureKey(m.getKey())).collect(Collectors.joining(JSON_SEP));
+		}
+		
+		return "{"
+			+ format("name", metric.getName()) + ","
+			+ format("measures") + "{"
+				+ format("keys") + "[" + dumpMeasureKeys + "],"
+				+ format("values") + "[" + dumpMeasureValues + "]"
+			+"}"
+			+"}";
 	}
 
 	/**
-	 * A metric value is formatted as: { keyName, value }
+	 * A measure key is formatted as: { name, type, info: [{infoKey, infoValue}] }
 	 */
-	private StringBuilder dumpMeasure(GMMeasure<?> value) {
+	private String dumpMeasureKey(GMMeasureKey key) {
 
-		StringBuilder sb = new StringBuilder();
+		Collection<String> infoKeys = key.getInfoKeys();
+		String dumpKeyInfos = "";
+		if (infoKeys != null) {
+			dumpKeyInfos = infoKeys.stream().map(i -> formatKeyValueAsObject(i, key.getInfo(i))).collect(Collectors.joining(JSON_SEP));
+		}
+		
+		return "{" 
+			+ format("name", key.getName()) + ","
+			+ format("type", key.getType().name()) + ","
+			+ format("info") + "[" + dumpKeyInfos + "]"
+			+ "}";	
+	}
 
-		sb.append("{")
-		.append(format("key", value.getKey().getName())).append(JSON_SEP)
-		.append(format("value", value.getValue()))
-		.append("}");
-
-		return sb;
+	/**
+	 * A measure is formatted as: { key, value }
+	 */
+	private String dumpMeasure(GMMeasure<?> value) {
+		return "{"+format("key", value.getKey().getName())+JSON_SEP+format("value", value.getValue())+"}";
+	}
+	
+	private static final String formatKeyValueAsObject(String key, Object value) {
+		return "{"+format(key, value)+"}";
 	}
 
 	private static final String format(Object key) {

@@ -62,9 +62,10 @@ public class GMSimilarity extends GMBaseMetric<GMSimilarity, GMSimilarityManager
 
 
 	protected void createMeasures(List<Path> toCompute) throws ZipException, ExporterException, IOException {
+		Path thisProgramPath = getExecutablePath(getManager().getProgram());
 		Path zipPath;
 		try {
-			zipPath = zipToTempFile(getExecutablePath(getManager().getProgram()));
+			zipPath = zipToTempFile(thisProgramPath);
 		} catch (ZipException x) {
 			manager.printException(new Exception("If you see this error, it is very likely that you do not have 'rzip' installed in your system."
 					+ " Please procede to installation in order to continue using this plugin.", x));
@@ -87,7 +88,7 @@ public class GMSimilarity extends GMBaseMetric<GMSimilarity, GMSimilarityManager
 
 			Double ncd = (1.00 * concatZipSize - Math.min(zipSize, otherZipSize)) / (1.00 * Math.max(zipSize, otherZipSize));
 
-			GMSimilarityKey key = new GMSimilarityKey(path);
+			GMSimilarityKey key = new GMSimilarityKey(thisProgramPath, path);
 			createMeasure(key, 1-ncd);
 			
 			Files.deleteIfExists(otherZipPath);
@@ -114,7 +115,7 @@ public class GMSimilarity extends GMBaseMetric<GMSimilarity, GMSimilarityManager
 		Path target = TEMP_DIR.toAbsolutePath().resolve(source.getFileName());
 		Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
 		*/
-		return Path.of(getManager().getProgram().getExecutablePath());
+		return Path.of(program.getExecutablePath());
 	}
 	
 	private Program importNewProgram(Path path) throws IOException {

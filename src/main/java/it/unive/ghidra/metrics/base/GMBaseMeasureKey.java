@@ -3,6 +3,7 @@ package it.unive.ghidra.metrics.base;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import it.unive.ghidra.metrics.base.interfaces.GMMeasureKey;
 
@@ -51,10 +52,20 @@ public abstract class GMBaseMeasureKey implements GMMeasureKey, Comparable<GMBas
 	}
 	
 	@Override
+	public String addInfo(String infoKey, String info) {
+		return data.put(infoKey, info);
+	}
+	
+	@Override
 	public String getInfo(String infoKey) {
 		return data.get(infoKey);
 	}
 
+	@Override
+	public Set<String> getInfoKeys() {
+		return data.keySet();
+	}
+	
 	@Override
 	public int hashCode() {
 		return Objects.hash(name);

@@ -41,6 +41,7 @@ public class GhidraMetricsScript extends GMBaseScript {
 					final GMSimilarityManager similarityManager = (GMSimilarityManager)manager;
 					final Path ncdInput = getArgValue(GMScriptArgumentKey.SIMILARITY_INPUT);
 					similarityManager.setSelectedFiles(Arrays.asList(ncdInput));
+					similarityManager.compute();
 				} else {
 					throw new GMScriptException("Could not find input file for Similarity metric. Please provide a valid path in the '"+ GMScriptArgumentKey.SIMILARITY_INPUT +"' argument.");
 				}

@@ -11,11 +11,10 @@ public interface GMWindowManager {
 
 	JComponent getComponent();
 
-	default void repaint() { 
-		Swing.runIfSwingOrRunLater( () -> getComponent().repaint() );
-	}
-
-	default void revalidate() { 
-		Swing.runIfSwingOrRunLater( () -> getComponent().revalidate() );
+	default void refresh() { 
+		Swing.runIfSwingOrRunLater( () -> {
+			getComponent().revalidate();
+			getComponent().repaint();
+		});
 	}
 }

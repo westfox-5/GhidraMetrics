@@ -1,5 +1,6 @@
 package it.unive.ghidra.metrics.base;
 
+import java.awt.Dimension;
 import java.util.function.Function;
 
 import javax.swing.JTable;
@@ -23,6 +24,16 @@ extends GMBaseWindowManager implements GMMetricWindowManager {
 		@Override
 		public boolean isCellEditable(int rowIndex, int columnIndex) {
 			return false;
+		}
+		
+	}
+	
+	public static class GMTable extends JTable {
+		private static final long serialVersionUID = 1L;
+
+		public GMTable() {
+			super();
+			setPreferredScrollableViewportSize(new Dimension(0, 0));
 		}
 	}
 	
@@ -54,6 +65,6 @@ extends GMBaseWindowManager implements GMMetricWindowManager {
 			dtm.addRow( tableRowFn.apply(measure) );
 		});
 
-		table.setModel(dtm);
+		table.setModel(dtm);		
 	}
 }

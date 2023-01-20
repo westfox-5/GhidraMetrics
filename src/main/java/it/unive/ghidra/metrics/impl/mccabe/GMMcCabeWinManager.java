@@ -48,11 +48,11 @@ public class GMMcCabeWinManager extends GMBaseMetricWindowManager<GMMcCabe, GMMc
 			tabbedPane.addTab("Program measures", null, new JScrollPane(pnlProgramMetrics), null);
 			pnlProgramMetrics.setLayout(new BorderLayout(0, 0));
 			
-			tableProgramMeasure = new JTable();
+			tableProgramMeasure = new GMTable();
 			
 			JScrollPane scrollPane = new JScrollPane(tableProgramMeasure);  
 			scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-			scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+			scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 			
 			pnlProgramMetrics.add(tableProgramMeasure.getTableHeader(), BorderLayout.NORTH);
 			pnlProgramMetrics.add(scrollPane, BorderLayout.CENTER);
@@ -64,20 +64,10 @@ public class GMMcCabeWinManager extends GMBaseMetricWindowManager<GMMcCabe, GMMc
 			tabbedPane.addTab("Function measures", null, new JScrollPane(pnlFunctionMetrics), null);
 			pnlFunctionMetrics.setLayout(new BorderLayout(0, 0));
 
-			tableFunctionMeasure = new JTable();
-			tableFunctionMeasure.setVisible(false);
-			tableFunctionMeasure.setEnabled(false);
-			
-			JScrollPane scrollPane = new JScrollPane(tableFunctionMeasure);  
-			scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-			scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-			
-			pnlFunctionMetrics.add(tableFunctionMeasure.getTableHeader(), BorderLayout.NORTH);
-			pnlFunctionMetrics.add(scrollPane, BorderLayout.CENTER);
 
 			pnlNoFunctionSelected = new JPanel();
 			pnlNoFunctionSelected.setVisible(true);
-			pnlFunctionMetrics.add(pnlNoFunctionSelected, BorderLayout.SOUTH);
+			pnlFunctionMetrics.add(pnlNoFunctionSelected, BorderLayout.NORTH);
 			pnlNoFunctionSelected.setLayout(new BorderLayout(0, 0));
 
 			lblNewLabel = new JLabel("Select a valid function in the listing");
@@ -85,16 +75,27 @@ public class GMMcCabeWinManager extends GMBaseMetricWindowManager<GMMcCabe, GMMc
 			lblNewLabel.setHorizontalAlignment(SwingConstants.CENTER);
 			lblNewLabel.setVisible(true);
 			pnlNoFunctionSelected.add(lblNewLabel, BorderLayout.CENTER);
+
+			tableFunctionMeasure = new GMTable();
+			tableFunctionMeasure.setVisible(false);
+			tableFunctionMeasure.setEnabled(false);
+			
+			JScrollPane scrollPane = new JScrollPane(tableFunctionMeasure);  
+			scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+			scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+			
+			//pnlFunctionMetrics.add(tableFunctionMeasure.getTableHeader(), BorderLayout.NORTH);
+			pnlFunctionMetrics.add(scrollPane, BorderLayout.CENTER);
 		}
 		return component;
 	}
 
 	@Override
-	public void revalidate() {
+	public void refresh() {
 		// populateProgramMeasures();
 		populateFunctionMeasures();
 
-		super.revalidate();
+		super.refresh();
 	}
 	
 

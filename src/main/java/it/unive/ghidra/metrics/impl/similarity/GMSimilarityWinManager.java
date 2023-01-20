@@ -26,11 +26,8 @@ import it.unive.ghidra.metrics.base.GMBaseMetricWindowManager;
 
 public class GMSimilarityWinManager extends GMBaseMetricWindowManager<GMSimilarity, GMSimilarityManager, GMSimilarityWinManager> {
 
-	private List<Path> selectedFiles;
-
-	private JPanel pnlContainer;
-	private JTable tblMeasure;
 	private JButton btnClearMeasures;
+	private JTable tblMeasure;
 
 	public GMSimilarityWinManager(GMSimilarityManager manager) {
 		super(manager);
@@ -48,8 +45,9 @@ public class GMSimilarityWinManager extends GMBaseMetricWindowManager<GMSimilari
 	protected JComponent createComponent() {
 		JComponent component = new JPanel();
 		component.setLayout(new BorderLayout(0, 0));
+		component.setVisible(true);
 
-		pnlContainer = new JPanel();
+		JPanel pnlContainer = new JPanel();
 		pnlContainer.setVisible(true);
 		pnlContainer.setBorder(new EmptyBorder(10, 10, 10, 10));
 		pnlContainer.setLayout(new BorderLayout(0, 0));
@@ -118,30 +116,29 @@ public class GMSimilarityWinManager extends GMBaseMetricWindowManager<GMSimilari
 				public void actionPerformed(ActionEvent arg0) {
 					List<File> _selectedFiles = fileChooser.getSelectedFiles();
 					if (_selectedFiles != null) {
-						selectedFiles = _selectedFiles.stream().map(f -> f.toPath()).collect(Collectors.toList());
-						getManager().setSelectedFiles(selectedFiles);
+						List<Path> _selectedPaths = _selectedFiles.stream().map(f -> f.toPath()).collect(Collectors.toList());
+						getManager().setSelectedFiles(_selectedPaths);
 						getManager().compute();
 					}
 				}
 			});
 		}
 
-		JPanel pnlMeasureTable = new JPanel();
-		pnlMeasureTable.setLayout(new BorderLayout());
-		tblMeasure = new JTable();
-		pnlMeasureTable.add(tblMeasure.getTableHeader(), BorderLayout.NORTH);
-		pnlMeasureTable.add(tblMeasure, BorderLayout.CENTER);
-		pnlContainer.add(pnlMeasureTable, BorderLayout.CENTER);
-		pnlContainer.setVisible(true);
-
+		JPanel pnlMeasureContainer = new JPanel();
+		pnlMeasureContainer.setLayout(new BorderLayout());
+		
+		tblMeasure = new GMTable();
+		tblMeasure.setVisible(false);
+		
+		pnlMeasureContainer.add(tblMeasure.getTableHeader(), BorderLayout.NORTH);
+		pnlMeasureContainer.add(tblMeasure, BorderLayout.CENTER);
+		pnlContainer.add(pnlMeasureContainer, BorderLayout.CENTER);
+		
 		return component;
 	}
-
-	@Override
-	public void revalidate() {
-		super.revalidate();
-		
-		if ( hasSelectedFiles() ) {
+	
+	private void populateSimilarityTable() {
+		if ( getManager().hasSelectedFiles() ) {
 			populateMeasureTable(tblMeasure);
 
 			btnClearMeasures.setVisible(true);	
@@ -151,12 +148,11 @@ public class GMSimilarityWinManager extends GMBaseMetricWindowManager<GMSimilari
 			tblMeasure.setVisible(false);
 		}
 	}
-
-	public List<Path> getSelectedFiles() {
-		return selectedFiles;
+	@Override
+	public void refresh() {
+		populateSimilarityTable();
+		
+		super.refresh();
 	}
 
-	public boolean hasSelectedFiles() {
-		return selectedFiles != null && !selectedFiles.isEmpty();
-	}
 }

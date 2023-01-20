@@ -32,20 +32,24 @@ public class GMSimilarityManager extends GMBaseMetricManager<GMSimilarity, GMSim
 	public void setSelectedFiles(List<Path> selectedFiles) {
 		this.selectedFiles = selectedFiles;
 	}
+	
+	public boolean hasSelectedFiles() {
+		return selectedFiles != null && !selectedFiles.isEmpty();
+	}
 
 	public void compute() {
-		if ( selectedFiles != null && !selectedFiles.isEmpty() ) {
+		if (hasSelectedFiles()) {
 			try {
 				getMetric().createMeasures(selectedFiles);
-				if (guiEnabled) {
-					getWindowManager().revalidate();
-					getWindowManager().repaint();
-				}
 			} catch (ZipException | ExporterException | IOException e) {
 				printException(e);
 			}			
 		} else {
 			getMetric().clearMeasures();
+		}
+
+		if (guiEnabled) {
+			getWindowManager().refresh();
 		}
 	}
 }

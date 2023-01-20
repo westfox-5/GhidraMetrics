@@ -1,5 +1,6 @@
 package it.unive.ghidra.metrics.gui;
 
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -23,6 +24,7 @@ public class GMActionMetric extends JButton implements ActionListener {
 		setText(metricName);
 		setBorder(new EmptyBorder(10, 10, 10, 10));
 		setActionCommand(metricName);
+		setFont(new Font("Dialog", Font.BOLD | Font.ITALIC, 14));
 		addActionListener(this);
 	}
 

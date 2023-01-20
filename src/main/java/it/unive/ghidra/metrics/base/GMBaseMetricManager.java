@@ -109,8 +109,7 @@ implements GMMetricManagerGUI, GMMetricManagerHeadless {
 		if (fn == null) {
 			if (metricFn != null) {
 				metricFn = null;
-				wm.revalidate();
-				wm.repaint();
+				wm.refresh();
 			}
 			return;
 		}
@@ -127,8 +126,7 @@ implements GMMetricManagerGUI, GMMetricManagerHeadless {
 		metric.functionChanged(fn);
 		
 		if ( guiEnabled ) {
-			wm.revalidate();
-			wm.repaint();
+			wm.refresh();
 		}
 	}
 

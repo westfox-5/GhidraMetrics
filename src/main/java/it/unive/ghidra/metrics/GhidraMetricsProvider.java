@@ -48,10 +48,6 @@ public class GhidraMetricsProvider extends ComponentProviderAdapter {
 		localActions = new ArrayList<>();
 
 		localActions.add(new GMActionBack(plugin));
-
-		for (GMMetricExporter.FileFormat format : GMMetricExporter.FileFormat.values()) {
-			localActions.add(new GMActionExport(plugin, format));
-		}
 	}
 
 	@Override
@@ -65,8 +61,9 @@ public class GhidraMetricsProvider extends ComponentProviderAdapter {
 	
 	private final void updateWindow() {
 		if ( metricManager != null ) {
-			setSubTitle(metricManager.getMetric().getName());
-			addAllLocalActions();
+			String metricName = metricManager.getMetric().getName();
+			setSubTitle(metricName);
+			addAllLocalActions(metricName);
 		} else {
 			setSubTitle(null);
 			removeAllLocalActions();
@@ -107,12 +104,19 @@ public class GhidraMetricsProvider extends ComponentProviderAdapter {
 		}
 	}
 
-	public final void addAllLocalActions() {
+	public final void addAllLocalActions(String metricName) {
+		for (GMMetricExporter.FileFormat fileFormat : GMMetricExporter.FileFormat.values()) {
+			GMActionExport gmActionExport = new GMActionExport(plugin, metricName, fileFormat);
+			localActions.add(gmActionExport);
+		}
+
 		localActions.forEach(action -> addLocalAction(action));
 	}
 	
 	public final void removeAllLocalActions() {
 		localActions.forEach(action -> removeLocalAction(action));
+
+		createLocalActions();
 	}
 	
 	public void locationChanged(ProgramLocation loc) {

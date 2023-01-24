@@ -4,56 +4,53 @@ import java.util.HashMap;
 import java.util.Map;
 
 import it.unive.ghidra.metrics.impl.mccabe.GMMcCabe;
-import it.unive.ghidra.metrics.script.GMScriptArgumentContainer.GMScriptArgumentKey;
+import it.unive.ghidra.metrics.impl.similarity.GMSimilarity;
 
 public final class GMScriptArgumentParser {
 	private static final String ARG_VALUE_SEPARATOR = "=";
 
-	public static Map<GMScriptArgumentKey, GMScriptArgumentContainer<?>> parse(String... args) throws GMScriptException {
-		Map<GMScriptArgumentKey, GMScriptArgumentContainer<?>> map = new HashMap<>();
+	public static Map<GMScriptArgument<?>, String> parse(String... args) throws GMScriptException {
+		Map<GMScriptArgument<?>, String> map = new HashMap<>();
 
 		if (args != null && args.length > 0) {
 			for (String token : args) {
-				GMScriptArgumentContainer<?> arg = parseToken(token);
-				map.put(arg.getKey(), arg);
+				String[] split = token.split(ARG_VALUE_SEPARATOR);
+
+				// only a single value is allowed!
+				if (split.length != 2) {
+					throw new IllegalArgumentException("Invalid argument name or value: " + token);
+				}
+
+				String argName = split[0];
+				String argValue = split[1];
+
+				GMScriptArgument<?> arg = GMScriptArgument.byArgName(argName);
+				map.put(arg, argValue);
 			}
 		}
 
-		/// validation
-
-		validateArguments(map);
+		validate(map);
 
 		return map;
 	}
 
-	private static <T> GMScriptArgumentContainer<?> parseToken(String token) throws GMScriptException {
-		String[] split = token.split(ARG_VALUE_SEPARATOR);
+	private static void validate(Map<GMScriptArgument<?>, String> map) throws GMScriptException {
 
-		// only a single value is allowed!
-		if (split.length != 2)
-			throw new IllegalArgumentException("Invalid argument name or value: " + token);
-
-		String argName = split[0];
-		String argValue = split[1];
-
-		GMScriptArgumentContainer<?> arg = GMScriptArgumentContainer.byName(argName);
-		arg.setTypedValue(argValue);
-
-		return arg;
-	}
-
-
-
-	private static void validateArguments(Map<GMScriptArgumentKey, GMScriptArgumentContainer<?>> args)
-			throws GMScriptException {
-
+		final String metricName = GMScriptArgument.ARG_METRIC.getTypedValue(map.get(GMScriptArgument.ARG_METRIC));
+		
 		/// McCabe metric needs a function name
-		GMScriptArgumentContainer<?> metricNameArg = args.get(GMScriptArgumentKey.METRIC);
-		if (metricNameArg.getValue().equals(GMMcCabe.NAME)) {
-			if (!args.containsKey(GMScriptArgumentKey.FUNCTION)) {
-				throw new GMScriptException(
-						"Missing parameter '" + GMScriptArgumentKey.FUNCTION.getKey() + "' "
-						+ "required for metric '" + metricNameArg.getValue() + "'");
+		if (metricName.equals(GMMcCabe.NAME)) {
+			if (!map.containsKey(GMScriptArgument.ARG_FUNCTION)) {
+				throw new GMScriptException("Missing parameter '" + GMScriptArgument.ARGNAME_FUNCTION + "' "
+						+ "required by metric '" + metricName + "'");
+			}
+		}
+
+		/// Similarity needs similarity input
+		if (metricName.equals(GMSimilarity.NAME)) {
+			if (!map.containsKey(GMScriptArgument.ARG_SIMILARITY_INPUT)) {
+				throw new GMScriptException("Missing parameter '" + GMScriptArgument.ARGNAME_SIMILARITY_INPUT + "' "
+						+ "required by metric '" + metricName + "'");
 			}
 		}
 

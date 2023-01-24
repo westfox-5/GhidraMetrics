@@ -10,7 +10,7 @@ import javax.swing.border.EmptyBorder;
 import ghidra.util.Swing;
 import it.unive.ghidra.metrics.base.GMBaseWindowManager;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricManagerGUI;
-import it.unive.ghidra.metrics.gui.GMActionMetric;
+import it.unive.ghidra.metrics.gui.GMMetricButton;
 
 public class GhidraMetricsWindowManager extends GMBaseWindowManager {
 
@@ -71,7 +71,7 @@ public class GhidraMetricsWindowManager extends GMBaseWindowManager {
 
 	private final void createAllMetricButtons() {
 		getPlugin().getMetricNames().forEach(metricName -> {
-			pnlMainContainer.add(new GMActionMetric(getPlugin(), metricName));
+			pnlMainContainer.add(new GMMetricButton(getPlugin(), metricName));
 		});
 	}
 }

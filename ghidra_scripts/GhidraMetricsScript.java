@@ -1,30 +1,50 @@
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
+import ghidra.app.script.GhidraScript;
 import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.FunctionIterator;
 import ghidra.program.model.listing.Program;
 import ghidra.util.Msg;
-import it.unive.ghidra.metrics.base.GMBaseScript;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricExporter;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricManagerHeadless;
 import it.unive.ghidra.metrics.impl.GhidraMetricFactory;
 import it.unive.ghidra.metrics.impl.similarity.GMSimilarityManager;
-import it.unive.ghidra.metrics.script.GMScriptArgumentContainer.GMScriptArgumentKey;
+import it.unive.ghidra.metrics.script.GMScriptArgument;
+import it.unive.ghidra.metrics.script.GMScriptArgumentParser;
 import it.unive.ghidra.metrics.script.GMScriptException;
 
-public class GhidraMetricsScript extends GMBaseScript {
+public class GhidraMetricsScript extends GhidraScript {
 
+	private final Map<GMScriptArgument<?>, String> args = new HashMap<>();
+
+	private final void parseArgs() throws GMScriptException {
+		args.clear();
+		Map<GMScriptArgument<?>, String> tmp = GMScriptArgumentParser.parse(getScriptArgs());
+		args.putAll(tmp);
+	}
+	
+	private final <T> T getArgValue(GMScriptArgument<T> arg) throws GMScriptException {
+		T value = arg.getTypedValue(args.get(arg));
+		return value;
+	}
+	
+	private final boolean hasArg(GMScriptArgument<?> arg) {
+		return args.containsKey(arg);
+	}
+	
 	@Override
 	protected void run() {
 		try {
 			parseArgs();
 
-			final String metricName = getArgValue(GMScriptArgumentKey.METRIC);
+			String metricName = getArgValue(GMScriptArgument.ARG_METRIC);
 			GMMetricManagerHeadless manager = GhidraMetricFactory.createHeadless(metricName, getCurrentProgram());
 
-			if (hasArg(GMScriptArgumentKey.FUNCTION)) {
-				final String fnName = getArgValue(GMScriptArgumentKey.FUNCTION);
+			if (hasArg(GMScriptArgument.ARG_FUNCTION)) {
+				final String fnName = getArgValue(GMScriptArgument.ARG_FUNCTION);
 
 				Function function = findFunctionByName(manager.getProgram(), fnName);
 				if (function == null) {
@@ -37,23 +57,19 @@ public class GhidraMetricsScript extends GMBaseScript {
 			}
 			
 			if (manager instanceof GMSimilarityManager) {
-				if (hasArg(GMScriptArgumentKey.SIMILARITY_INPUT)) {
-					final GMSimilarityManager similarityManager = (GMSimilarityManager)manager;
-					final Path ncdInput = getArgValue(GMScriptArgumentKey.SIMILARITY_INPUT);
-					similarityManager.setSelectedFiles(Arrays.asList(ncdInput));
-					similarityManager.compute();
-				} else {
-					throw new GMScriptException("Could not find input file for Similarity metric. Please provide a valid path in the '"+ GMScriptArgumentKey.SIMILARITY_INPUT +"' argument.");
-				}
+				final GMSimilarityManager similarityManager = (GMSimilarityManager)manager;
+				final Path ncdInput = getArgValue(GMScriptArgument.ARG_SIMILARITY_INPUT); // argument parser validation assures it exists!
+				similarityManager.setSelectedFiles(Arrays.asList(ncdInput));
+				similarityManager.compute();
 			}
 			
-			if (hasArg(GMScriptArgumentKey.EXPORT)) {
-				final GMMetricExporter.FileFormat fileFormat = getArgValue(GMScriptArgumentKey.EXPORT);
+			if (hasArg(GMScriptArgument.ARG_EXPORT)) {
+				final GMMetricExporter.FileFormat fileFormat = getArgValue(GMScriptArgument.ARG_EXPORT);
 				Path exportDir = null;
 
-				if (hasArg(GMScriptArgumentKey.EXPORT_DIR)) {
+				if (hasArg(GMScriptArgument.ARG_EXPORT_DIR)) {
 					// specific directory from arguments
-					exportDir = getArgValue(GMScriptArgumentKey.EXPORT_DIR);
+					exportDir = getArgValue(GMScriptArgument.ARG_EXPORT_DIR);
 				} else {
 					// same directory of input file
 					exportDir = Path.of(getProgramFile().getParentFile().getAbsolutePath());

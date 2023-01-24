@@ -10,13 +10,13 @@ import javax.swing.border.EmptyBorder;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
 import it.unive.ghidra.metrics.GhidraMetricsProvider;
 
-public class GMActionMetric extends JButton implements ActionListener {
+public class GMMetricButton extends JButton implements ActionListener {
 	private static final long serialVersionUID = 1L;
 
 	private final GhidraMetricsPlugin plugin;
 	private final String metricName;
 
-	public GMActionMetric(GhidraMetricsPlugin plugin, String metricName) {
+	public GMMetricButton(GhidraMetricsPlugin plugin, String metricName) {
 		super();
 		this.plugin = plugin;
 		this.metricName = metricName;

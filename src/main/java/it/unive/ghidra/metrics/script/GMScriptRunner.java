@@ -17,7 +17,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -182,12 +181,10 @@ public class GMScriptRunner {
 		}
 
 		if (cmd.hasOption("similarity-input")) {
-			File ncdInputFile = new File(cmd.getOptionValue("similarity-input"));
-			if (ncdInputFile.exists()) {
-				addGhidraArg(GMScriptArgument.ARG_SIMILARITY_INPUT, ncdInputFile.getAbsolutePath());
-			}
+			Path similarityInput = Path.of(cmd.getOptionValue("similarity-input"));
+			addGhidraArg(GMScriptArgument.ARG_SIMILARITY_INPUT, absolute(similarityInput));
 		}
-		
+
 		if (cmd.hasOption("similarity-zipper")) {
 			addGhidraArg(GMScriptArgument.ARG_SIMILARITY_ZIPPER, cmd.getOptionValue("similarity-zipper"));
 		}
@@ -217,73 +214,60 @@ public class GMScriptRunner {
 	}
 
 	public final void run() throws IOException {
-		List<Path> pathsToProcess = null;
-
-		if (inPath.toFile().isDirectory()) {
-			int maxDepth = isRecursive() ? Integer.MAX_VALUE : 1;
-			try (Stream<Path> walk = Files.walk(inPath, maxDepth)) {
-				pathsToProcess = walk.filter(f -> Files.isExecutable(f) && !Files.isDirectory(f))
-						.collect(Collectors.toList());
-			}
-		} else if (Files.isExecutable(inPath)) {
-			pathsToProcess = Collections.singletonList(inPath);
-		}
-
+		List<Path> pathsToProcess = getExecutableFilesInPath(inPath);
 		runGhidraHeadlessAnalyzer(pathsToProcess);
 	}
 
-	private final boolean runGhidraHeadlessAnalyzer(List<Path> pathsToProcess) throws IOException {
+	private final boolean runGhidraHeadlessAnalyzer(List<Path> inputs) throws IOException {
 		File logFile = generateLogFile();
-
-		boolean ok = true;
 
 		System.out.println("> Log generated in: " + absolute(logFile));
 		System.out.println();
 
-		for (Path executable : pathsToProcess) {
-			File errTempFile = Files.createTempFile("gm_scriptrunner_err_", null).toFile();
-			List<String> commands = generateGhidraCommands(executable);
+		List<ProcessBuilder> pbs = new ArrayList<>();
+		for (Path exe : inputs) {
+			pbs.add(createProcessBuilder(exe, logFile));
+		}
 
-			ProcessBuilder pb = new ProcessBuilder();
-			pb.command(commands);
+		boolean ok = true;
 
-			pb.redirectOutput(Redirect.appendTo(logFile));
-			pb.redirectError(Redirect.appendTo(errTempFile));
-
-			System.out.println("> Processing file: " + absolute(executable));
+		for (ProcessBuilder pb : pbs) {
+			System.out.println("> Processing file: " + pb.environment().get("EXE"));
 			if (verbose)
 				System.out.println(pb.command().stream().collect(Collectors.joining(" ")));
 
 			Process process = pb.start();
-			boolean success = false;
-			boolean hasExceptions = false;
-			List<String> exceptionsInLog = null;
+			File errFile = pb.redirectError().file();
 
+			int exitValue = 0;
 			try {
-				success = process.waitFor(20, TimeUnit.SECONDS);
+				exitValue = process.waitFor();
 				if (verbose)
-					System.out.println("> Checking errors...");
-				exceptionsInLog = getExceptionsInFile(errTempFile, 5);
-				hasExceptions = exceptionsInLog != null;
+					System.out.println("> Process exited with value: " + exitValue);
 
 			} catch (InterruptedException e) {
-				e.printStackTrace();
-				Files.writeString(errTempFile.toPath(), e.getMessage(), StandardOpenOption.APPEND);
+				Files.writeString(errFile.toPath(), e.getMessage(), StandardOpenOption.APPEND);
 			}
 
-			if (success && !hasExceptions) {
+			if (exitValue == 0) {
 				System.out.println("> OK");
-				errTempFile.deleteOnExit();
+				errFile.deleteOnExit();
 			} else {
-				System.out.println("> KO: log generated in: " + absolute(errTempFile));
-				if (!hasExceptions) {
+				System.out.println("> Checking errors...");
+				List<String> exceptionsInLog = getExceptionsInFile(errFile, 5);
+
+				if (exceptionsInLog == null) {
 					System.err.println("> Analysis timed out!");
-				} else if (verbose) {
-					System.out.println("> Found errors (check the error log for better understanding):");
-					for (String exception : exceptionsInLog) {
-						System.err.println(exception);
+				} else {
+					System.out.println("> Error log generated in: " + absolute(errFile));
+					if (verbose) {
+						System.out.println("> Found errors (check the error log for better understanding):");
+						for (String exception : exceptionsInLog) {
+							System.err.println(exception);
+						}
 					}
 				}
+
 				ok = false;
 			}
 		}
@@ -297,6 +281,21 @@ public class GMScriptRunner {
 		}
 
 		return ok;
+	}
+
+	private ProcessBuilder createProcessBuilder(Path executable, File logFile) throws IOException {
+		File errTempFile = Files.createTempFile("gm_scriptrunner_err_", null).toFile();
+		List<String> commands = generateGhidraCommands(executable);
+
+		ProcessBuilder pb = new ProcessBuilder();
+		pb.command(commands);
+
+		pb.redirectOutput(Redirect.appendTo(logFile));
+		pb.redirectError(Redirect.appendTo(errTempFile));
+
+		pb.environment().put("EXE", absolute(executable));
+
+		return pb;
 	}
 
 	private File generateLogFile() {
@@ -327,7 +326,7 @@ public class GMScriptRunner {
 		/* ----- */
 		commands.add("-deleteProject");
 		commands.add("-analysisTimeoutPerFile");
-		commands.add("10");
+		commands.add("30");
 		/* ----- */
 
 		return commands;
@@ -369,6 +368,21 @@ public class GMScriptRunner {
 			}
 		}
 		return exceptions.isEmpty() ? null : exceptions;
+	}
+
+	private final List<Path> getExecutableFilesInPath(Path input) throws IOException {
+		List<Path> list = new ArrayList<>();
+
+		if (input.toFile().isDirectory()) {
+			int maxDepth = isRecursive() ? Integer.MAX_VALUE : 1;
+			try (Stream<Path> walk = Files.walk(input, maxDepth)) {
+				list = walk.filter(f -> Files.isExecutable(f) && !Files.isDirectory(f)).collect(Collectors.toList());
+			}
+		} else if (Files.isExecutable(input)) {
+			list = Collections.singletonList(input);
+		}
+
+		return list;
 	}
 
 	public boolean isRecursive() {

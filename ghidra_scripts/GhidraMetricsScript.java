@@ -1,7 +1,13 @@
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import ghidra.app.script.GhidraScript;
 import ghidra.program.model.listing.Function;
@@ -62,7 +68,7 @@ public class GhidraMetricsScript extends GhidraScript {
 				final Path ncdInput = getArgValue(GMScriptArgument.ARG_SIMILARITY_INPUT); // argument parser validation assures it exists!
 				final GMZipper zipper = getArgValue(GMScriptArgument.ARG_SIMILARITY_ZIPPER); // argument parser validation assures it exists!
 				similarityManager.setZipper(zipper);
-				similarityManager.setSelectedFiles(Arrays.asList(ncdInput));
+				similarityManager.setSelectedFiles(getExecutableFilesInPath(ncdInput));
 				similarityManager.compute();
 			}
 			
@@ -108,5 +114,23 @@ public class GhidraMetricsScript extends GhidraScript {
 			}
 		}
 		return null;
+	}
+	
+
+	
+	private final List<Path> getExecutableFilesInPath(Path input) throws IOException {
+		List<Path> list = new ArrayList<>();
+		
+		if (input.toFile().isDirectory()) {
+			int maxDepth = Integer.MAX_VALUE;
+			try (Stream<Path> walk = Files.walk(input, maxDepth)) {
+				list = walk.filter(f -> Files.isExecutable(f) && !Files.isDirectory(f))
+						.collect(Collectors.toList());
+			}
+		} else if (Files.isExecutable(input)) {
+			list = Collections.singletonList(input);
+		}
+		
+		return list;
 	}
 }

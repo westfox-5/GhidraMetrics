@@ -39,7 +39,7 @@ public final class GMScriptArgumentParser {
 		final String metricName = GMScriptArgument.ARG_METRIC.getTypedValue(map.get(GMScriptArgument.ARG_METRIC));
 		
 		/// McCabe metric needs a function name
-		if (metricName.equals(GMMcCabe.NAME)) {
+		if (metricName.equalsIgnoreCase(GMMcCabe.NAME)) {
 			if (!map.containsKey(GMScriptArgument.ARG_FUNCTION)) {
 				throw new GMScriptException("Missing parameter '" + GMScriptArgument.ARG_SIMILARITY_INPUT + "' "
 						+ "required by metric '" + metricName + "'");
@@ -47,7 +47,7 @@ public final class GMScriptArgumentParser {
 		}
 
 		/// Similarity needs similarity-input and similarity-zipper
-		if (metricName.equals(GMSimilarity.NAME)) {
+		if (metricName.equalsIgnoreCase(GMSimilarity.NAME)) {
 			if (!map.containsKey(GMScriptArgument.ARG_SIMILARITY_INPUT)) {
 				throw new GMScriptException("Missing parameter '" + GMScriptArgument.ARG_SIMILARITY_INPUT + "' "
 						+ "required by metric '" + metricName + "'");

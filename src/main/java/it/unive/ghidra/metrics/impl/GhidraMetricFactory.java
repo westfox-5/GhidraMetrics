@@ -5,7 +5,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import ghidra.program.model.listing.Program;
 import ghidra.util.Msg;
@@ -49,16 +48,6 @@ public class GhidraMetricFactory {
 		}		
 	}
 	
-	private static final Map<Class<? extends GMMetricManager>, String> INVERSE_MANAGERS_TABLE;
-	static {
-		INVERSE_MANAGERS_TABLE = MANAGERS_TABLE.entrySet().stream()
-				.collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));		
-	}
-
-	public static String metricLookupNameByManager(Class<? extends GMMetricManager> managerClass) {
-		return INVERSE_MANAGERS_TABLE.get(managerClass);
-	}
-
 	public static Collection<String> allMetrics() {
 		return METRICNAMES_TABLE.keySet();
 	}

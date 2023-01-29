@@ -19,7 +19,7 @@ public final class GMMcCabeKey extends GMBaseMeasureKey {
 		NUM_EDGES	= new GMMcCabeKey("Num Edges", "Number of edges.", null);		
 		NUM_NODES	= new GMMcCabeKey("Num Nodes", "Number of nodes.", null);
 		NUM_CONNECTED_COMPONENTS	= new GMMcCabeKey("Num Connected Components", "Number of connected components.", null);
-		COMPLEXITY 	= new GMMcCabeKey("Complexity", "Cyclomatic complexity.", "M = E - N + 2P");
+		COMPLEXITY 	= new GMMcCabeKey("Complexity", "Cyclomatic complexity.", "M = E - N + P");
 		//@formatter:on
 	}
 

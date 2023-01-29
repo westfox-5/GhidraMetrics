@@ -115,7 +115,7 @@ public class GMMcCabe extends GMBaseMetric<GMMcCabe, GMMcCabeManager, GMMcCabeWi
 	 */
 	public BigDecimal getComplexity() {
 		BigDecimal a = NumberUtils.sub(edges, nodes);
-		BigDecimal b = NumberUtils.mul(exits, new BigDecimal(2));
+		BigDecimal b = NumberUtils.mul(exits, new BigDecimal(1));
 		BigDecimal c = NumberUtils.add(a, b);
 
 		return NumberUtils.gte0(c) ? c : BigDecimal.ZERO;

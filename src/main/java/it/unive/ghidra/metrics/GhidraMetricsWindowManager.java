@@ -28,9 +28,6 @@ public class GhidraMetricsWindowManager extends GMBaseWindowManager {
 		return true;
 	}
 
-	/**
-	 * @wbp.parser.entryPoint
-	 */
 	@Override
 	protected JComponent createComponent() {
 		JComponent component = new JPanel();
@@ -66,7 +63,11 @@ public class GhidraMetricsWindowManager extends GMBaseWindowManager {
 			getComponent().add(pnlMetricContainer);
 			
 		}
-		Swing.runNow( () -> { getComponent().revalidate(); getComponent().repaint(); getComponent().grabFocus(); });
+		Swing.runNow( () -> { 
+			getComponent().revalidate();
+			getComponent().repaint();
+			getComponent().grabFocus();
+		});
 	}
 
 	private final void createAllMetricButtons() {

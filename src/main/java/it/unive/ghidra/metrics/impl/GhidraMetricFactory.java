@@ -15,33 +15,38 @@ import it.unive.ghidra.metrics.base.interfaces.GMMetricExporter.FileFormat;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricManager;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricManagerGUI;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricManagerHeadless;
+import it.unive.ghidra.metrics.base.interfaces.GMZipper;
 import it.unive.ghidra.metrics.impl.halstead.GMHalstead;
 import it.unive.ghidra.metrics.impl.halstead.GMHalsteadManager;
 import it.unive.ghidra.metrics.impl.mccabe.GMMcCabe;
 import it.unive.ghidra.metrics.impl.mccabe.GMMcCabeManager;
 import it.unive.ghidra.metrics.impl.similarity.GMSimilarity;
 import it.unive.ghidra.metrics.impl.similarity.GMSimilarityManager;
+import it.unive.ghidra.metrics.util.ZipHelper;
 
 public class GhidraMetricFactory {
 
 	private static final Map<String, Class<? extends GMMetricManager>> MANAGERS_TABLE = new HashMap<>();;
 	private static final Map<String, String> METRICNAMES_TABLE = new HashMap<>();
 	private static final Map<String, GMMetricExporter.FileFormat> FILEFORMATS_TABLE = new HashMap<>();
+	private static final Map<String, GMZipper> ZIPPERS_TABLE = new HashMap<>();
 
 	static { 
 		MANAGERS_TABLE.put(GMHalstead.LOOKUP_NAME, 		GMHalsteadManager.class);
 		MANAGERS_TABLE.put(GMSimilarity.LOOKUP_NAME, 	GMSimilarityManager.class);
 		MANAGERS_TABLE.put(GMMcCabe.LOOKUP_NAME, 		GMMcCabeManager.class);
 
-
 		METRICNAMES_TABLE.put(GMHalstead.NAME, 		GMHalstead.LOOKUP_NAME); 
 		METRICNAMES_TABLE.put(GMSimilarity.NAME, 	GMSimilarity.LOOKUP_NAME);
 		METRICNAMES_TABLE.put(GMMcCabe.NAME, 		GMMcCabe.LOOKUP_NAME);
-		
+
+		ZIPPERS_TABLE.put("zip", ZipHelper::zip);
+		ZIPPERS_TABLE.put("gzip", ZipHelper::gzip);
+		ZIPPERS_TABLE.put("rzip", ZipHelper::rzip);
 		
 		for (GMMetricExporter.FileFormat ff: FileFormat.values()) {
 			FILEFORMATS_TABLE.put(ff.getExtension(), ff);
-		}
+		}		
 	}
 	
 	private static final Map<Class<? extends GMMetricManager>, String> INVERSE_MANAGERS_TABLE;
@@ -49,21 +54,29 @@ public class GhidraMetricFactory {
 		INVERSE_MANAGERS_TABLE = MANAGERS_TABLE.entrySet().stream()
 				.collect(Collectors.toMap(Map.Entry::getValue, Map.Entry::getKey));		
 	}
-	
-	public static Collection<Class<? extends GMMetricManager>> allMetricManagers() {
-		return MANAGERS_TABLE.values();
-	}
-	
+
 	public static String metricLookupNameByManager(Class<? extends GMMetricManager> managerClass) {
 		return INVERSE_MANAGERS_TABLE.get(managerClass);
 	}
 
-	public static Collection<String> allMetricNames() {
+	public static Collection<String> allMetrics() {
 		return METRICNAMES_TABLE.keySet();
 	}
-
-	public static Collection<String> allFileFormatNames() {
+	
+	public static Collection<String> allFileFormats() {
 		return FILEFORMATS_TABLE.keySet();
+	}
+	
+	public static GMMetricExporter.FileFormat getFileFormat(String ext) {
+		return FILEFORMATS_TABLE.get(ext);
+	}
+	
+	public static Collection<String> allZippers() {
+		return ZIPPERS_TABLE.keySet();
+	}
+	
+	public static GMZipper getZipper(String name) {
+		return ZIPPERS_TABLE.get(name);
 	}
 	
 

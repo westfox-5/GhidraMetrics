@@ -31,13 +31,10 @@ public class GMHalsteadWinManager extends GMBaseMetricWindowManager<GMHalstead, 
 	public boolean init() {
 		populateProgramMeasures();
 		populateFunctionMeasures();
-		
+
 		return true;
 	}
 
-	/**
-	 * @wbp.parser.entryPoint
-	 */
 	@Override
 	protected JComponent createComponent() {
 		JComponent component = new JPanel();
@@ -51,13 +48,13 @@ public class GMHalsteadWinManager extends GMBaseMetricWindowManager<GMHalstead, 
 			JPanel pnlProgramMetrics = new JPanel();
 			tabbedPane.addTab("Program measures", null, new JScrollPane(pnlProgramMetrics), null);
 			pnlProgramMetrics.setLayout(new BorderLayout(0, 0));
-			
+
 			tableProgramMeasure = new GMTable();
-			
-			JScrollPane scrollPane = new JScrollPane(tableProgramMeasure);  
+
+			JScrollPane scrollPane = new JScrollPane(tableProgramMeasure);
 			scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 			scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-			
+
 			pnlProgramMetrics.add(tableProgramMeasure.getTableHeader(), BorderLayout.NORTH);
 			pnlProgramMetrics.add(scrollPane, BorderLayout.CENTER);
 		}
@@ -67,7 +64,6 @@ public class GMHalsteadWinManager extends GMBaseMetricWindowManager<GMHalstead, 
 			JPanel pnlFunctionMetrics = new JPanel();
 			tabbedPane.addTab("Function measures", null, new JScrollPane(pnlFunctionMetrics), null);
 			pnlFunctionMetrics.setLayout(new BorderLayout(0, 0));
-
 
 			pnlNoFunctionSelected = new JPanel();
 			pnlNoFunctionSelected.setVisible(true);
@@ -81,12 +77,13 @@ public class GMHalsteadWinManager extends GMBaseMetricWindowManager<GMHalstead, 
 			pnlNoFunctionSelected.add(lblNewLabel, BorderLayout.CENTER);
 
 			tableFunctionMeasure = new GMTable();
-			
-			JScrollPane scrollPane = new JScrollPane(tableFunctionMeasure);  
+
+			JScrollPane scrollPane = new JScrollPane(tableFunctionMeasure);
 			scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 			scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-			
-			//pnlFunctionMetrics.add(tableFunctionMeasure.getTableHeader(), BorderLayout.NORTH);
+
+			// pnlFunctionMetrics.add(tableFunctionMeasure.getTableHeader(),
+			// BorderLayout.NORTH);
 			pnlFunctionMetrics.add(scrollPane, BorderLayout.CENTER);
 		}
 
@@ -110,7 +107,6 @@ public class GMHalsteadWinManager extends GMBaseMetricWindowManager<GMHalstead, 
 		if (fnHalstead != null) {
 			populateMeasureTable(tableFunctionMeasure, fnHalstead);
 
-			
 			tableFunctionMeasure.setVisible(true);
 			pnlNoFunctionSelected.setVisible(false);
 		} else {

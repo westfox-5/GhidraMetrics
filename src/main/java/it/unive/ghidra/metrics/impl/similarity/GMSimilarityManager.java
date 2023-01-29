@@ -8,11 +8,13 @@ import ghidra.app.util.exporter.ExporterException;
 import ghidra.program.model.listing.Program;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
 import it.unive.ghidra.metrics.base.GMBaseMetricManager;
+import it.unive.ghidra.metrics.base.interfaces.GMZipper;
 import it.unive.ghidra.metrics.util.ZipHelper.ZipException;
 
 public class GMSimilarityManager extends GMBaseMetricManager<GMSimilarity, GMSimilarityManager, GMSimilarityWinManager> {
 
 	private List<Path> selectedFiles;
+	private GMZipper zipper;
 	
 	public GMSimilarityManager(Program program) {
 		super(program, GMSimilarity.class);
@@ -38,18 +40,26 @@ public class GMSimilarityManager extends GMBaseMetricManager<GMSimilarity, GMSim
 	}
 
 	public void compute() {
+		getMetric().clearMeasures();
+		
 		if (hasSelectedFiles()) {
 			try {
 				getMetric().createMeasures(selectedFiles);
 			} catch (ZipException | ExporterException | IOException e) {
 				printException(e);
 			}			
-		} else {
-			getMetric().clearMeasures();
 		}
 
 		if (guiEnabled) {
 			getWindowManager().refresh();
 		}
+	}
+
+	public GMZipper getZipper() {
+		return zipper;
+	}
+
+	public void setZipper(GMZipper zipper) {
+		this.zipper = zipper;
 	}
 }

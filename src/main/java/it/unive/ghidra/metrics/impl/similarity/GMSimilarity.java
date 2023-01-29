@@ -20,7 +20,6 @@ import it.unive.ghidra.metrics.base.GMBaseMetric;
 import it.unive.ghidra.metrics.base.interfaces.GMMeasure;
 import it.unive.ghidra.metrics.util.GMTaskMonitor;
 import it.unive.ghidra.metrics.util.PathHelper;
-import it.unive.ghidra.metrics.util.ZipHelper;
 import it.unive.ghidra.metrics.util.ZipHelper.ZipException;
 
 public class GMSimilarity extends GMBaseMetric<GMSimilarity, GMSimilarityManager, GMSimilarityWinManager> {
@@ -37,8 +36,6 @@ public class GMSimilarity extends GMBaseMetric<GMSimilarity, GMSimilarityManager
 	
 	private static final String TEMP_DIR_PREFIX = "ghidra_metrics_";
 	private Path TEMP_DIR;
-
-	private final ZipHelper.Zipper zipper = ZipHelper::rzip;
 
 	public GMSimilarity(GMSimilarityManager manager) {
 		super(NAME, manager);
@@ -65,7 +62,7 @@ public class GMSimilarity extends GMBaseMetric<GMSimilarity, GMSimilarityManager
 		Path thisProgramPath = getExecutablePath(getManager().getProgram());
 		Path zipPath;
 		try {
-			zipPath = zipToTempFile(thisProgramPath);
+			zipPath = doZip(thisProgramPath);
 		} catch (ZipException x) {
 			manager.printException(new Exception("If you see this error, it is very likely that you do not have 'rzip' installed in your system."
 					+ " Please procede to installation in order to continue using this plugin.", x));
@@ -79,11 +76,11 @@ public class GMSimilarity extends GMBaseMetric<GMSimilarity, GMSimilarityManager
 			Program otherProgram = importNewProgram(path);
 			otherProgram.setTemporary(true);
 			
-			Path otherZipPath = zipToTempFile(getExecutablePath(otherProgram));
+			Path otherZipPath = doZip(getExecutablePath(otherProgram));
 			Long otherZipSize = Files.size(otherZipPath);
 			
 			Path concatPath = PathHelper.concatPaths(TEMP_DIR, zipPath, otherZipPath);
-			Path concatZipPath = zipper.zip(TEMP_DIR, concatPath);
+			Path concatZipPath = doZip(concatPath);
 			Long concatZipSize = Files.size(concatZipPath);
 
 			Double ncd = (1.00 * concatZipSize - Math.min(zipSize, otherZipSize)) / (1.00 * Math.max(zipSize, otherZipSize));
@@ -105,8 +102,8 @@ public class GMSimilarity extends GMBaseMetric<GMSimilarity, GMSimilarityManager
 
 	}
 	
-	private Path zipToTempFile(Path file) throws ZipException {
-		return zipper.zip(TEMP_DIR, file);
+	private Path doZip(Path file) throws ZipException {
+		return getManager().getZipper().zip(TEMP_DIR, file);
 	}
 	
 	private Path getExecutablePath(Program program) throws IOException {

@@ -41,15 +41,20 @@ public final class GMScriptArgumentParser {
 		/// McCabe metric needs a function name
 		if (metricName.equals(GMMcCabe.NAME)) {
 			if (!map.containsKey(GMScriptArgument.ARG_FUNCTION)) {
-				throw new GMScriptException("Missing parameter '" + GMScriptArgument.ARGNAME_FUNCTION + "' "
+				throw new GMScriptException("Missing parameter '" + GMScriptArgument.ARG_SIMILARITY_INPUT + "' "
 						+ "required by metric '" + metricName + "'");
 			}
 		}
 
-		/// Similarity needs similarity input
+		/// Similarity needs similarity-input and similarity-zipper
 		if (metricName.equals(GMSimilarity.NAME)) {
 			if (!map.containsKey(GMScriptArgument.ARG_SIMILARITY_INPUT)) {
-				throw new GMScriptException("Missing parameter '" + GMScriptArgument.ARGNAME_SIMILARITY_INPUT + "' "
+				throw new GMScriptException("Missing parameter '" + GMScriptArgument.ARG_SIMILARITY_INPUT + "' "
+						+ "required by metric '" + metricName + "'");
+			}
+			
+			if (!map.containsKey(GMScriptArgument.ARG_SIMILARITY_ZIPPER)) {
+				throw new GMScriptException("Missing parameter '" + GMScriptArgument.ARG_SIMILARITY_INPUT + "' "
 						+ "required by metric '" + metricName + "'");
 			}
 		}

@@ -13,31 +13,6 @@ import java.util.zip.ZipOutputStream;
 
 public class ZipHelper {
 
-	public static class ZipException extends Exception {
-		private static final long serialVersionUID = 1L;
-
-		public ZipException() {
-			super();
-		}
-
-		public ZipException(String message, Throwable cause) {
-			super(message, cause);
-		}
-
-		public ZipException(String message) {
-			super(message);
-		}
-
-		public ZipException(Throwable cause) {
-			super(cause);
-		}
-	}
-	
-	@FunctionalInterface
-	public static interface Zipper {
-		Path zip(Path dir, Path file) throws ZipException;
-	}
-
 	public static Path zip(Path dir, Path file) throws ZipException {
 		Path zip = getZipPath(dir, file, ".zip");
 
@@ -129,5 +104,25 @@ public class ZipHelper {
 		String basename = PathHelper.getBasename(file);
 		long uuid = UUID.randomUUID().getMostSignificantBits();
 		return dir.resolve(Path.of(basename + "_" + uuid + ext));
+	}
+	
+	public static class ZipException extends Exception {
+		private static final long serialVersionUID = 1L;
+
+		public ZipException() {
+			super();
+		}
+
+		public ZipException(String message, Throwable cause) {
+			super(message, cause);
+		}
+
+		public ZipException(String message) {
+			super(message);
+		}
+
+		public ZipException(Throwable cause) {
+			super(cause);
+		}
 	}
 }

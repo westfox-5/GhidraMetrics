@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -78,16 +79,20 @@ public class GMScriptRunner {
 		formatter.printHelp("GMScriptRunner", options, true);
 	}
 
+	private static String prettyPrintValues(Collection<String> values) {
+		return "[" + values.stream().sorted().collect(Collectors.joining(", ")) + "]";
+	}
+
 	private static Options createOptions() {
 		Options options = new Options();
 
-		Option metricName = new Option("m", "metric-name", true, "metric name ["
-				+ GhidraMetricFactory.allMetricNames().stream().sorted().collect(Collectors.joining(", ")) + "]");
+		Option metricName = new Option("m", "metric-name", true,
+				"metric names " + prettyPrintValues(GhidraMetricFactory.allMetrics()));
 		metricName.setRequired(true);
 		options.addOption(metricName);
 
-		Option exportType = new Option("e", "export-type", true, "export type ["
-				+ GhidraMetricFactory.allFileFormatNames().stream().sorted().collect(Collectors.joining(", ")) + "]");
+		Option exportType = new Option("e", "export-type", true,
+				"export types " + prettyPrintValues(GhidraMetricFactory.allFileFormats()));
 		exportType.setRequired(true);
 		options.addOption(exportType);
 
@@ -117,10 +122,15 @@ public class GMScriptRunner {
 		verbose.setRequired(false);
 		options.addOption(verbose);
 
-		Option ncdInput = new Option(null, "similarity-input", true,
+		Option similarityInput = new Option(null, "similarity-input", true,
 				"path to an executable file to compare with current input in the similarity metric");
-		ncdInput.setRequired(false);
-		options.addOption(ncdInput);
+		similarityInput.setRequired(false);
+		options.addOption(similarityInput);
+
+		Option similarityZipper = new Option(null, "similarity-zipper", true,
+				"zipper functions " + prettyPrintValues(GhidraMetricFactory.allZippers()));
+		similarityZipper.setRequired(false);
+		options.addOption(similarityZipper);
 
 		return options;
 	}
@@ -176,6 +186,10 @@ public class GMScriptRunner {
 			if (ncdInputFile.exists()) {
 				addGhidraArg(GMScriptArgument.ARG_SIMILARITY_INPUT, ncdInputFile.getAbsolutePath());
 			}
+		}
+		
+		if (cmd.hasOption("similarity-zipper")) {
+			addGhidraArg(GMScriptArgument.ARG_SIMILARITY_ZIPPER, cmd.getOptionValue("similarity-zipper"));
 		}
 
 		if (cmd.hasOption("recursive")) {

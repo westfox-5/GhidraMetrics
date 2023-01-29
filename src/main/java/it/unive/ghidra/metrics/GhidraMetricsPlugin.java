@@ -71,6 +71,6 @@ public class GhidraMetricsPlugin extends ProgramPlugin {
 	}
 
 	public Collection<String> getMetricNames() {
-		return GhidraMetricFactory.allMetricNames();
+		return GhidraMetricFactory.allMetrics();
 	}
 }

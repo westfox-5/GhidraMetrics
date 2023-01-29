@@ -10,6 +10,7 @@ import ghidra.program.model.listing.Program;
 import ghidra.util.Msg;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricExporter;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricManagerHeadless;
+import it.unive.ghidra.metrics.base.interfaces.GMZipper;
 import it.unive.ghidra.metrics.impl.GhidraMetricFactory;
 import it.unive.ghidra.metrics.impl.similarity.GMSimilarityManager;
 import it.unive.ghidra.metrics.script.GMScriptArgument;
@@ -59,6 +60,8 @@ public class GhidraMetricsScript extends GhidraScript {
 			if (manager instanceof GMSimilarityManager) {
 				final GMSimilarityManager similarityManager = (GMSimilarityManager)manager;
 				final Path ncdInput = getArgValue(GMScriptArgument.ARG_SIMILARITY_INPUT); // argument parser validation assures it exists!
+				final GMZipper zipper = getArgValue(GMScriptArgument.ARG_SIMILARITY_ZIPPER); // argument parser validation assures it exists!
+				similarityManager.setZipper(zipper);
 				similarityManager.setSelectedFiles(Arrays.asList(ncdInput));
 				similarityManager.compute();
 			}

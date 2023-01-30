@@ -25,7 +25,7 @@ import ghidra.util.HelpLocation;
 
 //@formatter:off
 @PluginInfo(
-	status = PluginStatus.UNSTABLE,
+	status = PluginStatus.STABLE,
 	packageName = GhidraMetricsPlugin.PACKAGE_NAME,
 	category = PluginCategoryNames.MISC,
 	shortDescription = GhidraMetricsPlugin.PLUGIN_NAME,

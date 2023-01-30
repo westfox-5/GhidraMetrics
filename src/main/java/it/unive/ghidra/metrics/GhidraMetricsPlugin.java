@@ -15,8 +15,6 @@
  */
 package it.unive.ghidra.metrics;
 
-import java.util.Collection;
-
 import ghidra.app.plugin.PluginCategoryNames;
 import ghidra.app.plugin.ProgramPlugin;
 import ghidra.framework.plugintool.PluginInfo;
@@ -24,11 +22,7 @@ import ghidra.framework.plugintool.PluginTool;
 import ghidra.framework.plugintool.util.PluginStatus;
 import ghidra.program.util.ProgramLocation;
 import ghidra.util.HelpLocation;
-import it.unive.ghidra.metrics.impl.GhidraMetricFactory;
 
-/**
- * TODO: Provide class-level documentation that describes what this plugin does.
- */
 //@formatter:off
 @PluginInfo(
 	status = PluginStatus.UNSTABLE,
@@ -45,11 +39,6 @@ public class GhidraMetricsPlugin extends ProgramPlugin {
 
 	private final GhidraMetricsProvider provider;
 
-	/**
-	 * Plugin constructor.
-	 * 
-	 * @param tool The plugin tool that this plugin is added to.
-	 */
 	public GhidraMetricsPlugin(PluginTool tool) {
 		super(tool);
 		
@@ -68,9 +57,5 @@ public class GhidraMetricsPlugin extends ProgramPlugin {
 
 	public GhidraMetricsProvider getProvider() {
 		return provider;
-	}
-
-	public Collection<String> getMetricNames() {
-		return GhidraMetricFactory.allMetrics();
 	}
 }

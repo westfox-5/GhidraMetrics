@@ -28,7 +28,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
-import it.unive.ghidra.metrics.impl.GhidraMetricFactory;
+import it.unive.ghidra.metrics.impl.GhidraMetricsFactory;
 
 public class GMScriptRunner {
 
@@ -86,12 +86,12 @@ public class GMScriptRunner {
 		Options options = new Options();
 
 		Option metricName = new Option("m", "metric-name", true,
-				"metric names " + prettyPrintValues(GhidraMetricFactory.allMetrics()));
+				"metric names " + prettyPrintValues(GhidraMetricsFactory.allMetrics()));
 		metricName.setRequired(true);
 		options.addOption(metricName);
 
 		Option exportType = new Option("e", "export-type", true,
-				"export types " + prettyPrintValues(GhidraMetricFactory.allFileFormats()));
+				"export types " + prettyPrintValues(GhidraMetricsFactory.allFileFormats()));
 		exportType.setRequired(true);
 		options.addOption(exportType);
 
@@ -127,7 +127,7 @@ public class GMScriptRunner {
 		options.addOption(similarityInput);
 
 		Option similarityZipper = new Option(null, "similarity-zipper", true,
-				"zipper functions " + prettyPrintValues(GhidraMetricFactory.allZippers()));
+				"zipper functions " + prettyPrintValues(GhidraMetricsFactory.allZippers()));
 		similarityZipper.setRequired(false);
 		options.addOption(similarityZipper);
 

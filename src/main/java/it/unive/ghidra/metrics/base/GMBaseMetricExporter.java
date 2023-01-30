@@ -18,8 +18,8 @@ import docking.widgets.filechooser.GhidraFileChooserMode;
 import ghidra.util.filechooser.ExtensionFileFilter;
 import it.unive.ghidra.metrics.base.interfaces.GMMetric;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricExporter;
-import it.unive.ghidra.metrics.base.interfaces.GMMetricManagerGUI;
-import it.unive.ghidra.metrics.base.interfaces.GMMetricManager;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricControllerGUI;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricController;
 import it.unive.ghidra.metrics.export.GMExporterJSON;
 import it.unive.ghidra.metrics.export.GMExporterTXT;
 import it.unive.ghidra.metrics.util.StringUtils;
@@ -35,12 +35,12 @@ public abstract class GMBaseMetricExporter implements GMMetricExporter {
 		USER_HOME = userHome;
 	}
 
-	private static final GMBaseMetricExporter create(GMMetricManager manager, GMMetricExporter.FileFormat exportType) {
+	private static final GMBaseMetricExporter create(GMMetricController controller, GMMetricExporter.FileFormat exportType) {
 		switch (exportType) {
 		case JSON:
-			return new GMExporterJSON(manager);
+			return new GMExporterJSON(controller);
 		case TXT:
-			return new GMExporterTXT(manager);
+			return new GMExporterTXT(controller);
 		default:
 			throw new IllegalArgumentException("Export type " + exportType.name() + " is not implemented");
 		}
@@ -48,13 +48,13 @@ public abstract class GMBaseMetricExporter implements GMMetricExporter {
 
 	
 	private final GMMetricExporter.FileFormat fileFormat;
-	private final GMMetricManager manager;
+	private final GMMetricController controller;
 	private Path exportPath;
 
 	protected abstract <V> StringBuilder serialize(Collection<GMMetric> metrics);
 
-	protected GMBaseMetricExporter(GMMetricManager manager, GMMetricExporter.FileFormat fileFormat) {
-		this.manager = manager;
+	protected GMBaseMetricExporter(GMMetricController controller, GMMetricExporter.FileFormat fileFormat) {
+		this.controller = controller;
 		this.fileFormat = fileFormat;
 	}
 
@@ -68,7 +68,7 @@ public abstract class GMBaseMetricExporter implements GMMetricExporter {
 		Files.createDirectories(exportPath.getParent());
 		Files.createFile(exportPath);
 
-		Collection<GMMetric> metrics = manager.getExportableMetrics();
+		Collection<GMMetric> metrics = controller.getExportableMetrics();
 		StringBuilder sb = serialize(metrics);
 		Stream<String> lines = Pattern.compile(System.lineSeparator()).splitAsStream(sb);
 
@@ -84,7 +84,7 @@ public abstract class GMBaseMetricExporter implements GMMetricExporter {
 			Files.writeString(path, line, StandardOpenOption.APPEND);
 
 		} catch (IOException e) {
-			manager.printException(e);
+			controller.printException(e);
 		}
 	}
 
@@ -92,22 +92,22 @@ public abstract class GMBaseMetricExporter implements GMMetricExporter {
 		return fileFormat;
 	}
 	
-	public static final GMBaseMetricExporter.Builder make(GMMetricExporter.FileFormat exportType, GMMetricManager manager) {
-		return new Builder(exportType, manager);
+	public static final GMBaseMetricExporter.Builder make(GMMetricExporter.FileFormat exportType, GMMetricController controller) {
+		return new Builder(exportType, controller);
 	}
 
 	public final static class Builder {
 		private final GMMetricExporter.FileFormat format;
-		private final GMMetricManager manager;
+		private final GMMetricController controller;
 
 		private List<GMMetric> metrics;
 
 		private boolean withFileChooser;
 		private Path choosenPath;
 
-		private Builder(GMMetricExporter.FileFormat fileFormat, GMMetricManager manager) {
+		private Builder(GMMetricExporter.FileFormat fileFormat, GMMetricController controller) {
 			this.format = fileFormat;
-			this.manager = manager;
+			this.controller = controller;
 			metrics = new ArrayList<>();
 		}
 
@@ -134,8 +134,8 @@ public abstract class GMBaseMetricExporter implements GMMetricExporter {
 		}
 
 		private GhidraFileChooser createFileChooser() {
-			if ( manager instanceof GMMetricManagerGUI ) {
-				GhidraFileChooser fileChooser = new GhidraFileChooser(((GMMetricManagerGUI) manager).getPlugin().getProvider().getComponent());
+			if ( controller instanceof GMMetricControllerGUI ) {
+				GhidraFileChooser fileChooser = new GhidraFileChooser(((GMMetricControllerGUI) controller).getPlugin().getProvider().getComponent());
 				fileChooser.setMultiSelectionEnabled(false);
 				fileChooser.setFileSelectionMode(GhidraFileChooserMode.FILES_ONLY);
 				fileChooser.setFileFilter(new ExtensionFileFilter(
@@ -166,7 +166,7 @@ public abstract class GMBaseMetricExporter implements GMMetricExporter {
 				return null;
 			}
 			
-			GMBaseMetricExporter exporter = GMBaseMetricExporter.create(manager, format);
+			GMBaseMetricExporter exporter = GMBaseMetricExporter.create(controller, format);
 			exporter.exportPath = exportPath;
 
 			return exporter;

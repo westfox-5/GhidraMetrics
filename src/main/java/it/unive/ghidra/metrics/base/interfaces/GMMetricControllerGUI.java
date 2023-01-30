@@ -3,11 +3,11 @@ package it.unive.ghidra.metrics.base.interfaces;
 import ghidra.program.util.ProgramLocation;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
 
-public interface GMMetricManagerGUI extends GMMetricManager {
+public interface GMMetricControllerGUI extends GMMetricController {
 	
 	GhidraMetricsPlugin getPlugin();
 
-	GMWindowManager getWindowManager();
+	GMWindow getWindow();
 	
 	void locationChanged(ProgramLocation loc);
 }

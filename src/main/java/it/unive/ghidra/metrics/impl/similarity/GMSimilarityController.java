@@ -7,21 +7,21 @@ import java.util.List;
 import ghidra.app.util.exporter.ExporterException;
 import ghidra.program.model.listing.Program;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
-import it.unive.ghidra.metrics.base.GMBaseMetricManager;
+import it.unive.ghidra.metrics.base.GMBaseMetricController;
 import it.unive.ghidra.metrics.base.interfaces.GMZipper;
 import it.unive.ghidra.metrics.util.ZipHelper.ZipException;
 
-public class GMSimilarityManager extends GMBaseMetricManager<GMSimilarity, GMSimilarityManager, GMSimilarityWinManager> {
+public class GMSimilarityController extends GMBaseMetricController<GMSimilarity, GMSimilarityController, GMSimilarityWindow> {
 
 	private List<Path> selectedFiles;
 	private GMZipper zipper;
 	
-	public GMSimilarityManager(Program program) {
+	public GMSimilarityController(Program program) {
 		super(program, GMSimilarity.class);
 	}
 
-	public GMSimilarityManager(GhidraMetricsPlugin plugin) {
-		super(plugin, GMSimilarity.class, GMSimilarityWinManager.class);
+	public GMSimilarityController(GhidraMetricsPlugin plugin) {
+		super(plugin, GMSimilarity.class, GMSimilarityWindow.class);
 	}
 	
 	@Override
@@ -51,7 +51,7 @@ public class GMSimilarityManager extends GMBaseMetricManager<GMSimilarity, GMSim
 		}
 
 		if (guiEnabled) {
-			getWindowManager().refresh();
+			getWindow().refresh();
 		}
 	}
 

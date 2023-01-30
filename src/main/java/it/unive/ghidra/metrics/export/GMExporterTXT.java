@@ -7,7 +7,7 @@ import it.unive.ghidra.metrics.base.GMBaseMetricExporter;
 import it.unive.ghidra.metrics.base.interfaces.GMMeasure;
 import it.unive.ghidra.metrics.base.interfaces.GMMetric;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricExporter;
-import it.unive.ghidra.metrics.base.interfaces.GMMetricManager;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricController;
 import it.unive.ghidra.metrics.util.StringUtils;
 
 public class GMExporterTXT extends GMBaseMetricExporter {
@@ -15,8 +15,8 @@ public class GMExporterTXT extends GMBaseMetricExporter {
 	private static final String METRIC_END_SEPARATOR = "--- END METRIC";
 	private static final String TXT_KEY_VALUE_SEP = ": ";
 
-	public GMExporterTXT(GMMetricManager manager) {
-		super(manager, GMMetricExporter.FileFormat.TXT);
+	public GMExporterTXT(GMMetricController controller) {
+		super(controller, GMMetricExporter.FileFormat.TXT);
 	}
 
 	@Override

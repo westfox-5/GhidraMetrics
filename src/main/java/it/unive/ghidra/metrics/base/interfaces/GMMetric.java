@@ -5,7 +5,7 @@ import java.util.function.Function;
 
 public interface GMMetric {
 	
-	GMMetricManager getManager();
+	GMMetricController getController();
 	
 	String getName();
 

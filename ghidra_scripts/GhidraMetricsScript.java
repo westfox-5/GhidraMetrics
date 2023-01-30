@@ -15,10 +15,10 @@ import ghidra.program.model.listing.FunctionIterator;
 import ghidra.program.model.listing.Program;
 import ghidra.util.Msg;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricExporter;
-import it.unive.ghidra.metrics.base.interfaces.GMMetricManagerHeadless;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricControllerHeadless;
 import it.unive.ghidra.metrics.base.interfaces.GMZipper;
-import it.unive.ghidra.metrics.impl.GhidraMetricFactory;
-import it.unive.ghidra.metrics.impl.similarity.GMSimilarityManager;
+import it.unive.ghidra.metrics.impl.GhidraMetricsFactory;
+import it.unive.ghidra.metrics.impl.similarity.GMSimilarityController;
 import it.unive.ghidra.metrics.script.GMScriptArgument;
 import it.unive.ghidra.metrics.script.GMScriptArgumentParser;
 import it.unive.ghidra.metrics.script.GMScriptException;
@@ -48,28 +48,28 @@ public class GhidraMetricsScript extends GhidraScript {
 			parseArgs();
 
 			String metricName = getArgValue(GMScriptArgument.ARG_METRIC);
-			GMMetricManagerHeadless manager = GhidraMetricFactory.createHeadless(metricName, getCurrentProgram());
+			GMMetricControllerHeadless controller = GhidraMetricsFactory.createHeadless(metricName, getCurrentProgram());
 
 			if (hasArg(GMScriptArgument.ARG_FUNCTION)) {
 				final String fnName = getArgValue(GMScriptArgument.ARG_FUNCTION);
 
-				Function function = findFunctionByName(manager.getProgram(), fnName);
+				Function function = findFunctionByName(controller.getProgram(), fnName);
 				if (function == null) {
 					throw new GMScriptException("Could not find function with name '" + fnName + "'");
 				}
 
 				goTo(function);
-				manager.functionChanged(function);
+				controller.functionChanged(function);
 				Msg.info(this, "Program location changed to address: function.getEntryPoint()");
 			}
 			
-			if (manager instanceof GMSimilarityManager) {
-				final GMSimilarityManager similarityManager = (GMSimilarityManager)manager;
+			if (controller instanceof GMSimilarityController) {
+				final GMSimilarityController similarityController = (GMSimilarityController)controller;
 				final Path ncdInput = getArgValue(GMScriptArgument.ARG_SIMILARITY_INPUT); // argument parser validation assures it exists!
 				final GMZipper zipper = getArgValue(GMScriptArgument.ARG_SIMILARITY_ZIPPER); // argument parser validation assures it exists!
-				similarityManager.setZipper(zipper);
-				similarityManager.setSelectedFiles(getExecutableFilesInPath(ncdInput));
-				similarityManager.compute();
+				similarityController.setZipper(zipper);
+				similarityController.setSelectedFiles(getExecutableFilesInPath(ncdInput));
+				similarityController.compute();
 			}
 			
 			if (hasArg(GMScriptArgument.ARG_EXPORT)) {
@@ -85,16 +85,16 @@ public class GhidraMetricsScript extends GhidraScript {
 				}
 
 				Path exportPath = Path.of(exportDir.toAbsolutePath().toString(), 
-						manager.getMetric().getName() + "_"
+						controller.getMetric().getName() + "_"
 						+ getProgramFile().getName() + "." + fileFormat.getExtension());
 
-				GMMetricExporter exporter = manager.makeExporter(fileFormat).toFile(exportPath).build();
+				GMMetricExporter exporter = controller.makeExporter(fileFormat).toFile(exportPath).build();
 				if (exporter == null) {
 					throw new GMScriptException("Could not export metric.");
 				}
 
 				Path export = exporter.export();
-				Msg.info(this, manager.getMetric().getName() + " metric exported to: " + export.toAbsolutePath());
+				Msg.info(this, controller.getMetric().getName() + " metric exported to: " + export.toAbsolutePath());
 			}
 
 			Msg.info(this, "Script terminated successfully.");

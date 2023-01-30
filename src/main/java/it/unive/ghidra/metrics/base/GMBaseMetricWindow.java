@@ -8,14 +8,14 @@ import javax.swing.table.DefaultTableModel;
 
 import it.unive.ghidra.metrics.base.interfaces.GMMeasure;
 import it.unive.ghidra.metrics.base.interfaces.GMMetric;
-import it.unive.ghidra.metrics.base.interfaces.GMMetricWindowManager;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricWindow;
 
 //@formatter:off
-public abstract class GMBaseMetricWindowManager<
-	M extends GMBaseMetric<M, P, W>, 
-	P extends GMBaseMetricManager<M, P, W>, 
-	W extends GMBaseMetricWindowManager<M, P, W>>
-extends GMBaseWindowManager implements GMMetricWindowManager {
+public abstract class GMBaseMetricWindow<
+	M extends GMBaseMetric<M, C, W>, 
+	C extends GMBaseMetricController<M, C, W>, 
+	W extends GMBaseMetricWindow<M, C, W>>
+extends GMBaseWindow implements GMMetricWindow {
 //@formatter:on
 	
 	public static class NonEditableTableModel extends DefaultTableModel {
@@ -37,16 +37,16 @@ extends GMBaseWindowManager implements GMMetricWindowManager {
 		}
 	}
 	
-	private final P manager;
+	private final C controller;
 
-	public GMBaseMetricWindowManager(P manager) {
-		super(manager.getPlugin());
-		this.manager = manager;
+	public GMBaseMetricWindow(C controller) {
+		super(controller.getPlugin());
+		this.controller = controller;
 	}
 
 	@Override
-	public P getManager() {
-		return manager;
+	public C getController() {
+		return controller;
 	}
 
 	protected void populateMeasureTable(JTable table) {

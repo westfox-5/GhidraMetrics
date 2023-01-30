@@ -8,16 +8,17 @@ import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import ghidra.util.Swing;
-import it.unive.ghidra.metrics.base.GMBaseWindowManager;
-import it.unive.ghidra.metrics.base.interfaces.GMMetricManagerGUI;
+import it.unive.ghidra.metrics.base.GMBaseWindow;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricControllerGUI;
 import it.unive.ghidra.metrics.gui.GMMetricButton;
+import it.unive.ghidra.metrics.impl.GhidraMetricsFactory;
 
-public class GhidraMetricsWindowManager extends GMBaseWindowManager {
+public class GhidraMetricsWindow extends GMBaseWindow {
 
 	private JPanel pnlMainContainer;
 	private JPanel pnlMetricContainer;
 
-	public GhidraMetricsWindowManager(GhidraMetricsPlugin plugin) {
+	public GhidraMetricsWindow(GhidraMetricsPlugin plugin) {
 		super(plugin);
 	}
 
@@ -38,13 +39,13 @@ public class GhidraMetricsWindowManager extends GMBaseWindowManager {
 		pnlMetricContainer.setLayout(new BorderLayout(0, 0));
 
 		pnlMainContainer = new JPanel();
-		int numMetrics = getPlugin().getMetricNames().size();
+		int numMetrics = GhidraMetricsFactory.allMetrics().size();
 		pnlMainContainer.setLayout(new GridLayout(numMetrics, 1, 10, 10));
 
 		return component;
 	}
 
-	public final void updateWindow(GMMetricManagerGUI manager) {
+	public final void updateWindow(GMMetricControllerGUI manager) {
 		pnlMetricContainer.removeAll();
 		
 		if (manager == null) {
@@ -53,7 +54,7 @@ public class GhidraMetricsWindowManager extends GMBaseWindowManager {
 			getComponent().add(pnlMainContainer);
 
 		} else {
-			JComponent component = manager.getWindowManager().getComponent();
+			JComponent component = manager.getWindow().getComponent();
 			pnlMetricContainer.add(component, BorderLayout.CENTER);
 			
 			pnlMetricContainer.revalidate();
@@ -71,7 +72,7 @@ public class GhidraMetricsWindowManager extends GMBaseWindowManager {
 	}
 
 	private final void createAllMetricButtons() {
-		getPlugin().getMetricNames().forEach(metricName -> {
+		GhidraMetricsFactory.allMetrics().forEach(metricName -> {
 			pnlMainContainer.add(new GMMetricButton(getPlugin(), metricName));
 		});
 	}

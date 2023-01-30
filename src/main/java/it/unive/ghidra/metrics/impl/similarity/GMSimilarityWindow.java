@@ -21,17 +21,17 @@ import docking.widgets.filechooser.GhidraFileChooser;
 import docking.widgets.filechooser.GhidraFileChooserMode;
 import ghidra.util.filechooser.GhidraFileChooserModel;
 import ghidra.util.filechooser.GhidraFileFilter;
-import it.unive.ghidra.metrics.base.GMBaseMetricWindowManager;
-import it.unive.ghidra.metrics.impl.GhidraMetricFactory;
+import it.unive.ghidra.metrics.base.GMBaseMetricWindow;
+import it.unive.ghidra.metrics.impl.GhidraMetricsFactory;
 
-public class GMSimilarityWinManager
-		extends GMBaseMetricWindowManager<GMSimilarity, GMSimilarityManager, GMSimilarityWinManager> {
+public class GMSimilarityWindow
+		extends GMBaseMetricWindow<GMSimilarity, GMSimilarityController, GMSimilarityWindow> {
 
 	private JButton btnClearMeasures;
 	private JTable tblMeasure;
 
-	public GMSimilarityWinManager(GMSimilarityManager manager) {
-		super(manager);
+	public GMSimilarityWindow(GMSimilarityController controller) {
+		super(controller);
 	}
 
 	@Override
@@ -55,15 +55,15 @@ public class GMSimilarityWinManager
 		pnlTop.setLayout(new FlowLayout(FlowLayout.LEADING));
 		component.add(pnlTop, BorderLayout.NORTH);
 
-		Collection<String> zippers = GhidraMetricFactory.allZippers();
+		Collection<String> zippers = GhidraMetricsFactory.allZippers(true);
 		JComboBox<String> comboBoxZippers = new JComboBox<>(zippers.toArray(new String[zippers.size()]));
 		comboBoxZippers.setSelectedIndex(0);
 		pnlTop.add(comboBoxZippers);
 		comboBoxZippers.addActionListener(ae -> {
 			String zipName = (String) comboBoxZippers.getSelectedItem();
-			getManager().setZipper(GhidraMetricFactory.getZipper(zipName));
-			if (getManager().hasSelectedFiles()) {
-				getManager().compute();
+			getController().setZipper(GhidraMetricsFactory.getZipper(zipName));
+			if (getController().hasSelectedFiles()) {
+				getController().compute();
 			}
 		});
 
@@ -86,7 +86,7 @@ public class GMSimilarityWinManager
 					type = Files.probeContentType(arg0.toPath());
 
 				} catch (IOException e) {
-					getManager().printException(e);
+					getController().printException(e);
 				}
 
 				if (type == null)
@@ -103,8 +103,8 @@ public class GMSimilarityWinManager
 			List<File> _selectedFiles = fileChooser.getSelectedFiles();
 			if (_selectedFiles != null) {
 				List<Path> _selectedPaths = _selectedFiles.stream().map(f -> f.toPath()).collect(Collectors.toList());
-				getManager().setSelectedFiles(_selectedPaths);
-				getManager().compute();
+				getController().setSelectedFiles(_selectedPaths);
+				getController().compute();
 			}
 		});
 
@@ -113,8 +113,8 @@ public class GMSimilarityWinManager
 		pnlTop.add(btnClearMeasures);
 		{
 			btnClearMeasures.addActionListener(ae -> {
-				getManager().setSelectedFiles(null);
-				getManager().compute();
+				getController().setSelectedFiles(null);
+				getController().compute();
 			});
 		}
 
@@ -132,7 +132,7 @@ public class GMSimilarityWinManager
 	}
 
 	private void populateSimilarityTable() {
-		if (getManager().hasSelectedFiles()) {
+		if (getController().hasSelectedFiles()) {
 			populateMeasureTable(tblMeasure);
 
 			btnClearMeasures.setVisible(true);

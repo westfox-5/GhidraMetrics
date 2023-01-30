@@ -8,7 +8,7 @@ import it.unive.ghidra.metrics.base.interfaces.GMMeasure;
 import it.unive.ghidra.metrics.base.interfaces.GMMeasureKey;
 import it.unive.ghidra.metrics.base.interfaces.GMMetric;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricExporter;
-import it.unive.ghidra.metrics.base.interfaces.GMMetricManager;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricController;
 import it.unive.ghidra.metrics.util.StringUtils;
 
 public class GMExporterJSON extends GMBaseMetricExporter {
@@ -16,8 +16,8 @@ public class GMExporterJSON extends GMBaseMetricExporter {
 	private static final String JSON_SEP = ",";
 	private static final String JSON_KEY_VALUE_SEP = ":";
 
-	public GMExporterJSON(GMMetricManager manager) {
-		super(manager, GMMetricExporter.FileFormat.JSON);
+	public GMExporterJSON(GMMetricController controller) {
+		super(controller, GMMetricExporter.FileFormat.JSON);
 	}
 
 	@Override

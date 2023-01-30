@@ -22,7 +22,7 @@ import it.unive.ghidra.metrics.util.GMTaskMonitor;
 import it.unive.ghidra.metrics.util.PathHelper;
 import it.unive.ghidra.metrics.util.ZipHelper.ZipException;
 
-public class GMSimilarity extends GMBaseMetric<GMSimilarity, GMSimilarityManager, GMSimilarityWinManager> {
+public class GMSimilarity extends GMBaseMetric<GMSimilarity, GMSimilarityController, GMSimilarityWindow> {
 	public static final String NAME = "Similarity";
 	public static final String LOOKUP_NAME = "similarity";
 
@@ -37,8 +37,8 @@ public class GMSimilarity extends GMBaseMetric<GMSimilarity, GMSimilarityManager
 	private static final String TEMP_DIR_PREFIX = "ghidra_metrics_";
 	private Path TEMP_DIR;
 
-	public GMSimilarity(GMSimilarityManager manager) {
-		super(NAME, manager);
+	public GMSimilarity(GMSimilarityController controller) {
+		super(NAME, controller);
 	}
 
 	@Override
@@ -47,10 +47,8 @@ public class GMSimilarity extends GMBaseMetric<GMSimilarity, GMSimilarityManager
 			TEMP_DIR = Files.createTempDirectory(TEMP_DIR_PREFIX);
 			
 			Msg.info(this, "temp directory created: "+ TEMP_DIR.toAbsolutePath().toString());
-			/* getManager().getPlugin().getTool().getProject(); */
-						
 		} catch (IOException x) {
-			manager.printException(x);
+			controller.printException(x);
 			return false;
 		}
 
@@ -59,12 +57,12 @@ public class GMSimilarity extends GMBaseMetric<GMSimilarity, GMSimilarityManager
 
 
 	protected void createMeasures(List<Path> toCompute) throws ZipException, ExporterException, IOException {
-		Path thisProgramPath = getExecutablePath(getManager().getProgram());
+		Path thisProgramPath = getExecutablePath(getController().getProgram());
 		Path zipPath;
 		try {
 			zipPath = doZip(thisProgramPath);
 		} catch (ZipException x) {
-			manager.printException(new Exception("If you see this error, it is very likely that you do not have 'rzip' installed in your system."
+			controller.printException(new Exception("If you see this error, it is very likely that you do not have 'rzip' installed in your system."
 					+ " Please procede to installation in order to continue using this plugin.", x));
 			return;
 		}
@@ -103,15 +101,10 @@ public class GMSimilarity extends GMBaseMetric<GMSimilarity, GMSimilarityManager
 	}
 	
 	private Path doZip(Path file) throws ZipException {
-		return getManager().getZipper().zip(TEMP_DIR, file);
+		return getController().getZipper().zip(TEMP_DIR, file);
 	}
 	
 	private Path getExecutablePath(Program program) throws IOException {
-		/*
-		Path source = Path.of(getManager().getProgram().getExecutablePath());
-		Path target = TEMP_DIR.toAbsolutePath().resolve(source.getFileName());
-		Files.copy(source, target, StandardCopyOption.REPLACE_EXISTING, StandardCopyOption.COPY_ATTRIBUTES);
-		*/
 		return Path.of(program.getExecutablePath());
 	}
 	
@@ -120,7 +113,7 @@ public class GMSimilarity extends GMBaseMetric<GMSimilarity, GMSimilarityManager
 		try {
 			return AutoImporter.importByUsingBestGuess(path.toFile(), (DomainFolder)null, this, new MessageLog(), monitor);
 		} catch (CancelledException | DuplicateNameException | InvalidNameException | VersionException e) {
-			manager.printException(e);
+			controller.printException(e);
 		}
 		
 		return null;

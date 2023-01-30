@@ -12,15 +12,15 @@ import ghidra.program.util.ProgramLocation;
 import ghidra.util.Msg;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
 import it.unive.ghidra.metrics.base.interfaces.GMMetric;
-import it.unive.ghidra.metrics.base.interfaces.GMMetricManagerGUI;
-import it.unive.ghidra.metrics.base.interfaces.GMMetricManagerHeadless;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricControllerGUI;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricControllerHeadless;
 
 //@formatter:off
-public abstract class GMBaseMetricManager<
-	M extends GMBaseMetric<M, P, W>, 
-	P extends GMBaseMetricManager<M, P, W>, 
-	W extends GMBaseMetricWindowManager<M, P, W>>
-implements GMMetricManagerGUI, GMMetricManagerHeadless {
+public abstract class GMBaseMetricController<
+	M extends GMBaseMetric<M, C, W>, 
+	C extends GMBaseMetricController<M, C, W>, 
+	W extends GMBaseMetricWindow<M, C, W>>
+implements GMMetricControllerGUI, GMMetricControllerHeadless {
 //@formatter:on
 	protected final boolean guiEnabled;
 	protected final GhidraMetricsPlugin plugin;
@@ -29,14 +29,14 @@ implements GMMetricManagerGUI, GMMetricManagerHeadless {
 	private final boolean initialized;
 
 	protected M metric;
-	protected W wm;
+	protected W window;
 
 	private Function prevFn;
 	private M metricFn;
 	
 	protected abstract void init();
 
-	public GMBaseMetricManager(Program program, Class<M> metricClass) {
+	public GMBaseMetricController(Program program, Class<M> metricClass) {
 		this.plugin = null;
 		this.program = program;
 		this.guiEnabled = false;
@@ -44,21 +44,21 @@ implements GMMetricManagerGUI, GMMetricManagerHeadless {
 		this.initialized = _init(metricClass, null);
 	}
 
-	public GMBaseMetricManager(GhidraMetricsPlugin plugin, Class<M> metricClass, Class<W> winManagerClass) {
+	public GMBaseMetricController(GhidraMetricsPlugin plugin, Class<M> metricClass, Class<W> windowClass) {
 		this.plugin = plugin;
 		this.program = plugin.getCurrentProgram();
 		this.guiEnabled = true;
 
-		this.initialized = _init(metricClass, winManagerClass);
+		this.initialized = _init(metricClass, windowClass);
 	}
 	
 
-	private final boolean _init(Class<M> metricClass, Class<W> winManagerClass) {
+	private final boolean _init(Class<M> metricClass, Class<W> windowClass) {
 		
 		if ( !_initMetric(metricClass) )
 			return false;
 
-		if ( guiEnabled && !_initWindownManager(winManagerClass) )
+		if ( guiEnabled && !_initWindown(windowClass) )
 			return false;
 		
 		init();
@@ -73,7 +73,7 @@ implements GMMetricManagerGUI, GMMetricManagerHeadless {
 		Msg.error(this, e);
 		
 		if ( guiEnabled ) {
-			Msg.showError(this, getWindowManager().getComponent(), "Generic Error", e.getMessage());
+			Msg.showError(this, getWindow().getComponent(), "Generic Error", e.getMessage());
 		}
 	}
 	
@@ -88,8 +88,8 @@ implements GMMetricManagerGUI, GMMetricManagerHeadless {
 	}
 
 	@Override
-	public W getWindowManager() {
-		return wm;
+	public W getWindow() {
+		return window;
 	}
 
 	@Override
@@ -109,7 +109,7 @@ implements GMMetricManagerGUI, GMMetricManagerHeadless {
 		if (fn == null) {
 			if (metricFn != null) {
 				metricFn = null;
-				wm.refresh();
+				window.refresh();
 			}
 			return;
 		}
@@ -126,7 +126,7 @@ implements GMMetricManagerGUI, GMMetricManagerHeadless {
 		metric.functionChanged(fn);
 		
 		if ( guiEnabled ) {
-			wm.refresh();
+			window.refresh();
 		}
 	}
 
@@ -165,17 +165,17 @@ implements GMMetricManagerGUI, GMMetricManagerHeadless {
 		return metric._init();
 	}
 
-	private final boolean _initWindownManager(Class<W> winManagerClass) {
+	private final boolean _initWindown(Class<W> windowClass) {
 		try {
-			Constructor<W> declaredConstructor = winManagerClass.getDeclaredConstructor(getClass());
-			this.wm = declaredConstructor.newInstance(this);
+			Constructor<W> declaredConstructor = windowClass.getDeclaredConstructor(getClass());
+			this.window = declaredConstructor.newInstance(this);
 
 		} catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
 			printException(e);
 			return false;
 		}
 
-		return wm.init();
+		return window.init();
 	}
 
 

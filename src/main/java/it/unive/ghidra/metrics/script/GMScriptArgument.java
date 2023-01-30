@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricExporter;
 import it.unive.ghidra.metrics.base.interfaces.GMZipper;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricExporter.FileFormat;
-import it.unive.ghidra.metrics.impl.GhidraMetricFactory;
+import it.unive.ghidra.metrics.impl.GhidraMetricsFactory;
 
 /**
  * 
@@ -75,9 +75,9 @@ public abstract class GMScriptArgument<T> {
 	//@formatter:on
 		@Override
 		public GMMetricExporter.FileFormat getTypedValue(String str) throws GMScriptException {
-			GMMetricExporter.FileFormat fileFormat = GhidraMetricFactory.getFileFormat(str);
+			GMMetricExporter.FileFormat fileFormat = GhidraMetricsFactory.getFileFormat(str);
 			if (fileFormat == null) {
-				String allowedValues = GhidraMetricFactory.allFileFormats().stream().map(name -> name.toLowerCase()).collect(Collectors.joining(","));
+				String allowedValues = GhidraMetricsFactory.allFileFormats().stream().map(name -> name.toLowerCase()).collect(Collectors.joining(","));
 				throw new GMScriptException(
 						"No export type defined for value '" + str + "'. Please use one of: " + allowedValues);
 			}
@@ -161,9 +161,9 @@ public abstract class GMScriptArgument<T> {
 	//@formatter:on
 		@Override
 		public GMZipper getTypedValue(String str) throws GMScriptException {
-			GMZipper zipper = GhidraMetricFactory.getZipper(str);
+			GMZipper zipper = GhidraMetricsFactory.getZipper(str);
 			if (zipper == null) {
-				String allowedValues = GhidraMetricFactory.allZippers().stream().map(name -> name.toLowerCase()).collect(Collectors.joining(","));
+				String allowedValues = GhidraMetricsFactory.allZippers().stream().map(name -> name.toLowerCase()).collect(Collectors.joining(","));
 				throw new GMScriptException(
 						"No zipper function defined for value '" + str + "'. Please use one of: " + allowedValues);
 			}

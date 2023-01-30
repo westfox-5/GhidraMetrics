@@ -1,4 +1,4 @@
-package it.unive.ghidra.metrics.impl.mccabe;
+package it.unive.ghidra.metrics.impl.halstead;
 
 import java.awt.BorderLayout;
 import java.awt.Font;
@@ -11,9 +11,11 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.SwingConstants;
 
-import it.unive.ghidra.metrics.base.GMBaseMetricWindowManager;
+import it.unive.ghidra.metrics.base.GMBaseMetricWindow;
 
-public class GMMcCabeWinManager extends GMBaseMetricWindowManager<GMMcCabe, GMMcCabeManager, GMMcCabeWinManager> {
+//@formatter:off
+public class GMHalsteadWindow extends GMBaseMetricWindow<GMHalstead, GMHalsteadController, GMHalsteadWindow> {
+//@formatter:on
 
 	private JTable tableProgramMeasure;
 	private JTable tableFunctionMeasure;
@@ -21,8 +23,8 @@ public class GMMcCabeWinManager extends GMBaseMetricWindowManager<GMMcCabe, GMMc
 	private JPanel pnlNoFunctionSelected;
 	private JLabel lblNewLabel;
 
-	public GMMcCabeWinManager(GMMcCabeManager manager) {
-		super(manager);
+	public GMHalsteadWindow(GMHalsteadController controller) {
+		super(controller);
 	}
 
 	@Override
@@ -75,8 +77,6 @@ public class GMMcCabeWinManager extends GMBaseMetricWindowManager<GMMcCabe, GMMc
 			pnlNoFunctionSelected.add(lblNewLabel, BorderLayout.CENTER);
 
 			tableFunctionMeasure = new GMTable();
-			tableFunctionMeasure.setVisible(false);
-			tableFunctionMeasure.setEnabled(false);
 
 			JScrollPane scrollPane = new JScrollPane(tableFunctionMeasure);
 			scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
@@ -86,6 +86,7 @@ public class GMMcCabeWinManager extends GMBaseMetricWindowManager<GMMcCabe, GMMc
 			// BorderLayout.NORTH);
 			pnlFunctionMetrics.add(scrollPane, BorderLayout.CENTER);
 		}
+
 		return component;
 	}
 
@@ -102,9 +103,9 @@ public class GMMcCabeWinManager extends GMBaseMetricWindowManager<GMMcCabe, GMMc
 	}
 
 	private void populateFunctionMeasures() {
-		GMMcCabe mcCabeFn = getManager().getMetricFn();
-		if (mcCabeFn != null) {
-			populateMeasureTable(tableFunctionMeasure, mcCabeFn);
+		GMHalstead fnHalstead = getController().getMetricFn();
+		if (fnHalstead != null) {
+			populateMeasureTable(tableFunctionMeasure, fnHalstead);
 
 			tableFunctionMeasure.setVisible(true);
 			pnlNoFunctionSelected.setVisible(false);

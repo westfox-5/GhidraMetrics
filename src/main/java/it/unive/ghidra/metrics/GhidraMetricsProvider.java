@@ -13,31 +13,31 @@ import ghidra.program.util.ProgramLocation;
 import ghidra.util.Msg;
 import it.unive.ghidra.metrics.base.GMBaseMetricExporter;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricExporter;
-import it.unive.ghidra.metrics.base.interfaces.GMMetricManagerGUI;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricControllerGUI;
 import it.unive.ghidra.metrics.gui.GMActionBack;
 import it.unive.ghidra.metrics.gui.GMActionExport;
-import it.unive.ghidra.metrics.impl.GhidraMetricFactory;
+import it.unive.ghidra.metrics.impl.GhidraMetricsFactory;
 
 public class GhidraMetricsProvider extends ComponentProviderAdapter {
 
 	private final GhidraMetricsPlugin plugin;
-	private final GhidraMetricsWindowManager windowManager;
+	private final GhidraMetricsWindow window;
 
-	private GMMetricManagerGUI metricManager;
+	private GMMetricControllerGUI metricController;
 
 	private List<DockingAction> localActions;
 
 	public GhidraMetricsProvider(GhidraMetricsPlugin plugin, String owner) {
 		super(plugin.getTool(), owner, owner);
 		this.plugin = plugin;
-		this.windowManager = new GhidraMetricsWindowManager(plugin);
+		this.window = new GhidraMetricsWindow(plugin);
 		
 		createLocalActions();
 		buildPanel();
 	}
 
 	private void buildPanel() {
-		windowManager.init();
+		window.init();
 
 		showMainWindow();
 
@@ -52,7 +52,7 @@ public class GhidraMetricsProvider extends ComponentProviderAdapter {
 
 	@Override
 	public JComponent getComponent() {
-		return windowManager.getComponent();
+		return window.getComponent();
 	}
 
 	public GhidraMetricsPlugin getPlugin() {
@@ -60,8 +60,8 @@ public class GhidraMetricsProvider extends ComponentProviderAdapter {
 	}
 	
 	private final void updateWindow() {
-		if ( metricManager != null ) {
-			String metricName = metricManager.getMetric().getName();
+		if ( metricController != null ) {
+			String metricName = metricController.getMetric().getName();
 			setSubTitle(metricName);
 			addAllLocalActions(metricName);
 		} else {
@@ -69,25 +69,25 @@ public class GhidraMetricsProvider extends ComponentProviderAdapter {
 			removeAllLocalActions();
 		}
 		
-		windowManager.updateWindow(metricManager);
+		window.updateWindow(metricController);
 	}
 
 	public void showMainWindow() {
-		metricManager = null;
+		metricController = null;
 		updateWindow();
 	}
 
 	public void showMetricWindow(String metricName) {
-		metricManager = GhidraMetricFactory.create(metricName, getPlugin());
+		metricController = GhidraMetricsFactory.create(metricName, getPlugin());
 		updateWindow();
 	}
 
 	public void doExport(GMMetricExporter.FileFormat fileFormat) {
-		if (metricManager == null)
+		if (metricController == null)
 			throw new RuntimeException("ERROR: no metric is selected!");
 
 		try {
-			GMBaseMetricExporter exporter = metricManager.makeExporter(fileFormat).withFileChooser().build();
+			GMBaseMetricExporter exporter = metricController.makeExporter(fileFormat).withFileChooser().build();
 			if ( exporter == null ) {
 				return; // no error
 			}
@@ -100,7 +100,7 @@ public class GhidraMetricsProvider extends ComponentProviderAdapter {
 			Msg.showInfo(this, getComponent(), "Export", "File exported: " + exportPath.toAbsolutePath());
 
 		} catch (IOException e) {
-			metricManager.printException(e);
+			metricController.printException(e);
 		}
 	}
 
@@ -120,10 +120,10 @@ public class GhidraMetricsProvider extends ComponentProviderAdapter {
 	}
 	
 	public void locationChanged(ProgramLocation loc) {
-		if ( metricManager == null || loc == null || !isVisible() ) {
+		if ( metricController == null || loc == null || !isVisible() ) {
 			return;
 		}
 		
-		metricManager.locationChanged(loc);
+		metricController.locationChanged(loc);
 	}
 }

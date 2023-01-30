@@ -5,7 +5,7 @@ import javax.swing.JComponent;
 import ghidra.util.Swing;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
 
-public interface GMWindowManager {
+public interface GMWindow {
 
 	GhidraMetricsPlugin getPlugin();
 

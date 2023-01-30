@@ -9,7 +9,7 @@ import it.unive.ghidra.metrics.base.interfaces.GMMeasureKey;
 import it.unive.ghidra.metrics.impl.halstead.GMHalsteadParser.Result;
 import it.unive.ghidra.metrics.util.NumberUtils;
 
-public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadManager, GMHalsteadWinManager> {
+public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadController, GMHalsteadWindow> {
 	public static final String NAME = "Halstead";
 	public static final String LOOKUP_NAME = "halstead";
 	
@@ -27,8 +27,8 @@ public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadManager, GMHa
 
 		private final Function function;
 
-		protected GMHalsteadFunction(GMHalsteadManager manager, Function function) {
-			super(NAME, manager);
+		protected GMHalsteadFunction(GMHalsteadController controller, Function function) {
+			super(NAME, controller);
 			this.function = function;
 		}
 
@@ -53,12 +53,12 @@ public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadManager, GMHa
 	private BigDecimal n2; // no. operands [distinct, total]
 	private BigDecimal N2;
 
-	protected GMHalstead(String name, GMHalsteadManager manager) {
-		super(name, manager);
+	protected GMHalstead(String name, GMHalsteadController controller) {
+		super(name, controller);
 	}
 
-	public GMHalstead(GMHalsteadManager manager) {
-		this(NAME, manager);
+	public GMHalstead(GMHalsteadController controller) {
+		this(NAME, controller);
 	}
 
 	@Override
@@ -83,12 +83,12 @@ public class GMHalstead extends GMBaseMetric<GMHalstead, GMHalsteadManager, GMHa
 
 	@Override
 	protected void functionChanged(Function function) {
-		manager.setMetricFn(new GMHalsteadFunction(manager, function));
-		manager.getMetricFn().init();
+		controller.setMetricFn(new GMHalsteadFunction(controller, function));
+		controller.getMetricFn().init();
 	}
 
 	protected GMHalsteadParser getParser() {
-		return GMHalsteadParser.programParser(getManager().getProgram());
+		return GMHalsteadParser.programParser(getController().getProgram());
 	}
 
 	public BigDecimal getNumDistinctOperators() {

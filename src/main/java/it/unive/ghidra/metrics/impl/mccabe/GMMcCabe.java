@@ -10,7 +10,7 @@ import it.unive.ghidra.metrics.base.interfaces.GMMeasureKey;
 import it.unive.ghidra.metrics.impl.mccabe.GMMcCabeParser.Result;
 import it.unive.ghidra.metrics.util.NumberUtils;
 
-public class GMMcCabe extends GMBaseMetric<GMMcCabe, GMMcCabeManager, GMMcCabeWinManager> {
+public class GMMcCabe extends GMBaseMetric<GMMcCabe, GMMcCabeController, GMMcCabeWindow> {
 	public static final String NAME = "McCabe";
 	public static final String LOOKUP_NAME = "mccabe";
 	
@@ -29,8 +29,8 @@ public class GMMcCabe extends GMBaseMetric<GMMcCabe, GMMcCabeManager, GMMcCabeWi
 
 		private final Function function;
 
-		protected GMMcCabeFunction(GMMcCabeManager manager, Function function) {
-			super(NAME, manager);
+		protected GMMcCabeFunction(GMMcCabeController controller, Function function) {
+			super(NAME, controller);
 			this.function = function;
 		}
 
@@ -53,12 +53,12 @@ public class GMMcCabe extends GMBaseMetric<GMMcCabe, GMMcCabeManager, GMMcCabeWi
 	private BigDecimal nodes;
 	private BigDecimal exits;
 	
-	protected GMMcCabe(String name, GMMcCabeManager manager) {
-		super(name, manager);
+	protected GMMcCabe(String name, GMMcCabeController controller) {
+		super(name, controller);
 	}
 
-	public GMMcCabe(GMMcCabeManager manager) {
-		this(NAME, manager);
+	public GMMcCabe(GMMcCabeController controller) {
+		this(NAME, controller);
 	}
 
 	@Override
@@ -79,21 +79,21 @@ public class GMMcCabe extends GMBaseMetric<GMMcCabe, GMMcCabeManager, GMMcCabeWi
 			}
 			
 		} catch(CancelledException e) {
-			manager.printException(e);
+			controller.printException(e);
 		}	
 
 		return false;
 	}
 	
 	protected GMMcCabeParser getParser() {
-		return GMMcCabeParser.programParser(getManager().getProgram());
+		return GMMcCabeParser.programParser(getController().getProgram());
 	}
 
 
 	@Override
 	protected void functionChanged(Function function) {
-		manager.setMetricFn(new GMMcCabeFunction(manager, function));
-		manager.getMetricFn().init();
+		controller.setMetricFn(new GMMcCabeFunction(controller, function));
+		controller.getMetricFn().init();
 	}
 
 	public BigDecimal getNumEdges() {

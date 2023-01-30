@@ -5,7 +5,7 @@ import java.util.Collection;
 import ghidra.program.model.listing.Function;
 import it.unive.ghidra.metrics.base.GMBaseMetricExporter;
 
-public interface GMMetricManager {
+public interface GMMetricController {
 
 	boolean isInitialized();
 		

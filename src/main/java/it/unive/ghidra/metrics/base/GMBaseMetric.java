@@ -15,9 +15,9 @@ import it.unive.ghidra.metrics.util.StringUtils;
 
 //@formatter:off
 public abstract class GMBaseMetric<
-	M extends GMBaseMetric<M, P, W>, 
-	P extends GMBaseMetricManager<M, P, W>, 
-	W extends GMBaseMetricWindowManager<M, P, W>>
+	M extends GMBaseMetric<M, C, W>, 
+	C extends GMBaseMetricController<M, C, W>, 
+	W extends GMBaseMetricWindow<M, C, W>>
 implements GMMetric {
 //@formatter:on
 
@@ -25,14 +25,14 @@ implements GMMetric {
 	private final Map<GMMeasureKey, GMMeasure<?>> measuresByKey = new TreeMap<>();
 	protected final String name;
 
-	protected final P manager;
+	protected final C controller;
 	protected final Program program;
 
-	public GMBaseMetric(String name, P manager) {
+	public GMBaseMetric(String name, C controller) {
 		this.name = name;
 
-		this.manager = manager;
-		this.program = manager.getProgram();
+		this.controller = controller;
+		this.program = controller.getProgram();
 	}
 
 	protected abstract boolean init();
@@ -41,7 +41,7 @@ implements GMMetric {
 	protected boolean _init() {
 		if (!initialized) {
 			initialized = false;
-			if (getManager().getProgram() != null) {
+			if (getController().getProgram() != null) {
 				initialized = init();
 			}
 		}
@@ -54,8 +54,8 @@ implements GMMetric {
 	}
 
 	@Override
-	public P getManager() {
-		return manager;
+	public C getController() {
+		return controller;
 	}
 
 	@Override
@@ -80,7 +80,7 @@ implements GMMetric {
 			createMeasure(key, value);
 
 		} catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-			manager.printException(e);
+			controller.printException(e);
 		}
 	}
 

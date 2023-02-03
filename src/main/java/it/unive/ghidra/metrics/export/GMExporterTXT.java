@@ -49,12 +49,12 @@ public class GMExporterTXT extends GMBaseMetricExporter {
 		}
 		
 		return METRIC_BEGIN_SEPARATOR + System.lineSeparator() 
-			+ formatKeyValue("name", metric.getName())
+			+ formatKeyValue("name", metric.getName()) + System.lineSeparator()
 			+ dumpMeasures
 			+ METRIC_END_SEPARATOR + System.lineSeparator();
 	}
 
 	private static final String formatKeyValue(Object key, Object value) {
-		return key + TXT_KEY_VALUE_SEP + StringUtils.quotate(value) + System.lineSeparator();
+		return key + TXT_KEY_VALUE_SEP + StringUtils.quotate(value);
 	}
 }

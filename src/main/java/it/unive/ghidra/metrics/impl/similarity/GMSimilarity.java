@@ -1,6 +1,7 @@
 package it.unive.ghidra.metrics.impl.similarity;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -19,6 +20,7 @@ import ghidra.util.exception.VersionException;
 import it.unive.ghidra.metrics.base.GMBaseMetric;
 import it.unive.ghidra.metrics.base.interfaces.GMMeasure;
 import it.unive.ghidra.metrics.util.GMTaskMonitor;
+import it.unive.ghidra.metrics.util.NumberUtils;
 import it.unive.ghidra.metrics.util.PathHelper;
 import it.unive.ghidra.metrics.util.ZipHelper.ZipException;
 
@@ -72,23 +74,29 @@ public class GMSimilarity extends GMBaseMetric<GMSimilarity, GMSimilarityControl
 		for (Path path: toCompute) {
 			// data for other programs
 			Program otherProgram = importNewProgram(path);
-			otherProgram.setTemporary(true);
-			
-			Path otherZipPath = doZip(getExecutablePath(otherProgram));
-			Long otherZipSize = Files.size(otherZipPath);
-			
-			Path concatPath = PathHelper.concatPaths(TEMP_DIR, zipPath, otherZipPath);
-			Path concatZipPath = doZip(concatPath);
-			Long concatZipSize = Files.size(concatZipPath);
-
-			Double ncd = (1.00 * concatZipSize - Math.min(zipSize, otherZipSize)) / (1.00 * Math.max(zipSize, otherZipSize));
-
-			GMSimilarityKey key = new GMSimilarityKey(thisProgramPath, path);
-			createMeasure(key, 1-ncd);
-			
-			Files.deleteIfExists(otherZipPath);
-			Files.deleteIfExists(concatPath);
-			Files.deleteIfExists(concatZipPath);
+			if (otherProgram != null) {
+				otherProgram.setTemporary(true);
+				
+				Path otherZipPath = doZip(getExecutablePath(otherProgram));
+				Long otherZipSize = Files.size(otherZipPath);
+				
+				Path concatPath = PathHelper.concatPaths(TEMP_DIR, zipPath, otherZipPath);
+				Path concatZipPath = doZip(concatPath);
+				Long concatZipSize = Files.size(concatZipPath);
+	
+				Double ncd = (1.00 * concatZipSize - Math.min(zipSize, otherZipSize)) / (1.00 * Math.max(zipSize, otherZipSize));
+				BigDecimal similarity = NumberUtils.sub(BigDecimal.ONE, NumberUtils.scale(new BigDecimal(ncd), 3));
+				if ( similarity.signum() == -1 ) {
+					similarity = similarity.negate();
+				}
+				
+				GMSimilarityKey key = new GMSimilarityKey(thisProgramPath, path);
+				createMeasure(key, similarity);
+				
+				Files.deleteIfExists(otherZipPath);
+				Files.deleteIfExists(concatPath);
+				Files.deleteIfExists(concatZipPath);
+			}
 		}
 		
 		Files.deleteIfExists(zipPath);

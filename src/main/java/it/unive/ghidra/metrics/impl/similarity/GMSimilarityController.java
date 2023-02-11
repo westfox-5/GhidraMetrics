@@ -9,6 +9,7 @@ import ghidra.program.model.listing.Program;
 import it.unive.ghidra.metrics.GhidraMetricsPlugin;
 import it.unive.ghidra.metrics.base.GMBaseMetricController;
 import it.unive.ghidra.metrics.base.interfaces.GMZipper;
+import it.unive.ghidra.metrics.impl.GhidraMetricsFactory;
 import it.unive.ghidra.metrics.util.ZipHelper.ZipException;
 
 public class GMSimilarityController extends GMBaseMetricController<GMSimilarity, GMSimilarityController, GMSimilarityWindow> {
@@ -25,7 +26,9 @@ public class GMSimilarityController extends GMBaseMetricController<GMSimilarity,
 	}
 	
 	@Override
-	protected void init() {	}	
+	protected void init() {	
+		zipper = GhidraMetricsFactory.getZipper(GhidraMetricsFactory.allZippers().iterator().next());
+	}	
 
 	public List<Path> getSelectedFiles() {
 		return selectedFiles;

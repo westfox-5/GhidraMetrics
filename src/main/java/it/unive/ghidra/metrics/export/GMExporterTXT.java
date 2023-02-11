@@ -50,7 +50,7 @@ public class GMExporterTXT extends GMBaseMetricExporter {
 		
 		return METRIC_BEGIN_SEPARATOR + System.lineSeparator() 
 			+ formatKeyValue("name", metric.getName()) + System.lineSeparator()
-			+ dumpMeasures
+			+ dumpMeasures + System.lineSeparator()
 			+ METRIC_END_SEPARATOR + System.lineSeparator();
 	}
 

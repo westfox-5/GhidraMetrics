@@ -2,6 +2,7 @@ package it.unive.ghidra.metrics.util;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.math.RoundingMode;
 
 public class NumberUtils {
 
@@ -73,6 +74,10 @@ public class NumberUtils {
 
 	public static boolean lt0(BigDecimal a) {
 		return !gte0(a);
+	}
+	
+	public static BigDecimal scale(BigDecimal a, int scale) {
+		return a.setScale(scale, RoundingMode.CEILING);
 	}
 
 }

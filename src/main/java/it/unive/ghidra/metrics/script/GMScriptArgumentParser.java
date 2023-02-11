@@ -3,7 +3,6 @@ package it.unive.ghidra.metrics.script;
 import java.util.HashMap;
 import java.util.Map;
 
-import it.unive.ghidra.metrics.impl.mccabe.GMMcCabe;
 import it.unive.ghidra.metrics.impl.similarity.GMSimilarity;
 
 public final class GMScriptArgumentParser {
@@ -39,12 +38,12 @@ public final class GMScriptArgumentParser {
 		final String metricName = GMScriptArgument.ARG_METRIC.getTypedValue(map.get(GMScriptArgument.ARG_METRIC));
 		
 		/// McCabe metric needs a function name
-		if (metricName.equalsIgnoreCase(GMMcCabe.NAME)) {
-			if (!map.containsKey(GMScriptArgument.ARG_FUNCTION)) {
-				throw new GMScriptException("Missing parameter '" + GMScriptArgument.ARG_SIMILARITY_INPUT + "' "
-						+ "required by metric '" + metricName + "'");
-			}
-		}
+//		if (metricName.equalsIgnoreCase(GMMcCabe.NAME)) {
+//			if (!map.containsKey(GMScriptArgument.ARG_FUNCTION)) {
+//				throw new GMScriptException("Missing parameter '" + GMScriptArgument.ARG_FUNCTION + "' "
+//						+ "required by metric '" + metricName + "'");
+//			}
+//		}
 
 		/// Similarity needs similarity-input and similarity-zipper
 		if (metricName.equalsIgnoreCase(GMSimilarity.NAME)) {
@@ -54,7 +53,7 @@ public final class GMScriptArgumentParser {
 			}
 			
 			if (!map.containsKey(GMScriptArgument.ARG_SIMILARITY_ZIPPER)) {
-				throw new GMScriptException("Missing parameter '" + GMScriptArgument.ARG_SIMILARITY_INPUT + "' "
+				throw new GMScriptException("Missing parameter '" + GMScriptArgument.ARG_SIMILARITY_ZIPPER + "' "
 						+ "required by metric '" + metricName + "'");
 			}
 		}

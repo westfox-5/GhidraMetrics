@@ -14,14 +14,15 @@ import ghidra.program.model.listing.Function;
 import ghidra.program.model.listing.FunctionIterator;
 import ghidra.program.model.listing.Program;
 import ghidra.util.Msg;
-import it.unive.ghidra.metrics.base.interfaces.GMMetricExporter;
 import it.unive.ghidra.metrics.base.interfaces.GMMetricControllerHeadless;
+import it.unive.ghidra.metrics.base.interfaces.GMMetricExporter;
 import it.unive.ghidra.metrics.base.interfaces.GMZipper;
 import it.unive.ghidra.metrics.impl.GhidraMetricsFactory;
 import it.unive.ghidra.metrics.impl.similarity.GMSimilarityController;
 import it.unive.ghidra.metrics.script.GMScriptArgument;
 import it.unive.ghidra.metrics.script.GMScriptArgumentParser;
 import it.unive.ghidra.metrics.script.GMScriptException;
+import it.unive.ghidra.metrics.util.StringUtils;
 
 public class GhidraMetricsScript extends GhidraScript {
 
@@ -85,8 +86,9 @@ public class GhidraMetricsScript extends GhidraScript {
 				}
 
 				Path exportPath = Path.of(exportDir.toAbsolutePath().toString(), 
-						controller.getMetric().getName() + "_"
-						+ getProgramFile().getName() + "." + fileFormat.getExtension());
+						StringUtils.title(controller.getMetric().getName()) 
+						+ "_" + getProgramFile().getName() 
+						+ "." + fileFormat.getExtension());
 
 				GMMetricExporter exporter = controller.makeExporter(fileFormat).toFile(exportPath).build();
 				if (exporter == null) {

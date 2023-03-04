@@ -29,6 +29,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import it.unive.ghidra.metrics.impl.GhidraMetricsFactory;
+import it.unive.ghidra.metrics.util.StringUtils;
 
 public class GMScriptRunner {
 
@@ -250,7 +251,7 @@ public class GMScriptRunner {
 			}
 
 			if (exitValue == 0) {
-				System.out.println("> OK");
+				System.out.println("> OK - output saved to: " + getOutputFullPath(pb.environment().get("EXE")));
 				errFile.deleteOnExit();
 			} else {
 				System.out.println("> Checking errors...");
@@ -281,6 +282,16 @@ public class GMScriptRunner {
 		}
 
 		return ok;
+	}
+
+	private String getOutputFullPath(String executable) {
+		Path executablePath = Path.of(executable);
+		
+		String outDir = StringUtils.fillIfEmpty(scriptArgs.get(GMScriptArgument.ARG_EXPORT_DIR), outDir = executablePath.getParent().toAbsolutePath().toString());
+		String outFile = StringUtils.title(scriptArgs.get(GMScriptArgument.ARG_METRIC)) + "_" + executablePath.getFileName();
+		String ext = GhidraMetricsFactory.getFileFormat(scriptArgs.get(GMScriptArgument.ARG_EXPORT)).getExtension();
+		
+		return outDir + File.separator + outFile + "." + ext;
 	}
 
 	private ProcessBuilder createProcessBuilder(Path executable, File logFile) throws IOException {

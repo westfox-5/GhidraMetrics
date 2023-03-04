@@ -37,4 +37,12 @@ public class StringUtils {
 		return "get" + name.substring(0, 1).toUpperCase() + name.substring(1).replace(" ", "");
 	}
 
+	public static String title(String string) {
+		return string.substring(0, 1).toUpperCase() + string.substring(1).toLowerCase();
+	}
+
+	public static String fillIfEmpty(String s1, String s2) {
+		return isEmpty(s1) ? s2: s1;
+	}
+
 }

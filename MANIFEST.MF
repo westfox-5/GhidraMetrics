@@ -1,0 +1,4 @@
+Manifest-Version: 1.0
+Created-By: 17.0.5 (Eclipse Adoptium)
+Main-Class: it.unive.ghidra.metrics.script.GMScriptRunner
+CLass-Path: build/libs/GhidraMetrics.jar lib/commons-cli-1.5.0.jar
